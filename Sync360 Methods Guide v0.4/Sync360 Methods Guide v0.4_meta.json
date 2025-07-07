@@ -1,0 +1,2778 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          181.5,
+          602.12109375
+        ],
+        [
+          430.013671875,
+          602.12109375
+        ],
+        [
+          430.013671875,
+          626.09765625
+        ],
+        [
+          181.5,
+          626.09765625
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          51.0,
+          42.75
+        ],
+        [
+          273.75,
+          42.75
+        ],
+        [
+          273.75,
+          66.75
+        ],
+        [
+          51.0,
+          66.75
+        ]
+      ]
+    },
+    {
+      "title": "Contributors",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          51.0,
+          91.5
+        ],
+        [
+          128.197265625,
+          91.5
+        ],
+        [
+          128.197265625,
+          106.4443359375
+        ],
+        [
+          51.0,
+          106.4443359375
+        ]
+      ]
+    },
+    {
+      "title": "Revision History",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          51.0,
+          186.0
+        ],
+        [
+          149.712890625,
+          186.0
+        ],
+        [
+          149.712890625,
+          200.3203125
+        ],
+        [
+          51.0,
+          200.3203125
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          51.0,
+          42.75
+        ],
+        [
+          273.75,
+          42.75
+        ],
+        [
+          273.75,
+          66.75
+        ],
+        [
+          51.0,
+          66.75
+        ]
+      ]
+    },
+    {
+      "title": "Table of Contents",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          51.0,
+          93.0
+        ],
+        [
+          196.5,
+          93.0
+        ],
+        [
+          196.5,
+          115.2421875
+        ],
+        [
+          51.0,
+          115.2421875
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          51.0,
+          43.5
+        ],
+        [
+          273.0,
+          43.5
+        ],
+        [
+          273.0,
+          66.75
+        ],
+        [
+          51.0,
+          66.75
+        ]
+      ]
+    },
+    {
+      "title": "SYNC360 METHODS WORKING WITH CONNECTORS",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          52.5,
+          94.40771484375
+        ],
+        [
+          474.240234375,
+          94.40771484375
+        ],
+        [
+          474.240234375,
+          115.62890625
+        ],
+        [
+          52.5,
+          115.62890625
+        ]
+      ]
+    },
+    {
+      "title": "@[connectionname].[methodname]([parameters,\u2026,])",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          53.25,
+          166.5791015625
+        ],
+        [
+          332.296875,
+          166.5791015625
+        ],
+        [
+          332.296875,
+          180.8876953125
+        ],
+        [
+          53.25,
+          180.8876953125
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          52.07080078125,
+          44.25
+        ],
+        [
+          273.0,
+          44.25
+        ],
+        [
+          273.0,
+          66.75
+        ],
+        [
+          52.07080078125,
+          66.75
+        ]
+      ]
+    },
+    {
+      "title": "SYNC360 METHODS WORKING WITH MICROSOFT DYNAMICS \nCRM CONNECTOR",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          52.5,
+          93.5859375
+        ],
+        [
+          551.63671875,
+          93.5859375
+        ],
+        [
+          551.63671875,
+          138.251953125
+        ],
+        [
+          52.5,
+          138.251953125
+        ]
+      ]
+    },
+    {
+      "title": "AssociateEntities",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          52.5,
+          226.6171875
+        ],
+        [
+          173.3203125,
+          226.6171875
+        ],
+        [
+          173.3203125,
+          244.79296875
+        ],
+        [
+          52.5,
+          244.79296875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          52.5,
+          413.7890625
+        ],
+        [
+          103.693359375,
+          413.7890625
+        ],
+        [
+          103.693359375,
+          426.1640625
+        ],
+        [
+          52.5,
+          426.1640625
+        ]
+      ]
+    },
+    {
+      "title": "DisassociateEntities",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          52.96728515625,
+          609.08203125
+        ],
+        [
+          192.146484375,
+          609.08203125
+        ],
+        [
+          192.146484375,
+          627.64453125
+        ],
+        [
+          52.96728515625,
+          627.64453125
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          52.36962890625,
+          46.599609375
+        ],
+        [
+          272.232421875,
+          46.599609375
+        ],
+        [
+          272.232421875,
+          64.96875
+        ],
+        [
+          52.36962890625,
+          64.96875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          52.5,
+          181.564453125
+        ],
+        [
+          103.76806640625,
+          181.564453125
+        ],
+        [
+          103.76806640625,
+          194.51953125
+        ],
+        [
+          52.5,
+          194.51953125
+        ]
+      ]
+    },
+    {
+      "title": "AssociateUserRole",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          52.5,
+          345.146484375
+        ],
+        [
+          184.67578125,
+          345.146484375
+        ],
+        [
+          184.67578125,
+          363.322265625
+        ],
+        [
+          52.5,
+          363.322265625
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          52.5,
+          489.19921875
+        ],
+        [
+          102.0,
+          489.19921875
+        ],
+        [
+          102.0,
+          501.57421875
+        ],
+        [
+          52.5,
+          501.57421875
+        ]
+      ]
+    },
+    {
+      "title": "DisassociateUserRole",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          53.19140625,
+          583.55859375
+        ],
+        [
+          204.3984375,
+          582.01171875
+        ],
+        [
+          204.3984375,
+          599.80078125
+        ],
+        [
+          53.19140625,
+          601.34765625
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          52.5,
+          46.1162109375
+        ],
+        [
+          271.5,
+          46.1162109375
+        ],
+        [
+          271.5,
+          64.8720703125
+        ],
+        [
+          52.5,
+          64.8720703125
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          52.5,
+          107.9912109375
+        ],
+        [
+          102.0,
+          107.9912109375
+        ],
+        [
+          102.0,
+          120.7529296875
+        ],
+        [
+          52.5,
+          120.7529296875
+        ]
+      ]
+    },
+    {
+      "title": "AddMembersTeam",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          52.5,
+          202.447265625
+        ],
+        [
+          189.9052734375,
+          202.447265625
+        ],
+        [
+          189.9052734375,
+          220.236328125
+        ],
+        [
+          52.5,
+          220.236328125
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          52.5,
+          315.94921875
+        ],
+        [
+          102.0,
+          315.94921875
+        ],
+        [
+          102.0,
+          328.32421875
+        ],
+        [
+          52.5,
+          328.32421875
+        ]
+      ]
+    },
+    {
+      "title": "RemoveMembersTeam",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          53.11669921875,
+          411.08203125
+        ],
+        [
+          217.845703125,
+          411.08203125
+        ],
+        [
+          217.845703125,
+          428.87109375
+        ],
+        [
+          53.11669921875,
+          428.87109375
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          52.5,
+          524.77734375
+        ],
+        [
+          102.57275390625,
+          524.77734375
+        ],
+        [
+          102.57275390625,
+          537.15234375
+        ],
+        [
+          52.5,
+          537.15234375
+        ]
+      ]
+    },
+    {
+      "title": "RunWorkflow",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          52.5,
+          618.75
+        ],
+        [
+          152.2529296875,
+          617.9765625
+        ],
+        [
+          151.0576171875,
+          635.765625
+        ],
+        [
+          52.108154296875,
+          637.3125
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          51.92138671875,
+          108.75
+        ],
+        [
+          102.0,
+          108.75
+        ],
+        [
+          102.0,
+          122.1064453125
+        ],
+        [
+          51.92138671875,
+          122.1064453125
+        ]
+      ]
+    },
+    {
+      "title": "GetOptionSetValueLabel",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          51.8466796875,
+          182.8212890625
+        ],
+        [
+          227.25,
+          182.8212890625
+        ],
+        [
+          227.25,
+          213.75
+        ],
+        [
+          51.8466796875,
+          213.75
+        ]
+      ]
+    },
+    {
+      "title": "Example:\n<set>",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          52.5,
+          325.810546875
+        ],
+        [
+          104.81396484375,
+          325.810546875
+        ],
+        [
+          104.81396484375,
+          345.75
+        ],
+        [
+          52.5,
+          345.75
+        ]
+      ]
+    },
+    {
+      "title": "GetOptionSetValueCode",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          52.5,
+          412.62890625
+        ],
+        [
+          229.0517578125,
+          412.62890625
+        ],
+        [
+          229.0517578125,
+          431.19140625
+        ],
+        [
+          52.5,
+          431.19140625
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          52.5,
+          541.40625
+        ],
+        [
+          102.42333984375,
+          541.40625
+        ],
+        [
+          102.42333984375,
+          554.5546875
+        ],
+        [
+          52.5,
+          554.5546875
+        ]
+      ]
+    },
+    {
+      "title": "GetEntityMetadata",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          52.5,
+          629.578125
+        ],
+        [
+          188.26171875,
+          629.578125
+        ],
+        [
+          188.26171875,
+          648.140625
+        ],
+        [
+          52.5,
+          648.140625
+        ]
+      ]
+    },
+    {
+      "title": "<set>",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          53.19140625,
+          147.33984375
+        ],
+        [
+          95.4755859375,
+          147.33984375
+        ],
+        [
+          95.4755859375,
+          159.521484375
+        ],
+        [
+          53.19140625,
+          159.521484375
+        ]
+      ]
+    },
+    {
+      "title": "GetAllEntitiesMetadata",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          52.5,
+          225.263671875
+        ],
+        [
+          216.7998046875,
+          225.263671875
+        ],
+        [
+          216.7998046875,
+          243.826171875
+        ],
+        [
+          52.5,
+          243.826171875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          52.5,
+          355.201171875
+        ],
+        [
+          102.0,
+          355.201171875
+        ],
+        [
+          102.0,
+          368.349609375
+        ],
+        [
+          52.5,
+          368.349609375
+        ]
+      ]
+    },
+    {
+      "title": "GetAllEntitiesList",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          52.5,
+          442.01953125
+        ],
+        [
+          173.3203125,
+          442.01953125
+        ],
+        [
+          173.3203125,
+          460.58203125
+        ],
+        [
+          52.5,
+          460.58203125
+        ]
+      ]
+    },
+    {
+      "title": "AddListMember",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          52.5,
+          643.88671875
+        ],
+        [
+          168.837890625,
+          643.88671875
+        ],
+        [
+          168.837890625,
+          662.44921875
+        ],
+        [
+          52.5,
+          662.44921875
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          52.5,
+          46.5
+        ],
+        [
+          272.232421875,
+          46.5
+        ],
+        [
+          272.232421875,
+          65.2587890625
+        ],
+        [
+          52.5,
+          65.2587890625
+        ]
+      ]
+    },
+    {
+      "title": "RemoveListMember",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          52.5,
+          225.45703125
+        ],
+        [
+          196.330078125,
+          225.45703125
+        ],
+        [
+          196.330078125,
+          243.6328125
+        ],
+        [
+          52.5,
+          243.6328125
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          52.5,
+          339.732421875
+        ],
+        [
+          102.0,
+          339.732421875
+        ],
+        [
+          102.0,
+          354.041015625
+        ],
+        [
+          52.5,
+          354.041015625
+        ]
+      ]
+    },
+    {
+      "title": "AddItemCampaignActivity",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          51.75,
+          427.7109375
+        ],
+        [
+          240.4072265625,
+          427.7109375
+        ],
+        [
+          240.4072265625,
+          446.2734375
+        ],
+        [
+          51.75,
+          446.2734375
+        ]
+      ]
+    },
+    {
+      "title": "AddItemCampaign",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          51.75,
+          644.66015625
+        ],
+        [
+          188.4111328125,
+          644.66015625
+        ],
+        [
+          188.4111328125,
+          663.22265625
+        ],
+        [
+          51.75,
+          663.22265625
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          52.5,
+          122.203125
+        ],
+        [
+          102.0,
+          122.203125
+        ],
+        [
+          102.0,
+          134.96484375
+        ],
+        [
+          52.5,
+          134.96484375
+        ]
+      ]
+    },
+    {
+      "title": "<set>",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          52.892578125,
+          134.8681640625
+        ],
+        [
+          89.05078125,
+          134.8681640625
+        ],
+        [
+          89.05078125,
+          146.8564453125
+        ],
+        [
+          52.892578125,
+          146.8564453125
+        ]
+      ]
+    },
+    {
+      "title": "AddPrivilegesRole",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          51.75,
+          209.98828125
+        ],
+        [
+          183.181640625,
+          209.98828125
+        ],
+        [
+          183.181640625,
+          228.55078125
+        ],
+        [
+          51.75,
+          228.55078125
+        ]
+      ]
+    },
+    {
+      "title": "AddSubstituteProduct",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          51.75,
+          413.015625
+        ],
+        [
+          212.16796875,
+          413.015625
+        ],
+        [
+          212.16796875,
+          430.8046875
+        ],
+        [
+          51.75,
+          430.8046875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          52.5,
+          527.87109375
+        ],
+        [
+          102.0,
+          527.87109375
+        ],
+        [
+          102.0,
+          540.24609375
+        ],
+        [
+          52.5,
+          540.24609375
+        ]
+      ]
+    },
+    {
+      "title": "DeleteById",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          52.5,
+          614.8828125
+        ],
+        [
+          131.783203125,
+          614.8828125
+        ],
+        [
+          131.783203125,
+          634.21875
+        ],
+        [
+          52.5,
+          634.21875
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          53.11669921875,
+          46.5
+        ],
+        [
+          271.634765625,
+          46.5
+        ],
+        [
+          271.634765625,
+          65.35546875
+        ],
+        [
+          53.11669921875,
+          65.35546875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          52.5,
+          93.2958984375
+        ],
+        [
+          102.0,
+          93.2958984375
+        ],
+        [
+          102.0,
+          105.8642578125
+        ],
+        [
+          52.5,
+          105.8642578125
+        ]
+      ]
+    },
+    {
+      "title": "SelectById",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          52.5,
+          181.0810546875
+        ],
+        [
+          127.599609375,
+          181.0810546875
+        ],
+        [
+          127.599609375,
+          199.740234375
+        ],
+        [
+          52.5,
+          199.740234375
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          52.5,
+          310.53515625
+        ],
+        [
+          102.0,
+          310.53515625
+        ],
+        [
+          102.0,
+          323.296875
+        ],
+        [
+          52.5,
+          323.296875
+        ]
+      ]
+    },
+    {
+      "title": "Merge",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          52.5,
+          399.09375
+        ],
+        [
+          102.3486328125,
+          399.09375
+        ],
+        [
+          102.3486328125,
+          416.8828125
+        ],
+        [
+          52.5,
+          416.8828125
+        ]
+      ]
+    },
+    {
+      "title": "RetrieveAuditDetailsRequest",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          52.5,
+          651.234375
+        ],
+        [
+          257.4404296875,
+          651.234375
+        ],
+        [
+          257.4404296875,
+          669.796875
+        ],
+        [
+          52.5,
+          669.796875
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          52.59375,
+          46.40625
+        ],
+        [
+          271.93359375,
+          46.40625
+        ],
+        [
+          271.93359375,
+          65.35546875
+        ],
+        [
+          52.59375,
+          65.35546875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          52.5,
+          123.75
+        ],
+        [
+          103.095703125,
+          123.75
+        ],
+        [
+          103.095703125,
+          138.7353515625
+        ],
+        [
+          52.5,
+          138.7353515625
+        ]
+      ]
+    },
+    {
+      "title": "RetrieveRecordChangeHistoryRequest",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          52.294921875,
+          209.408203125
+        ],
+        [
+          323.630859375,
+          209.408203125
+        ],
+        [
+          323.630859375,
+          228.744140625
+        ],
+        [
+          52.294921875,
+          228.744140625
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          52.5,
+          325.6171875
+        ],
+        [
+          103.5439453125,
+          325.6171875
+        ],
+        [
+          103.5439453125,
+          339.92578125
+        ],
+        [
+          52.5,
+          339.92578125
+        ]
+      ]
+    },
+    {
+      "title": "SelectActivityParties",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          52.5,
+          413.015625
+        ],
+        [
+          195.8818359375,
+          413.015625
+        ],
+        [
+          195.8818359375,
+          431.578125
+        ],
+        [
+          52.5,
+          431.578125
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          52.5,
+          556.875
+        ],
+        [
+          102.0,
+          556.875
+        ],
+        [
+          102.0,
+          569.25
+        ],
+        [
+          52.5,
+          569.25
+        ]
+      ]
+    },
+    {
+      "title": "GetEntityNameByObjectTypeCode",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          52.5,
+          645.43359375
+        ],
+        [
+          297.931640625,
+          645.43359375
+        ],
+        [
+          297.931640625,
+          663.99609375
+        ],
+        [
+          52.5,
+          663.99609375
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          52.59375,
+          45.75
+        ],
+        [
+          271.634765625,
+          46.333740234375
+        ],
+        [
+          271.634765625,
+          65.25
+        ],
+        [
+          52.59375,
+          65.01708984375
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          52.5,
+          138.0
+        ],
+        [
+          102.0,
+          138.0
+        ],
+        [
+          102.0,
+          152.173828125
+        ],
+        [
+          52.5,
+          152.173828125
+        ]
+      ]
+    },
+    {
+      "title": "GetObjectTypeCodeByEntityName",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          52.5,
+          223.91015625
+        ],
+        [
+          295.83984375,
+          223.91015625
+        ],
+        [
+          295.83984375,
+          244.01953125
+        ],
+        [
+          52.5,
+          244.01953125
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          52.5,
+          340.119140625
+        ],
+        [
+          102.0,
+          340.119140625
+        ],
+        [
+          102.0,
+          353.267578125
+        ],
+        [
+          52.5,
+          353.267578125
+        ]
+      ]
+    },
+    {
+      "title": "ExecuteSendEmailRequest",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          52.5,
+          427.32421875
+        ],
+        [
+          239.958984375,
+          427.32421875
+        ],
+        [
+          239.958984375,
+          445.88671875
+        ],
+        [
+          52.5,
+          445.88671875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          52.5,
+          541.79296875
+        ],
+        [
+          102.6474609375,
+          541.79296875
+        ],
+        [
+          102.6474609375,
+          554.16796875
+        ],
+        [
+          52.5,
+          554.16796875
+        ]
+      ]
+    },
+    {
+      "title": "DeliverPromoteEmailRequest",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          52.5,
+          630.3515625
+        ],
+        [
+          261.7734375,
+          630.3515625
+        ],
+        [
+          261.7734375,
+          648.140625
+        ],
+        [
+          52.5,
+          648.140625
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 17,
+      "polygon": [
+        [
+          52.36962890625,
+          46.188720703125
+        ],
+        [
+          271.634765625,
+          46.188720703125
+        ],
+        [
+          271.634765625,
+          65.21044921875
+        ],
+        [
+          52.36962890625,
+          65.21044921875
+        ]
+      ]
+    },
+    {
+      "title": "Example:",
+      "heading_level": null,
+      "page_id": 17,
+      "polygon": [
+        [
+          52.5,
+          107.9912109375
+        ],
+        [
+          101.25,
+          107.9912109375
+        ],
+        [
+          101.25,
+          120.7529296875
+        ],
+        [
+          52.5,
+          120.7529296875
+        ]
+      ]
+    },
+    {
+      "title": "RunAction",
+      "heading_level": null,
+      "page_id": 17,
+      "polygon": [
+        [
+          52.5,
+          201.8671875
+        ],
+        [
+          128.794921875,
+          201.8671875
+        ],
+        [
+          128.794921875,
+          220.04296875
+        ],
+        [
+          52.5,
+          220.04296875
+        ]
+      ]
+    },
+    {
+      "title": "Examples:",
+      "heading_level": null,
+      "page_id": 17,
+      "polygon": [
+        [
+          52.5,
+          390.005859375
+        ],
+        [
+          106.60693359375,
+          390.005859375
+        ],
+        [
+          106.60693359375,
+          402.57421875
+        ],
+        [
+          52.5,
+          402.57421875
+        ]
+      ]
+    },
+    {
+      "title": "ExecuteAction",
+      "heading_level": null,
+      "page_id": 17,
+      "polygon": [
+        [
+          52.855224609375,
+          535.60546875
+        ],
+        [
+          154.1953125,
+          535.60546875
+        ],
+        [
+          154.1953125,
+          553.39453125
+        ],
+        [
+          52.855224609375,
+          553.39453125
+        ]
+      ]
+    },
+    {
+      "title": "Sync360 Script Methods Guide",
+      "heading_level": null,
+      "page_id": 18,
+      "polygon": [
+        [
+          51.75,
+          44.25
+        ],
+        [
+          272.25,
+          44.25
+        ],
+        [
+          272.25,
+          66.75
+        ],
+        [
+          51.75,
+          66.75
+        ]
+      ]
+    },
+    {
+      "title": "APPENDIX",
+      "heading_level": null,
+      "page_id": 19,
+      "polygon": [
+        [
+          51.75,
+          93.6826171875
+        ],
+        [
+          138.0,
+          93.6826171875
+        ],
+        [
+          138.0,
+          114.5654296875
+        ],
+        [
+          51.75,
+          114.5654296875
+        ]
+      ]
+    },
+    {
+      "title": "Additional Notes",
+      "heading_level": null,
+      "page_id": 19,
+      "polygon": [
+        [
+          51.75,
+          124.13671875
+        ],
+        [
+          174.0673828125,
+          124.13671875
+        ],
+        [
+          174.0673828125,
+          142.505859375
+        ],
+        [
+          51.75,
+          142.505859375
+        ]
+      ]
+    },
+    {
+      "title": "Note 1",
+      "heading_level": null,
+      "page_id": 19,
+      "polygon": [
+        [
+          52.5,
+          150.9169921875
+        ],
+        [
+          97.119140625,
+          150.9169921875
+        ],
+        [
+          97.119140625,
+          166.1923828125
+        ],
+        [
+          52.5,
+          166.1923828125
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          13
+        ],
+        [
+          "Line",
+          8
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "SectionHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          65
+        ],
+        [
+          "TableCell",
+          54
+        ],
+        [
+          "Line",
+          19
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Table",
+          2
+        ],
+        [
+          "Picture",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 2,
+        "llm_error_count": 0,
+        "llm_tokens_used": 2166,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "TableCell",
+          128
+        ],
+        [
+          "Line",
+          7
+        ],
+        [
+          "Span",
+          6
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "TableOfContents",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 2,
+        "llm_error_count": 0,
+        "llm_tokens_used": 3814,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "TableCell",
+          12
+        ],
+        [
+          "Line",
+          10
+        ],
+        [
+          "Span",
+          8
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "TableOfContents",
+          1
+        ],
+        [
+          "Text",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 2,
+        "llm_error_count": 0,
+        "llm_tokens_used": 2434,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          16
+        ],
+        [
+          "Line",
+          6
+        ],
+        [
+          "Picture",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          183
+        ],
+        [
+          "Line",
+          40
+        ],
+        [
+          "ListItem",
+          17
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "Code",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "ListGroup",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "Reference",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          38
+        ],
+        [
+          "Line",
+          11
+        ],
+        [
+          "ListItem",
+          6
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Text",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          122
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          11
+        ],
+        [
+          "ListItem",
+          7
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Code",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          140
+        ],
+        [
+          "Line",
+          38
+        ],
+        [
+          "ListItem",
+          11
+        ],
+        [
+          "Text",
+          10
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "Code",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "ListGroup",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "Reference",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          120
+        ],
+        [
+          "Line",
+          36
+        ],
+        [
+          "Text",
+          10
+        ],
+        [
+          "ListItem",
+          8
+        ],
+        [
+          "SectionHeader",
+          7
+        ],
+        [
+          "Code",
+          7
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "ListGroup",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          131
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "ListItem",
+          7
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "Code",
+          5
+        ],
+        [
+          "Picture",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 11,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          107
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          21
+        ],
+        [
+          "ListItem",
+          5
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "Code",
+          4
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "PageHeader",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 12,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          137
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "ListItem",
+          8
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "Code",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 13,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          134
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "ListItem",
+          9
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "Code",
+          4
+        ],
+        [
+          "ListGroup",
+          4
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 14,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          124
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "ListItem",
+          9
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "Code",
+          5
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 15,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          117
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          17
+        ],
+        [
+          "ListItem",
+          8
+        ],
+        [
+          "SectionHeader",
+          7
+        ],
+        [
+          "Code",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 16,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          117
+        ],
+        [
+          "Line",
+          37
+        ],
+        [
+          "Text",
+          18
+        ],
+        [
+          "SectionHeader",
+          7
+        ],
+        [
+          "Code",
+          6
+        ],
+        [
+          "ListItem",
+          4
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 17,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          131
+        ],
+        [
+          "Line",
+          38
+        ],
+        [
+          "ListItem",
+          13
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "Code",
+          6
+        ],
+        [
+          "SectionHeader",
+          5
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "ListGroup",
+          3
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "Reference",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 18,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          45
+        ],
+        [
+          "Line",
+          13
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "SectionHeader",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ],
+        [
+          "Code",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 19,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          34
+        ],
+        [
+          "Line",
+          13
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "SectionHeader",
+          3
+        ],
+        [
+          "PageFooter",
+          3
+        ],
+        [
+          "Reference",
+          3
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "Picture",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data\\Sync360 Methods Guide v0.4"
+}
