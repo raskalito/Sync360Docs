@@ -23,7 +23,7 @@ Values of attributes can be a template string with expression in curly brackets 
 
 ```
 <set var="firstname">Joe</set> <!-- a value without expressions. -->
-\langleif condition="contacts.Count eq \theta"> \langle!-- an expression in the attribute value. -->
+<if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. -->
 <set var="calculatedvalue">{294+322}</set> <!-- an expression in the element content. -->
 ```
 
@@ -74,32 +74,23 @@ Variables in Sync360 can be defined with one of types listed in **Table 1**.
 
 | <b>Type</b> | <b>Description</b>                                                              |
 |-------------|---------------------------------------------------------------------------------|
-| char        | The char keyword is used to declare a Unicode character (Unicode 16-bit         |
-|             | character).                                                                     |
+| char        | The char keyword is used to declare a Unicode character (Unicode 16-bit character). |
 | char[]      | Array of char variables.                                                        |
 | string      | The string type represents a sequence of zero or more Unicode characters.       |
 | string[]    | Array of string variables.                                                      |
-| byte        | The byte keyword is used to declare variables in range from $0$ to 255          |
-|             | (Unsigned 8-bit integer).                                                       |
+| byte        | The byte keyword is used to declare variables in range from $0$ to 255 (Unsigned 8-bit integer).          |
 | byte[]      | Array of byte variables.                                                        |
-| int         | The int keyword is used to declare variables in range from -2,147,483,648 to    |
-|             | 2,147,483,647 (Signed 32-bit integer).                                          |
+| int         | The int keyword is used to declare variables in range from -2,147,483,648 to 2,147,483,647 (Signed 32-bit integer).   |
 | int[]       | Array of int type variables.                                                    |
-|             | The long keyword is used to declare variables in range from -                   |
-| long        | 9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 (Signed 64-bit           |
-|             | integer).                                                                       |
+| long        | The long keyword is used to declare variables in range from - 9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 (Signed 64-bit integer).   |
 | long[]      | Array of long type variables.                                                   |
-| double      | The double keyword signifies a simple type that stores 64-bit floating-point    |
-|             | values.                                                                         |
+| double      | The double keyword signifies a simple type that stores 64-bit floating-point  values.    |
 | double[]    | Array of double type variables.                                                 |
-|             | The bool keyword is used to declare variables to store the Boolean values, true |
-| bool        | and false.                                                                      |
+| bool        | The bool keyword is used to declare variables to store the Boolean values, true and false. |
 | bool[]      | Array of bool variables.                                                        |
-| date        | The date type presents an instant in time, typically expressed as a date and    |
-|             | time of day.                                                                    |
+| date        | The date type presents an instant in time, typically expressed as a date and   time of day.  |
 | date[]      | Array of date type variables.                                                   |
-| List        | Represents a strongly typed list of objects that can be accessed by index.      |
-|             | <b>Standard .NET List</b>                                                       |
+| List        | Represents a strongly typed list of objects that can be accessed by index. Standard .NET List   |
 | Dictionary  | Represents a collection of keys and values. Standard .NET Dictionary            |
 | Object      | Generic Object, its properties can be defined in script.                        |
 
@@ -119,89 +110,44 @@ There are three predefined constants in Sync360 that listed in **Table 2**.
 
 # **OPERATORS**
 
-| <b>Type</b>                                                                                     | <b>Description</b>                                                                   |
-|-------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| $" +"$                                                                                          | Addition. This operator adds the second operand to the first operand.                |
-|                                                                                                 | Supported variable types: int, long, double, string.                                 |
-|                                                                                                 | Subtraction. This operator subtracts the second operand from the first               |
-| $\Pi \equiv \Pi$                                                                                | operand.                                                                             |
-|                                                                                                 | Supported variable types: int, long, double.                                         |
-|                                                                                                 | Multiplication. This operator multiplies the first operand by the second             |
-| $\mathbf{u}\star\mathbf{u}$                                                                     | operand.                                                                             |
-|                                                                                                 | Supported variable types: int, long, double.                                         |
-| $\mathbf{u}/n$                                                                                  | Division. This operator divides the first operand by the second operand.             |
-|                                                                                                 | Supported variable types: int, long, double.                                         |
-| $"=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "=" "$                 | <b>Equal.</b> This operator returns true if the first operand is equal to the second |
-| "eq"                                                                                            | operand.                                                                             |
-|                                                                                                 | Supported variable types: int, long, double, string, bool, date and object.          |
-| $\overline{u}$ $\overline{u}$ = $\overline{u}$ , $\overline{u}$ $\overline{u}$ $\overline{u}$ , | Not equal. This operator returns true if the first operand is not equal to the       |
-| "ne"                                                                                            | second operand.                                                                      |
-|                                                                                                 | <b>Supported variable types:</b> int, long, double, string, bool, date and object.   |
-|                                                                                                 | Greater than. This operator returns true if the first operand is greater than        |
-| $">'$ , "gt"                                                                                    | the second operand.                                                                  |
-|                                                                                                 | <b>Supported variable types:</b> int, long, double, string and date.                 |
-|                                                                                                 | Less than. This operator returns true if the first operand is less than the          |
-| $"$ <", "lt"                                                                                    | second operand.                                                                      |
-|                                                                                                 | <b>Supported variable types:</b> int, long, double, string and date.                 |
-|                                                                                                 | Greater or equal. This operator returns true if the first operand is greater         |
-| $">="$ , "ge"                                                                                   | than or equal to the second operand.                                                 |
-|                                                                                                 | Supported variable types: int, long, double, string and date.                        |
-|                                                                                                 | Less or equal. This operator returns true if the first operand is less than or       |
-| $"<=", "le"$                                                                                    | equal to the second operand.                                                         |
-|                                                                                                 | Supported variable types: int, long, double, string and date.                        |
-| "&&", "and"                                                                                     | And. This operator performs a logical-AND of its bool operands.                      |
-|                                                                                                 | Supported variable types: bool.                                                      |
-| $"$   ", "or"                                                                                   | Or. This operator performs a logical-OR of its bool operands.                        |
-|                                                                                                 | Supported variable types: bool.                                                      |
-
-Table 3. Operators
-
-| $"!", "not"$ | Not. This operator is a unary operator that negates its operand. It returns true only if its operand is false.                                       |                                                                                                                             |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-|              | Supported variable types: bool.                                                                                                                      |                                                                                                                             |
-|              | "[]", ""."                                                                                                                                           | Index. This operator returns an array element at the specified index or a dictionary element with the specified string key. |
-| 22           |                                                                                                                                                      | Ternary Operation. This operator returns the first calculated value in chain of expressions.                                |
-|              | <b>Example:</b> If variable is not null displays variable value, else display text 'MyVar was not set'.<br>{Globals['MyVar'] ?? 'MyVar was not set'} |                                                                                                                             |
+| <b>Type</b>                  | <b>Description</b>                                                                   |
+|------------------------------|--------------------------------------------------------------------------------------|
+| $" +"$                       | <b>Addition</b>. This operator adds the second operand to the first operand.<br/><b>Supported variable types:</b> int, long, double, string.|
+| $"-"$                        | <b>Subtraction</b>. This operator subtracts the second operand from the first operand.<br/><b>Supported variable types:</b>  int, long, double.   |
+| $"*"$                        | <b> Multiplication</b>. This operator multiplies the first operand by the second operand.<br/><b>Supported variable types:</b>  int, long, double.    |
+| $"/"$                        | <b>Division</b>. This operator divides the first operand by the second operand.<br/><b>Supported variable types:</b> int, long, double.  |
+| $"=", "=="$, "eq"            | <b>Equal.</b> This operator returns true if the first operand is equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string, bool, date and object.  |
+| $"!=", "<>"$, "ne"           | <b>Not equal.</b> This operator returns true if the first operand is not equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string, bool, date and object.  |
+| $">"$ , "gt"                 | <b>Greater than.</b> This operator returns true if the first operand is greater than the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date. |
+| $"<"$, "lt"                  | <b>Less than.</b> This operator returns true if the first operand is less than the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date.  |
+| $">="$ , "ge"                | <b>Greater or equal.</b> This operator returns true if the first operand is greater than or equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date.    |
+| $"<="$, "le"                 | <b>Less or equal.</b> This operator returns true if the first operand is less than or equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date.   |
+| "&&", "and"                  | <b>And.</b> This operator performs a logical-AND of its bool operands.<br/><b>Supported variable types:</b> bool.   |
+| $"\|\|"$, "or"               | <b>Or.</b> This operator performs a logical-OR of its bool operands.<br/><b>Supported variable types:</b> bool. |
+| $"!"$, "not"                 | <b>Not.</b> This operator is a unary operator that negates its operand. It returns true only if its operand is false.<br/><b>Supported variable types:<b/> bool.   |              
+| $"[]", "."$                  | <b>Index.</b> This operator returns an array element at the specified index or a dictionary element with the specified string key. |
+| $"??"$                       | <b>Ternary Operation.</b> This operator returns the first calculated value in chain of expressions. <br><b>Example:</b> If variable is not null displays variable value, else display text 'MyVar was not set'.<br/>```<log>{Globals['MyVar'] ?? 'MyVar was not set'}</log>``` |           
 
 # **FUNCTIONS**
 
 Functions in Sync360 are methods for set of predefined objects. There are only two predefined functions that doesn't bind to an object.
 
 **NOTE:** Helper functions (sometimes simply called "helpers") are usually functions that wrap useful functionality that you're going to reuse repeatedly.
-
-| <b>Type</b>   | <b>Description</b>                                                                                                                                                                                                                                                                                                                                                                           |
-|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| "isSet"       | Is Set. This function returns true if the operand has value (not null).                                                                                                                                                                                                                                                                                                                      |
-| "Count"       | Count. This function returns the number of elements in the collection.                                                                                                                                                                                                                                                                                                                       |
-| "Description" | The function reads through a CSV file and creates the list of strings where every line is a separate record. The number of parameters specified may vary. And this overloaded function may be used several times throughout the script. If some parameters are not specified, the default values listed in the script are used instead, e.g. Read(string path, string quote = DefaultQuote). |
-| Parameters    | Read(param1, param2, param3, param4, param5, param6, param7, param8)                                                                                                                                                                                                                                                                                                                         |
-| Csv.Read      | string path—path to a file and its name.                                                                                                                                                                                                                                                                                                                                                     |
-|               | Encoding encoding—the type of encoding used in a file.                                                                                                                                                                                                                                                                                                                                       |
-|               | string delimiter-delimiter used in a file.                                                                                                                                                                                                                                                                                                                                                   |
-|               | string quote—multiline text delimiter used in a file.                                                                                                                                                                                                                                                                                                                                        |
-|               | string comment-comment symbol used in a file.                                                                                                                                                                                                                                                                                                                                                |
-|               | bool trim-checks whether value trimming is required or not.                                                                                                                                                                                                                                                                                                                                  |
-|               | bool hasHeader-checks whether a CSV file has a header or not.                                                                                                                                                                                                                                                                                                                                |
-|               | int topLinesToSkip-the number of lines to skip in a file.                                                                                                                                                                                                                                                                                                                                    |
-
 Table 4. Functions
-
-|            | <b>Example</b>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|            | <b>Description</b><br>The function transforms CRM records and writes it into a<br>CSV file in the correct form. Since CSV files has a specific<br>structure, scripts create a dictionary for each line and each<br>dictionary has a key (a column header) and a value (a line<br>value). Below is the example of this code:<br><set var="csv">{new List()}</set><br><for in="records" var="record"><br/><set var="values">{new Dictionary()}</set><br/><for in="record.Keys" var="key"><br/><math>&lt;</math>set<br/>var="values[key]"&gt;{record[key]}<br/><math>\langle</math>/for&gt;<br/><set var="csv[]">(values)</set><br/><math>\langle</math>/for&gt;</for></for> |
-| Csv. Write | <b>Parameters</b><br>Write(param1, param2, param3, param4, param5, param6,<br>param7, param8)<br>string path—a path to a file and its name.<br>Encoding encoding—the type of encoding used in<br>$\bullet$<br>a file.<br>string delimiter-delimiter used in a file.<br>string quote—multiline text delimiter used in a file.<br>string comment-comment symbol used in a file.<br>bool trim-checks whether value trimming is<br>required or not.<br>bool hasHeader-checks whether a CSV file has a<br>$\bullet$<br>header or not.<br>int topLinesToSkip-the number of lines to skip in a<br>file.                                                                          |
-|            | <b>Example</b>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Csv.Open   | <b>Description</b><br><b>Paremeters</b><br><b>Example</b>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-
-|                          | <b>Description</b>                                                      |
-|--------------------------|-------------------------------------------------------------------------|
-|                          | The function writes specified string to a file. It is usually           |
+| <b>Type</b>   | <b>Description</b>     |                                                                                                                                                                                                                                                                 
+|---------------|------------------------|
+| "isSet"       | <b>Is Set.</b> This function returns true if the operand has value (not null).    |                                                                                                                                                                                                      
+| "Count"       | <b>Count.</b> This function returns the number of elements in the collection.     |
+| Csv.Read      | <b>Description</b><br/> The function reads through a CSV file and creates the list of strings where every line is a separate record. The number of parameters specified may vary. And this overloaded function may be used several times throughout the script. If some parameters are not specified, the default values listed in the script are used instead, e.g. Read(string path, string quote = DefaultQuote).<br/><b> Parameters</b><br/> Read(param1, param2, param3, param4, param5, param6, param7, param8) <br/> $\bullet$ string path - path to a file and its name.<br/>$\bullet$ Encoding encoding —the type of encoding used in a file. <br/> $\bullet$ string delimiter - delimiter used in a file. <br/> $\bullet$ string quote — multiline text delimiter used in a file. <br/> $\bullet$ string comment - comment symbol used in a file. <br/> $\bullet$ bool trim - checks whether value trimming is required or not. <br/> $\bullet$ bool hasHeader -checks whether a CSV file has a header or not. </br> $\bullet$ int topLinesToSkip - the number of lines to skip in a file.<br/> <b>Example</b> |
+| Csv.Write    | <b>Description</b><br>The function transforms CRM records and writes it into a CSV file in the correct form. Since CSV files has a specific structure, scripts create a dictionary for each line and each<br>dictionary has a key (a column header) and a value (a line value). Below is the example of this code:<br>```<set var="csv">{new List()}</set> <for var="record" in="records"> <set var="values">{new Dictionary()}</set> <for var="key" in="record.Keys">  <set var="values[key]>{record[key]}</set> <set var="csv[]">(values)</set> </for>``` <br/> <b>Parameters</b><br>Write(param1, param2, param3, param4, param5, param6,param7, param8)<br> $\bullet$ string path — a path to a file and its name.<br> $\bullet$ Encoding encoding — the type of encoding used in a file.<br> $\bullet$ string delimiter-delimiter used in a file.<br> $\bullet$ string quote — multiline text delimiter used in a file.<br> $\bullet$ string comment - comment symbol used in a file.<br> $\bullet$ bool trim - checks whether value trimming is required or not.<br> $\bullet$ bool hasHeader - checks whether a CSV file has a header or not.<br> $\bullet$ int topLinesToSkip - the number of lines to skip in a file.<br/> <b>Example</b> |
+| Csv.Open   | <b>Description</b><br><b>Paremeters</b><br><b>Example</b> |                                                                                                                                                                                                                              
+|  FileUtils. WriteToFile | <b>Description</b><br/> The function writes specified string to a file. It is usually           |
 |                          | used for logging. Last parameter instructs to append to a               |
 |                          | file.                                                                   |
 |                          |                                                                         |
 |                          | <b>Parameters</b>                                                       |
 |                          | WriteToFile(string, string, bool)                                       |
-| FileUtils. WriteToFile   | string fileName—a name of the file where the                            |
+|   | string fileName—a name of the file where the                            |
 |                          | string will be added.                                                   |
 |                          | string text-a text that will be added to a file.                        |
 |                          | bool isAppend—appends a text to a file.                                 |
