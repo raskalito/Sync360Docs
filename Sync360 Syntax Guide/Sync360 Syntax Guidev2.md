@@ -141,514 +141,59 @@ Table 4. Functions
 | Csv.Read      | <b>Description</b><br/> The function reads through a CSV file and creates the list of strings where every line is a separate record. The number of parameters specified may vary. And this overloaded function may be used several times throughout the script. If some parameters are not specified, the default values listed in the script are used instead, e.g. Read(string path, string quote = DefaultQuote).<br/><b> Parameters</b><br/> Read(param1, param2, param3, param4, param5, param6, param7, param8) <br/> $\bullet$ string path - path to a file and its name.<br/>$\bullet$ Encoding encoding —the type of encoding used in a file. <br/> $\bullet$ string delimiter - delimiter used in a file. <br/> $\bullet$ string quote — multiline text delimiter used in a file. <br/> $\bullet$ string comment - comment symbol used in a file. <br/> $\bullet$ bool trim - checks whether value trimming is required or not. <br/> $\bullet$ bool hasHeader -checks whether a CSV file has a header or not. </br> $\bullet$ int topLinesToSkip - the number of lines to skip in a file.<br/> <b>Example</b> |
 | Csv.Write    | <b>Description</b><br>The function transforms CRM records and writes it into a CSV file in the correct form. Since CSV files has a specific structure, scripts create a dictionary for each line and each<br>dictionary has a key (a column header) and a value (a line value). Below is the example of this code:<br>```<set var="csv">{new List()}</set> <for var="record" in="records"> <set var="values">{new Dictionary()}</set> <for var="key" in="record.Keys">  <set var="values[key]>{record[key]}</set> <set var="csv[]">(values)</set> </for>``` <br/> <b>Parameters</b><br>Write(param1, param2, param3, param4, param5, param6,param7, param8)<br> $\bullet$ string path — a path to a file and its name.<br> $\bullet$ Encoding encoding — the type of encoding used in a file.<br> $\bullet$ string delimiter-delimiter used in a file.<br> $\bullet$ string quote — multiline text delimiter used in a file.<br> $\bullet$ string comment - comment symbol used in a file.<br> $\bullet$ bool trim - checks whether value trimming is required or not.<br> $\bullet$ bool hasHeader - checks whether a CSV file has a header or not.<br> $\bullet$ int topLinesToSkip - the number of lines to skip in a file.<br/> <b>Example</b> |
 | Csv.Open   | <b>Description</b><br><b>Paremeters</b><br><b>Example</b> |                                                                                                                                                                                                                              
-|  FileUtils. WriteToFile | <b>Description</b><br/> The function writes specified string to a file. It is usually           |
-|                          | used for logging. Last parameter instructs to append to a               |
-|                          | file.                                                                   |
-|                          |                                                                         |
-|                          | <b>Parameters</b>                                                       |
-|                          | WriteToFile(string, string, bool)                                       |
-|   | string fileName—a name of the file where the                            |
-|                          | string will be added.                                                   |
-|                          | string text-a text that will be added to a file.                        |
-|                          | bool isAppend—appends a text to a file.                                 |
-|                          |                                                                         |
-|                          | <b>Example</b>                                                          |
-|                          | <set>{FileUtils.WriteToFile("c:\temp\log.txt",</set>                    |
-|                          | "Test", true) }                                                         |
-|                          | <b>Description</b>                                                      |
-|                          | The function is used to read predefined GUIDS from text                 |
-|                          | file. GUIDS should be placed line by line. The result will be           |
-|                          | array variable.                                                         |
-|                          | <b>Parameters</b>                                                       |
-| FileUtils.ReadIdsFromFil |                                                                         |
-| e                        | ReadIdsFromFile(string)<br>string fileName—a name of the file GUIDS are |
-|                          | taken from.                                                             |
-|                          |                                                                         |
-|                          | <b>Example</b>                                                          |
-|                          | <set< td=""></set<>                                                     |
-|                          | var="Ids">{FileUtils.ReadIdsFromFile(".\UserGuids.txt                   |
-|                          | ") $\}$<br><b>Description</b>                                           |
-|                          | Opens a file, reads the contents of the file into a byte array,         |
-| FileUtils. ReadFile      | and then closes the file.                                               |
-|                          |                                                                         |
-|                          | <b>Parameters</b>                                                       |
-|                          | ReadFile(string)                                                        |
-|                          | string fileName—a name of the processed file.                           |
-|                          |                                                                         |
-|                          | <b>Example</b>                                                          |
-|                          |                                                                         |
+| FileUtils. WriteToFile | <b>Description</b><br/> The function writes specified string to a file. It is usually used for logging. Last parameter instructs to append to a file.<br/> <b>Parameters</b></br> WriteToFile(string, string, bool)<br/>  $\bullet$  string fileName — a name of the file where the string will be added.<br/>  $\bullet$ string text - <br/>  $\bullet$ bool isAppend - appends a text to a file. <br/> <b>Example</b> <br/> ``` <set>{FileUtils.WriteToFile("c:\temp\log.txt","Test", true)}</set> ```|
+| FileUtils.ReadIdsFromFile| <b>Description</b></br> The function is used to read predefined GUIDS from text file. GUIDS should be placed line by line. The result will be array variable.<br/> <b>Parameters</b></br> ReadIdsFromFile(string)<br>string fileName—a name of the file GUIDS are taken from. <br/> <b>Example</b> <br/> ``` <set var="Ids">{FileUtils.ReadIdsFromFile(".\UserGuids.txt")}</set> ``` |
+| FileUtils.ReadFile | <b>Description</b> <br/> Opens a file, reads the contents of the file into a byte array, and then closes the file.<br/> <b>Parameters</b> ReadFile(string)<br/> $\bullet$ string fileName—a name of the processed file. <br/> <b>Example</b><br/> ``` <set var="Bytes">{FileUtils.ReadFile(".\UserGuids.txt")}</set> ```|
+| FileUtils.ReadFileAsBase64 | <b>Description</b><br/> Open a file, reads the contents of the file into a byte array, converts the array into a Base64 string, and then closes the file.<br/> <b>Parameters</b><br/> ReadFileAsBase64(string)<br/> $\bullet$ string fileName — a name of the processed file.<br/> <b>Example</b><br/> ``` <set var="Bytes">{FileUtils.ReadFileAsBase64(".\UserGuids.txt")}</set> ``` |
+| FileUtils.DirectoryEntries| Returns the list of all files and subdirectories in a specified path.<br/> <b>Parameters</b></br> DirectoryEntries(string) </br> $\bullet$ string path — a path to a required directory.  </br> <b>Example</b> |                                                            
+| FileUtils.MoveFile   | <b>Description</b> <br/> Moves a specified file to a new location, providing the  option to specify a new file name.<br/> <b>Parameters</b></br>  MoveFile(string, string) <br/> $\bullet$  string source File Name - a path to a source file.<br/> $\bullet$ string destFileName — a new path to a file.<br/> <b>Example</b><br/> ```<set>{FileUtils.MoveFile("c:\temp\loq.txt",<br/>"c:\temp2\log.txt") }</set> ``` |
+| FileUtils.GetFiles  | <b>Description</b><br/> Returns the names of files (including their paths) that match the specified search pattern in the specified directory.<br/> <b>Parameters</b><br/> GetFiles(string, string)</br>$\bullet$  string folder -  <br/> $\bullet$ string searchPattern -</br><b>Example</b><br/> ``` <set>{FileUtils.GetFiles(@"c:\", "c*")}</set>```|
+| FileUtils.Zip    | <b>Description</b><br/> The function archives files into a zip-archive in a selected folder.<br/> <b>Parameters</b></br> Zip(param1, param2)<br/> $\bullet$ string sourceFolder - a path to a source folder.<br/> $\bullet$  string zipFile-a file that will be archived.<br><b>Example</b>|
+| FileUtils.Unzip | <b>Description</b><br/> The function extracts files from a zip-archive in a selected folder.<br/> <b>Parameters</b> <br/> Unzip(param1, param2)<br/> $\bullet$ string zipFile - a name of an archive.<br/> $\bullet$ string extractFolder-a path to an extraction folder.<br/> <b>Example</b> |
+|Html.ToPlainText | <b>Description</b><br/> Converts plain text to an html string or to an html  document.<br/> <b>Parameters</b><br/> ToPlainText(string)<br/> $\bullet$ string html - converts an html string to an html document.<br/>ToPlainText(HtmlDocument doc)<br/>$\bullet$HtmlDocument doc — converts an html document to an html string.|
+| Http.SetUseDefaultCredentials | <b>Description</b><br>Sets the use of default credentials for each http connection.<br><b>Parameters</b><br>SetUseDefaultCredentials(bool)<br>bool value<br><b>Example</b>|                                                                                              
+| Http.SetClientEncoding        | <b>Description</b><br>Sets a client encoding for connections.<br><b>Parameters</b><br>SetClientEncoding(string)<br><b>Example</b> |                                                                                                                                      
+| Http.Get                      | <b>Description</b><br>The HTTP GET method requests a representation of the specified resource.<br><b>Parameters</b><br>Get(string, string, string, string, string object)<br> $\bullet$ string url - URL used in the request.<br>string username-retrieves requested username.<br> $\bullet$ string password - retrieves requested password.<br> $\bullet$ string domain - retrieves requested password.<br> $\bullet$ object headers - retrieves specific headers.<br><b>Example</b> <br/> ```<set var="response">{Http.Get('http://www.example.com')}</set> ```|
+| Http.Put   | <b>Description</b><br/> The HTTP PUT request method creates a new resource or replaces a representation of the target resource with the request payload.<br/> <b>Parameters</b> Put(string url, string data, object headers)<br/> $\bullet$ string url-URL used in the request.<br/> $\bullet$ string data-data sent as parameters to URL in the request.<br/> $\bullet$ object headers <br/>  <b>Example</b> <br/> ```<set var="response">{Http.Put('http://www.example.com', 'some data', 'headers go here')}</set> ```|
+| Http.Post | <b>Description</b><br/> The HTTP POST method sends data to the server.<br/> <b>Parameters</b><br/> Post(string, string, string, string, string, object)<br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.  <br/> $\bullet$ string password. <br/> $\bullet$ string domain.    <br/> $\bullet$ string data — data sent as parameters to URL in the request. <br/> $\bullet$ object headers. <br/><b>Example</b><br/> ```<set var="response">{Http.Post('http://www.example.com', 'some data', 'headers go here')}</set>``` |
+| Http.Patch |<b>Description</b><br/>The HTTP PATCH request method applies partial modifications to a resource. <br/> <b>Parameters</b></br> Patch(string, string, string, string, string, object) <br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.<br/> $\bullet$ string password.<br/> $\bullet$ string domain. <br/> $\bullet$ string data.<br/> $\bullet$ object headers.<br/> <b>Example</b><br> ``` <set var="response">{Http.Patch('http://www.example.com', 'some data', 'headers go here')}</set> ```|
+| Http.Download | <b>Description</b><br/> Downloads the file that URL contains, e. g. page, archive, document.<br/> <b>Parameters</b><br/> Download(string)<br/> $\bullet$ string url-an address that contains the required file. <br/> <b>Example</b><br/> ``` <set var="response">{Http.Download('http://www.example.com')}</set>``` |
+| Http.GetRaw  | <b>Description</b> <br/> The Get. Raw method requests a representation of the specified resource but in unchanged, literal form.<br/> <b>Parameters</b> GetRaw(string, int, int) <br/> $\bullet$ string url   <br/> $\bullet$  int sendTimeout <br/> $\bullet$ int receiveTimeout <br/> <b>Example</b>  |
+| Http.SetCookie | <b>Description</b><br/> Set cookie for the specified resource.<br/> <b>Parameters</b> <br/>  SetCookie(string, string)<br/> $\bullet$  string url <br/> $\bullet$  string cookie  <br/> <b>Example</b> |
+| Http.GetCookie | <b>Description</b><br/> Gets cookie from the specified resource.<br/> <b>Parameters</b><br/>  GetCookie(string) <br/>  $\bullet$ string url  <br/> <b>Example</b>|
+| Json.ToJson    | <b>Description</b><br/> Converts an object to JSON format.<br/> <b>Parameters</b> <br/> ToJson(object)<br/>  $\bullet$ object value <b>Example</b><br> ``` <set>{Json.ToJson(DynamicDictionaryVariable)}</set> ``` |
+| Json.ToAsciiJson | <b>Description</b><br/> Converts an object to ASCII JSON format and removes non-ASCII symbols.<br/> <b>Parameters</b> <br/> ToAsciiJson(object value)<br/> $\bullet$ object value <br/> <b>Example</b><br/> ``` <set>{Json.ToAsciiJson(DynamicDictionaryVariable)}</set> ```|         
+| Json.FromJson    | <b>Description</b><br/> Converts JSON to a dictionary. <br/> <b>Parameters</b><br/> FromJson(string)<br/> $\bullet$ string value-JSON string that will be converted.<br/> <b>Example</b><br> ``` <set var="test1">{Json.FromJson(stringVariable)}</set> <log>(test1.GetType()) - (test1)</log> ``` |
+| Json.GetDictionary  | <b>Description</b><br/> Converts JSON to an object.<br/> <b>Parameters</b> <br/> GetDictionary(string) <br/> $\bullet$ string value <br/> <b>Example</b><br/> ``` <set var="test1">{Json.GetDictionary(string)}</set> <log>(test1.GetType()) – (test1)</log> ```  |
+| Json.GetArrayFromJson  | <b>Description</b><br/></br> <b>Parameters</b><br/> GetArrayFromJson(string)<br/> $\bullet$ string value <br/> <b>Example</b> </br> ``` <set var="test1">{Json.GetArrayFromJson(string)}</set>  <log>(test1.GetType()) – (test1)</log> ``` |
+| "Utils.NewGuid"   | <b>Description</b></br> This function returns new random GUID. <br/> <b>Parameters</b>  <br/> <b>Example</b> <br/> ``` <set var="newGuid">{Utils.NewGuid}</set> ``` |
+| "Utils.Split"    | <b>Description</b></br> This function identifies the substrings in a string array that are delimited by one or more characters specified in an array, then places the substrings into a specified Unicode character array.<br/> <b>Parameters</b> <br/> <b>Example</b> <br/>     ``` <set var="Names">Roman; Joe; Michael</set>  <set var="NamesAr">{Utils.Split(Names,';')}</set> ``` |
+| "Utils.Join"   | <b>Description</b> <br/> This function combines array values into string with specified delimiter. <br/> <b>Parameters</b> <br/> <b>Example</b> <br/>``` <set var="NamesAr">{['Roman','Joe','Michael']}</set>  <set var="NamesStr">{Utils.Join(NamesAr,';')}</set> ``` |
+| "Utils.toUpper" | <b>Description</b> <br/> This function returns a copy of this string converted to uppercase. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b>|
+| "Utils.toLower" | <b>Description</b> <br/> This function returns a copy of this string converted to lowercase.<br/> <b>Parameters</b>  <br/> $\bullet$ string <br/> <b>Example</b> 
+| "Utils.NewLine" | <b>Description</b> <br/> This function returns newline string ("\n").<br/> <b>Parameters</b><br/> <b>Example</b> |
+| "Utils.Now"     | <b>Description</b> <br/> This function returns a date type object that is set to the current date and time on this computer, expressed as the local time. <br/> <b>Parameters</b> <br/> <b>Example</b>|
+| "Utils.Replace"| <b>Description</b> <br/> This function Returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b> <br/> ``` <set var="str1">This is an example</set>  <set var="str2">{Utils.Replace(str1,'This','Here')}</set> ``` |
+| Utils.IsKeyExist  | <b>Description</b></br/> Checks whether the key exists in a dictionary or not.<br/> <b>Parameters</b><br/> IsKeyExist(object, string) <br/>  $\bullet$ object dict - the required dictionary. <br/>  $\bullet$   string key — the line that contains a key <br/> <b>Example</b> <br/> ``` <set>{Utils.IsKeyExist("DictionaryExample", "reg4y736")}</set> ``` |
+| Utils.ParseGUID   | <b>Description</b> <br/> Converts the string representation of a GUID to the equivalent Guid structure.<br/> <b>Parameters</b><br/> ParseGuid(string) <br/>  $\bullet$ string guid - the required GUID.<br/> <b>Example</b><br/> ``` <set var="newGuidVar">{Utils.ParseGUID('5dcf85ae-ca84-4718-afb8-1795db389763')</set> ```|
+| Utils.TextualltEquals  | <b>Description</b><br/> Compares two objects:  If objects are of the same type, it compares them as they are. If objects are of different types, it converts them into strings and then compares the strings.<br/> <b>Parameters</b> TextuallyEquals(object, object, bool)</br>  $\bullet$ object one - the first object in a pair. </br>  $\bullet$  object two - the second object in a pair.</br>  $\bullet$ bool ignoreCase - manages case sensitivity.<br/> <b>Example</b>|
+| Utils. Right<br>Utils. Left | <b>Description</b> <br/> <b>Parameters</b><br>Right(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br>Left(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br/> <b>Example</b>|                                                     
+| Utils. Encode<br>Utils. Decode | <b>Description</b><br>Encode to/Decode from the standard HTML encoding.<br/><b>Parameters</b><br>Encode(string)<br> $\bullet$ string str<br>Decode(string)<br/> $\bullet$ string str<br><b>Example</b>|                                                                 
+| Utils. DateToString<br>Utils.StringToDate  | <b>Description</b><br>Converts date to string and vice versa.<br/> <b>Parameters</b><br>DateToString(DateTime, string)<br> $\bullet$ DateTime date-the exact date to be converted.<br/> $\bullet$ string format.<br/> StringToDate(string, string)<br>$\bullet$ string date - the exact string to be converted.<br> $\bullet$ string format <br/> <b>Example</b>|
+| Utils.SpeecifyKindUtc<br/>Utils.SpecifyKindLocal<br/>Utils.SpecifyKindInspecified | <b>Description</b><br>Applies a specified timezone to date.<br/> <b>Parameters</b> SpecifyKindUtc(DateTime)<br/> $\bullet$ DateTime date <br/> SpecifyKindLocal(DateTime) <br/> $\bullet$ DateTime date <br/> SpecifyKindUnspecified(DateTime) <br/> $\bullet$ DateTime date <br/> <b>Example</b>|
+| Utils.Eval    | <b>Description</b><br/>  The function executes a provided string as a command.<br/> <b>Parameters</b><br/> Eval(string) <br/> $\bullet$ string expression<br/>  <b>Example</b><br/> ``` <set var="NeedProcess">{Utils.Eval(strExpression)}</set> ``` |
+| Utils.GetRandom  | <b>Description</b><br/> The function gets random values of random types<br/> <b>Parameters</b><br/> GetRandom(string, object)<br/> $\bullet$ string type <br/> $\bullet$ object max <br/> <b>Example</b> |
+| Xml.Load    |  <b>Description</b><br/> Loads an XElement from a file, optionally preserving white space, setting the base URI, and retaining line information.<br/> <b>Parameters</b><br/> Load(string, int) <br/> $\bullet$ string uri <br/> $\bullet$ int options <br/> <b>Example</b><br> ``` <set xml="Xml.Load(fileName)"/>``` |
+| Xml.LoadEnc | <b>Description</b><br/> Loads an XElement from a file.<br/> <b>Parameters</b><br/> LoadEnc(string) <br/> $\bullet$ string uri<br> <br/> <b>Example</b> |
+| Xml.Parse   | <b>Description</b><br/> Load an XElement from a string that contains XML, optionally preserving white space and retaining line information.<br/> <b>Parameters</b> <br/> Parse(string, int) <br/> $\bullet$ string text <br/> $\bullet$ int options <br/> <b>Example</b><br/> ``` <set var="xmlSource"><![CDATA[<root><add name="abdc">Test data</add><add name="n2">Second text data</add></root>]]></set> 	<set xml="Xml.Parse(xmlSource, 1)"/> ``` |
+| Xml.Select  | <b>Description</b><br/> Searches and selects values from within the specified element of an XML file and returns these values as an array.<br/> <b>Parameters</b><br/> Select(XElement, string, IDictionary) <br/> $\bullet$ XElement xml <br/> $\bullet$ string expression <br/> $\bullet$ IDictionary fields<br/> <b>Example</b>|
+| Xml.ToXml<br/> Xml.FromXml   | <b>Description</b><br/> Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.<br/> Passes XML string and returns an object.<br/> <b>Parameters</b><br/> ToXml(object, string) <br/> $\bullet$ object value <br/> $\bullet$  string rootElementName <br/> FromXml(string)<br/> $\bullet$ string xml <br/> <b>Example</b> |
+| "Math.*" |<b>Math.</b> This .NET object is used for common mathematical functions, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.math.aspx> |
+| "File.*" |<b>File.</b> This .NET object is used for operations with files, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.io.file.aspx> |
+| "Path.*" |<b>Path.</b> This .NET object is used for operations with filesystem, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.io.path.aspx> |
+| "Encoding.*" |<b>Encoding.</b> This .NET object is used for character and text encoding, for the list of supported methods and properties refer to <http://msdn.microsoft.com/en-us/library/system.text.encoding.aspx> |
+| "TimeSpans.*" |<b>Timespans.</b> This .NET object is used for operations with time intervals. for the list of supported methods and properties refer to <http://msdn.microsoft.com/en-us/library/system.timespan.aspx> |
 
-|                                | <set<br>var="Bytes"&gt;{FileUtils.ReadFile(".\UserGuids.txt")}<!--</th--></set<br> |
-|--------------------------------|------------------------------------------------------------------------------------|
-|                                | set>                                                                               |
-|                                | <b>Description</b>                                                                 |
-|                                | Open a file, reads the contents of the file into a byte array,                     |
-|                                | converts the array into a Base64 string, and then closes the                       |
-|                                | file.                                                                              |
-|                                |                                                                                    |
-| FileUtils.ReadFileAsBase<br>64 | <b>Parameters</b>                                                                  |
-|                                | ReadFileAsBase64(string)                                                           |
-|                                | string fileName—a name of the processed file.                                      |
-|                                | <b>Example</b>                                                                     |
-|                                | <set< td=""></set<>                                                                |
-|                                | var="Bytes">{FileUtils.ReadFileAsBase64(".\UserGuids.txt")}<br>                    |
-|                                | <b>Description</b>                                                                 |
-|                                | Returns the list of all files and subdirectories in a specified                    |
-|                                | path.                                                                              |
-| FileUtils.DirectoryEntri       |                                                                                    |
-| es                             | <b>Parameters</b>                                                                  |
-|                                | DirectoryEntries(string)                                                           |
-|                                | string path—a path to a required directory.                                        |
-|                                |                                                                                    |
-|                                | <b>Example</b>                                                                     |
-|                                | <b>Description</b>                                                                 |
-|                                | Moves a specified file to a new location, providing the                            |
-|                                | option to specify a new file name.                                                 |
-|                                | <b>Parameters</b>                                                                  |
-| FileUtils.MoveFile             | MoveFile(string, string)                                                           |
-|                                | string source File Name-a path to a source file.                                   |
-|                                | string destFileName—a new path to a file.                                          |
-|                                |                                                                                    |
-|                                | <b>Example</b>                                                                     |
-|                                | <set>{FileUtils.MoveFile("c:\temp\loq.txt",<br/>"c:\temp2\log.txt") }</set>        |
-|                                | <b>Description</b>                                                                 |
-| FileUtils.GetFiles             | Returns the names of files (including their paths) that                            |
-|                                | match the specified search pattern in the specified                                |
-|                                | directory.                                                                         |
-
-|                  | <b>Parameters</b>                                            |
-|------------------|--------------------------------------------------------------|
-|                  | GetFiles(string, string)                                     |
-|                  | string folder-                                               |
-|                  | string searchPattern-                                        |
-|                  |                                                              |
-|                  | <b>Example</b>                                               |
-|                  | <set>{FileUtils.GetFiles(@"c:\", "c*")}</set>                |
-|                  | <b>Description</b>                                           |
-|                  | The function archives files into a zip-archive in a selected |
-|                  | folder.                                                      |
-|                  | <b>Parameters</b>                                            |
-| FileUtils.Zip    |                                                              |
-|                  | Zip(param1, param2)                                          |
-|                  | string sourceFolder-a path to a source folder.               |
-|                  | string zipFile-a file that will be archived.                 |
-|                  | <b>Example</b>                                               |
-|                  |                                                              |
-|                  | <b>Description</b>                                           |
-|                  | The function extracts files from a zip-archive in a selected |
-|                  | folder.                                                      |
-|                  |                                                              |
-|                  | <b>Parameters</b>                                            |
-| FileUtils.Unzip  | Unzip(param1, param2)                                        |
-|                  | string zipFile-a name of an archive.                         |
-|                  | string extractFolder-a path to an extraction folder.         |
-|                  |                                                              |
-|                  | <b>Example</b>                                               |
-|                  | <b>Description</b>                                           |
-|                  | Converts plain text to an html string or to an html          |
-|                  | document.                                                    |
-|                  |                                                              |
-| Html.ToPlainText | <b>Parameters</b>                                            |
-|                  | ToPlainText(string)                                          |
-|                  | string html-converts an html string to an html               |
-|                  | document.                                                    |
-|                  |                                                              |
-
-| Method                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Http.SetUseDefaultCredentials | <b>Description</b><br>Sets the use of default credentials for each http<br>connection.<br><b>Parameters</b><br>SetUseDefaultCredentials(bool)<br>bool value<br><b>Example</b>                                                                                                                                                                                                                                                        |
-| Http.SetClientEncoding        | <b>Description</b><br>Sets a client encoding for connections.<br><b>Parameters</b><br>SetClientEncoding(string)<br><b>Example</b>                                                                                                                                                                                                                                                                                                    |
-| Http.Get                      | <b>Description</b><br>The HTTP GET method requests a representation of the<br>specified resource.<br><b>Parameters</b><br>Get(string, string, string, string, string object)<br>string url-URL used in the request.<br>string username-retrieves requested username.<br>string password-retrieves requested password.<br>string domain-retrieves requested password.<br>object headers-retrieves specific headers.<br><b>Example</b> |
-
-|            | <set< th=""></set<>                                          |
-|------------|--------------------------------------------------------------|
-|            | var="response">{http.get('http://www.example.com')} <br set> |
-|            | <b>Description</b>                                           |
-|            | The HTTP PUT request method creates a new resource or        |
-|            | replaces a representation of the target resource with the    |
-|            | request payload.                                             |
-|            |                                                              |
-|            | <b>Parameters</b>                                            |
-|            | Put(string url, string data, object headers)                 |
-| Http.Put   | string url-URL used in the request.                          |
-|            | string data-data sent as parameters to URL in the            |
-|            | request.                                                     |
-|            | object headers                                               |
-|            |                                                              |
-|            | <b>Example</b>                                               |
-|            | $set$<br>var="response">{http.put('http://www.example.com',  |
-|            | 'some data', 'headers go here') }                            |
-|            | <b>Description</b>                                           |
-|            | The HTTP POST method sends data to the server.               |
-|            |                                                              |
-|            | <b>Parameters</b>                                            |
-|            | Post(string, string, string, string, string, object)         |
-|            | string url-URL used in the request.                          |
-|            | string login.                                                |
-| Http.Post  | string password.                                             |
-|            | string domain.                                               |
-|            | string data—data sent as parameters to URL in the            |
-|            | request.                                                     |
-|            | object headers.                                              |
-|            |                                                              |
-|            | <b>Example</b>                                               |
-|            | $set$<br>var="response">{http.put('http://www.example.com',  |
-|            | 'some data', 'headers go here') }                            |
-|            | <b>Description</b>                                           |
-|            | The HTTP PATCH request method applies partial                |
-|            | modifications to a resource.                                 |
-|            | <b>Parameters</b>                                            |
-| Http.Patch | Patch(string, string, string, string, string, object)        |
-|            | string url-URL used in the request.                          |
-|            | string login.<br>$\bullet$                                   |
-|            | string password.                                             |
-|            | string domain.                                               |
-|            |                                                              |
-
-|                | string data.<br>$\bullet$                                                                 |
-|----------------|-------------------------------------------------------------------------------------------|
-|                | object headers.                                                                           |
-|                |                                                                                           |
-|                | <b>Example</b><br>$<$ set                                                                 |
-|                | var="response">{http.patch('http://www.example.com',<br>'some data', 'headers go here') } |
-|                | <b>Description</b>                                                                        |
-|                | Downloads the file that URL contains, e. g. page, archive,                                |
-|                | document.                                                                                 |
-|                |                                                                                           |
-|                | <b>Parameters</b>                                                                         |
-| Http.Download  | Download(string)                                                                          |
-|                | string url-an address that contains the required                                          |
-|                | file.                                                                                     |
-|                | <b>Example</b>                                                                            |
-|                | <set< td=""></set<>                                                                       |
-|                | var="response">{http.download('http://www.example.com<br>$')$ }                           |
-|                | <b>Description</b>                                                                        |
-|                | The Get. Raw method requests a representation of the                                      |
-|                | specified resource but in unchanged, literal form.                                        |
-|                |                                                                                           |
-|                | <b>Parameters</b>                                                                         |
-|                | GetRaw(string, int, int)                                                                  |
-| Http.GetRaw    | string url<br>$\bullet$                                                                   |
-|                | • int sendTimeout                                                                         |
-|                | • int receiveTimeout                                                                      |
-|                |                                                                                           |
-|                | <b>Example</b>                                                                            |
-|                |                                                                                           |
-|                | <b>Description</b>                                                                        |
-|                | Set cookie for the specified resource.                                                    |
-|                | <b>Parameters</b>                                                                         |
-|                |                                                                                           |
-| Http.SetCookie | SetCookie(string, string)<br>string url                                                   |
-|                | string cookie                                                                             |
-|                |                                                                                           |
-|                | <b>Example</b>                                                                            |
-|                |                                                                                           |
-|                |                                                                                           |
-| Http.GetCookie | <b>Description</b>                                                                        |
-|                | Gets cookie from the specified resource.                                                  |
-
-|                    | <b>Parameters</b>                                                |
-|--------------------|------------------------------------------------------------------|
-|                    | GetCookie(string)                                                |
-|                    | string url                                                       |
-|                    |                                                                  |
-|                    | <b>Example</b>                                                   |
-|                    | <b>Description</b>                                               |
-|                    | Converts an object to JSON format.                               |
-|                    | <b>Parameters</b>                                                |
-| Json.ToJson        |                                                                  |
-|                    | ToJson(object)                                                   |
-|                    | object value                                                     |
-|                    |                                                                  |
-|                    | <b>Example</b><br><set>{Json.ToJson("DynamicDictionary")}</set>  |
-|                    | <b>Description</b>                                               |
-|                    | Converts an object to ASCII JSON format and removes              |
-|                    | non-ASCII symbols.                                               |
-|                    |                                                                  |
-| Json.ToAsciiJson   | <b>Parameters</b>                                                |
-|                    | ToAsciiJson(object value)                                        |
-|                    | object value                                                     |
-|                    |                                                                  |
-|                    | <b>Example</b>                                                   |
-|                    | <set>{Json.ToAsciiJson("DynamicDictionary")}</set>               |
-|                    | <b>Description</b>                                               |
-|                    | Converts JSON to a dictionary.                                   |
-|                    |                                                                  |
-|                    | <b>Parameters</b>                                                |
-| Json.FromJson      | FromJson(string)                                                 |
-|                    | string value-JSON string that will be converted.                 |
-|                    |                                                                  |
-|                    | <b>Example</b><br><set var="test1">{Json.FromJson(string)}</set> |
-|                    | <log>(test1.GetType()) - (test1)</log>                           |
-|                    | <b>Description</b>                                               |
-|                    | Converts JSON to an object.                                      |
-|                    |                                                                  |
-| Json.GetDictionary | <b>Parameters</b>                                                |
-|                    | GetDictionary(string)                                            |
-|                    | string value                                                     |
-|                    |                                                                  |
-|                    | <b>Example</b>                                                   |
-|                    | <set var="test1">{Json.GetDictionary(string)}</set>              |
-
-|                       | $\langle \log \rangle$ (test1.GetType()) - (test1) $\langle \log \rangle$                                   |
-|-----------------------|-------------------------------------------------------------------------------------------------------------|
-|                       | <b>Description</b>                                                                                          |
-|                       |                                                                                                             |
-|                       | <b>Parameters</b>                                                                                           |
-|                       | GetArrayFromJson(string)                                                                                    |
-| Json.GetArrayFromJson | string value                                                                                                |
-|                       |                                                                                                             |
-|                       | <b>Example</b>                                                                                              |
-|                       | <set< td=""></set<>                                                                                         |
-|                       | var="test1">{Json.GetArrayFromJson(string)}                                                                 |
-|                       | $\langle \text{log} \rangle$ (test1. GetType ()) - (test1) $\langle \text{log} \rangle$                     |
-|                       | <b>Description</b>                                                                                          |
-|                       | This function returns new random GUID.                                                                      |
-|                       |                                                                                                             |
-| "Utils.NewGuid"       | <b>Parameters</b>                                                                                           |
-|                       |                                                                                                             |
-|                       | <b>Example</b>                                                                                              |
-|                       |                                                                                                             |
-|                       |                                                                                                             |
-|                       | <b>Description</b>                                                                                          |
-|                       | This function identifies the substrings in a string array that                                              |
-|                       | are delimited by one or more characters specified in an                                                     |
-|                       | array, then places the substrings into a specified Unicode                                                  |
-|                       | character array.                                                                                            |
-| "Utils.Split"         |                                                                                                             |
-|                       |                                                                                                             |
-|                       | <b>Parameters</b>                                                                                           |
-|                       |                                                                                                             |
-|                       | <b>Example</b>                                                                                              |
-|                       | <set var="Names">Roman; Joe; Michael</set>                                                                  |
-|                       | <set var="NamesAr">{Utils.Split(Names,';')}</set>                                                           |
-|                       | <b>Description</b>                                                                                          |
-|                       | This function combines array values into string with                                                        |
-|                       | specified delimiter.                                                                                        |
-|                       |                                                                                                             |
-| "Utils.Join"          | <b>Parameters</b>                                                                                           |
-|                       |                                                                                                             |
-|                       |                                                                                                             |
-|                       | <b>Example</b>                                                                                              |
-|                       | <set var="NamesAr">{['Roman','Joe','Michael']}</set><br><set var="NamesStr">{Utils.Join(NamesAr,';')}</set> |
-|                       |                                                                                                             |
-|                       | <b>Description</b>                                                                                          |
-| "Utils.toUpper"       | This function returns a copy of this string converted to                                                    |
-|                       | uppercase.                                                                                                  |
-|                       |                                                                                                             |
-
-|                  | <b>Parameters</b>                                           |
-|------------------|-------------------------------------------------------------|
-|                  | string                                                      |
-|                  |                                                             |
-|                  | <b>Example</b>                                              |
-|                  |                                                             |
-|                  | <b>Description</b>                                          |
-|                  | This function returns a copy of this string converted to    |
-|                  | lowercase.                                                  |
-|                  |                                                             |
-| "Utils.toLower"  | <b>Parameters</b>                                           |
-|                  | string                                                      |
-|                  |                                                             |
-|                  | <b>Example</b>                                              |
-|                  |                                                             |
-|                  | <b>Description</b>                                          |
-|                  | This function returns newline string ("\n").                |
-| "Utils.NewLine"  |                                                             |
-|                  | <b>Parameters</b>                                           |
-|                  | <b>Example</b>                                              |
-|                  | <b>Description</b>                                          |
-|                  | This function returns a date type object that is set to the |
-|                  | current date and time on this computer, expressed as the    |
-|                  | local time.                                                 |
-| "Utils.Now"      |                                                             |
-|                  | <b>Parameters</b>                                           |
-|                  |                                                             |
-|                  | <b>Example</b>                                              |
-|                  |                                                             |
-|                  |                                                             |
-|                  | <b>Description</b>                                          |
-|                  | This function Returns a new string in which all occurrences |
-|                  | of a specified Unicode String in the current string are     |
-|                  | replaced with another specified Unicode character or        |
-| "Utils. Replace" | String.                                                     |
-|                  | <b>Parameters</b>                                           |
-|                  | string                                                      |
-|                  |                                                             |
-
-|                        | <set var="str1">This is an example</set>              |
-|------------------------|-------------------------------------------------------|
-|                        | $<$ set                                               |
-|                        | var="str2">{Utils.Replace(str1,'This','Here')}        |
-|                        |                                                       |
-|                        |                                                       |
-|                        |                                                       |
-|                        |                                                       |
-|                        |                                                       |
-|                        |                                                       |
-|                        |                                                       |
-|                        | <b>Description</b>                                    |
-|                        |                                                       |
-|                        | Checks whether the key exists in a dictionary or not. |
-|                        |                                                       |
-|                        |                                                       |
-|                        | <b>Parameters</b>                                     |
-|                        |                                                       |
-|                        | IsKeyExist(object, string)                            |
-| Utils. IsKeyExist      | object dict-the required dictionary.                  |
-|                        |                                                       |
-|                        | string key—the line that contains a key               |
-|                        |                                                       |
-|                        |                                                       |
-|                        | <b>Example</b>                                        |
-|                        | <set>{Utils.IsKeyExist("DictionaryExample",</set>     |
-|                        | " $reg4y736"$ ) }                                     |
-|                        |                                                       |
-|                        | <b>Description</b>                                    |
-|                        | Converts the string representation of a GUID to the   |
-|                        | equivalent Guid structure.                            |
-|                        |                                                       |
-|                        |                                                       |
-| Utils. ParseGUID       | <b>Parameters</b>                                     |
-|                        | ParseGuid(string)                                     |
-|                        |                                                       |
-|                        | string guid-the required GUID.                        |
-|                        |                                                       |
-|                        | <b>Example</b>                                        |
-|                        |                                                       |
-|                        |                                                       |
-|                        | <b>Description</b>                                    |
-|                        |                                                       |
-|                        | Compares two objects:                                 |
-|                        | If objects are of the same type, it compares them as  |
-|                        | they are.                                             |
-|                        |                                                       |
-|                        | If objects are of different types, it converts them   |
-|                        | into strings and then compares the strings.           |
-|                        |                                                       |
-| Utils. TextualltEquals |                                                       |
-|                        | <b>Parameters</b>                                     |
-|                        | TextuallyEquals(object, object, bool)                 |
-|                        |                                                       |
-|                        | object one-the first object in a pair.                |
-|                        | object two- the second object in a pair.              |
-|                        | bool ignoreCase-manages case sensitivity.             |
-|                        |                                                       |
-|                        |                                                       |
-|                        | <b>Example</b>                                        |
-
-|                                                 | <b>Description</b>                                                                                                           |
-|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| Utils. Right<br>Utils. Left                     | <b>Parameters</b><br>Right(string, int)<br>string str.<br>int charCount<br>Left(string, int)<br>string str.<br>int charCount |
-|                                                 | <b>Example</b>                                                                                                               |
-|                                                 | <b>Description</b><br>Encode to/Decode from the standard HTML encoding.                                                      |
-| Utils. Encode<br>Utils. Decode                  | <b>Parameters</b><br>Encode(string)<br>string str<br>Decode(string)                                                          |
-|                                                 | string str<br><b>Example</b>                                                                                                 |
-|                                                 | <b>Description</b><br>Converts date to string and vice versa.                                                                |
-| Utils. DateToString<br>Utils.StringToDate       | <b>Parameters</b><br>DateToString(DateTime, string)<br>DateTime date-the exact date to be converted.<br>string format.       |
-|                                                 | StringToDate(string, string)<br>string date-the exact string to be converted.<br>string format.                              |
-|                                                 | <b>Example</b>                                                                                                               |
-| Utils.SpeecifyKindUtc<br>Utils.SpecifyKindLocal | <b>Description</b><br>Applies a specified timezone to date.                                                                  |
-
-| Utils.SpecifyKindInspecifi | <b>Parameters</b>                                                      |
-|----------------------------|------------------------------------------------------------------------|
-| ed                         | SpecifyKindUtc(DateTime)                                               |
-|                            | DateTime date<br>$\bullet$                                             |
-|                            |                                                                        |
-|                            | SpecifyKindLocal(DateTime)                                             |
-|                            | DateTime date                                                          |
-|                            |                                                                        |
-|                            | SpecifyKindUnspecified(DateTime)                                       |
-|                            | DateTime date                                                          |
-|                            |                                                                        |
-|                            | <b>Example</b>                                                         |
-|                            |                                                                        |
-|                            |                                                                        |
-|                            | <b>Description</b>                                                     |
-|                            | The function executes a provided string as a command.                  |
-|                            | <b>Parameters</b>                                                      |
-| Utils. Eval                |                                                                        |
-|                            | Eval(string)                                                           |
-|                            | string expression                                                      |
-|                            |                                                                        |
-|                            | <b>Example</b><br><set var="NeedProcess">{Utils.Eval(checkCond)}</set> |
-|                            | <b>Description</b>                                                     |
-|                            | The function gets random values of random types.                       |
-|                            |                                                                        |
-|                            | <b>Parameters</b>                                                      |
-|                            | GetRandom(string, object)                                              |
-| Utils.GetRandom            | string type                                                            |
-|                            | object max                                                             |
-|                            |                                                                        |
-|                            | <b>Example</b>                                                         |
-|                            |                                                                        |
-|                            |                                                                        |
-|                            |                                                                        |
-|                            | <b>Description</b>                                                     |
-|                            | Loads an XElement from a file, optionally preserving white             |
-|                            | space, setting the base URI, and retaining line information.           |
-|                            | <b>Parameters</b>                                                      |
-| Xml.Load                   |                                                                        |
-|                            | Load(string, int)                                                      |
-|                            | string uri                                                             |
-|                            | int options                                                            |
-|                            |                                                                        |
-|                            | <b>Example</b><br><set xml="Xml.Load(fileName)"></set>                 |
-|                            |                                                                        |
-
-|             | <b>Description</b>                                    |
-|-------------|-------------------------------------------------------|
-|             | Loads an XElement from a file.                        |
-|             |                                                       |
-| Xml.LoadEnc | <b>Parameters</b>                                     |
-|             | LoadEnc(string)                                       |
-|             | string uri<br>$\bullet$                               |
-|             | <b>Example</b>                                        |
-|             |                                                       |
-|             | <b>Description</b>                                    |
-|             | Load an XElement from a string that contains XML,     |
-|             | optionally preserving white space and retaining line  |
-|             | information.                                          |
-|             | <b>Parameters</b>                                     |
-|             | Parse(string, int)                                    |
-|             | string text                                           |
-| Xml.Parse   | int options                                           |
-|             |                                                       |
-|             | <b>Example</b>                                        |
-|             | <set var="xmlSource"><!-- [CDATA]</th--></set>        |
-|             | $<$ root $>$<br><add name="abdc">Test data</add>      |
-|             | <add name="n2">Second text</add>                      |
-|             | data                                                  |
-|             | $\langle$ /root>                                      |
-|             | $]$ $]\times$ /set>                                   |
-|             | <set xml="Xml. Parse(xmlSource, 1)"></set>            |
-|             | <b>Description</b>                                    |
-|             | Searches and selects values from within the specified |
-|             | element of an XML file and returns these values as an |
-|             | array.                                                |
-|             |                                                       |
-|             | <b>Parameters</b>                                     |
-| Xml.Select  | Select(XElement, string, IDictionary)                 |
-|             | XElement xml                                          |
-|             | string expression                                     |
-|             | IDictionary fields                                    |
-|             | <b>Example</b>                                        |
-| Xml.ToXml   | <b>Description</b>                                    |
-|             |                                                       |
-
-| Xml.FromXml                                                                                                                                                                                    | Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.                                                                                  |                                          |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------|
-|                                                                                                                                                                                                |                                                                                                                                                                                       | Passes XML string and returns an object. |
-| Parameters                                                                                                                                                                                     | ToXml(object, string)                                                                                                                                                                 |                                          |
-| object value                                                                                                                                                                                   | string rootElementName                                                                                                                                                                |                                          |
-|                                                                                                                                                                                                |                                                                                                                                                                                       |                                          |
-| FromXml(string)                                                                                                                                                                                | string xml                                                                                                                                                                            |                                          |
-|                                                                                                                                                                                                |                                                                                                                                                                                       | Example                                  |
-| Math. This .NET object is used for common mathematical functions, for the list of supported methods refer to http://msdn.microsoft.com/en-us/library/system.math.aspx                          |                                                                                                                                                                                       |                                          |
-| File.*                                                                                                                                                                                         | This .NET object is used for operations with files, for the list of supported methods refer to http://msdn.microsoft.com/en-us/library/system.io.file.aspx                            |                                          |
-| Path. This .NET object is used for operations with filesystem, for the list of supported methods refer to http://msdn.microsoft.com/en-us/library/system.io.path.aspx                          |                                                                                                                                                                                       |                                          |
-| Encoding.*                                                                                                                                                                                     | This .NET object is used for character and text encoding, for the list of supported methods and properties refer to http://msdn.microsoft.com/en-us/library/system.text.encoding.aspx |                                          |
-| Timespans. This .NET object is used for operations with time intervals. for the list of supported methods and properties refer to http://msdn.microsoft.com/en-us/library/system.timespan.aspx |                                                                                                                                                                                       |                                          |
 
 # DECLARATION OF THE VARIABLES
 
