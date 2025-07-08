@@ -72,6 +72,7 @@ If the corresponding element is not found, search of a method with this name wil
 
 Variables in Sync360 can be defined with one of types listed in **Table 1**.
 
+#### Table 1. Variable types
 | <b>Type</b> | <b>Description</b>                                                              |
 |-------------|---------------------------------------------------------------------------------|
 | char        | The char keyword is used to declare a Unicode character (Unicode 16-bit character). |
@@ -94,24 +95,26 @@ Variables in Sync360 can be defined with one of types listed in **Table 1**.
 | Dictionary  | Represents a collection of keys and values. Standard .NET Dictionary            |
 | Object      | Generic Object, its properties can be defined in script.                        |
 
-Table 1. Variable types
+
 
 # **CONSTANTS**
 
 There are three predefined constants in Sync360 that listed in **Table 2**.
 
+#### Table 2. Constants
 | <b>Type</b> | <b>Description</b>                                            |
 |-------------|---------------------------------------------------------------|
 | "true"      | <b>True.</b> This constant represents a Boolean value True.   |
 | "false"     | <b>False.</b> This constant represents a Boolean value False. |
 | "null"      | <b>Null.</b> This constant represents Null value              |
 
-#### Table 2. Constants
+
 
 # **OPERATORS**
 
-| <b>Type</b>                  | <b>Description</b>                                                                   |
-|------------------------------|--------------------------------------------------------------------------------------|
+#### Table 3. Operators
+| <b>Type</b>                  | <b>Description</b>  |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | $" +"$                       | <b>Addition</b>. This operator adds the second operand to the first operand.<br/><b>Supported variable types:</b> int, long, double, string.|
 | $"-"$                        | <b>Subtraction</b>. This operator subtracts the second operand from the first operand.<br/><b>Supported variable types:</b>  int, long, double.   |
 | $"*"$                        | <b> Multiplication</b>. This operator multiplies the first operand by the second operand.<br/><b>Supported variable types:</b>  int, long, double.    |
@@ -133,9 +136,10 @@ There are three predefined constants in Sync360 that listed in **Table 2**.
 Functions in Sync360 are methods for set of predefined objects. There are only two predefined functions that doesn't bind to an object.
 
 **NOTE:** Helper functions (sometimes simply called "helpers") are usually functions that wrap useful functionality that you're going to reuse repeatedly.
-Table 4. Functions
+
+#### Table 4. Functions
 | <b>Type</b>   | <b>Description</b>     |                                                                                                                                                                                                                                                                 
-|---------------|------------------------|
+|---------------|------------------------------------------------------------------------------------|
 | "isSet"       | <b>Is Set.</b> This function returns true if the operand has value (not null).    |                                                                                                                                                                                                      
 | "Count"       | <b>Count.</b> This function returns the number of elements in the collection.     |
 | Csv.Read      | <b>Description</b><br/> The function reads through a CSV file and creates the list of strings where every line is a separate record. The number of parameters specified may vary. And this overloaded function may be used several times throughout the script. If some parameters are not specified, the default values listed in the script are used instead, e.g. Read(string path, string quote = DefaultQuote).<br/><b> Parameters</b><br/> Read(param1, param2, param3, param4, param5, param6, param7, param8) <br/> $\bullet$ string path - path to a file and its name.<br/>$\bullet$ Encoding encoding —the type of encoding used in a file. <br/> $\bullet$ string delimiter - delimiter used in a file. <br/> $\bullet$ string quote — multiline text delimiter used in a file. <br/> $\bullet$ string comment - comment symbol used in a file. <br/> $\bullet$ bool trim - checks whether value trimming is required or not. <br/> $\bullet$ bool hasHeader -checks whether a CSV file has a header or not. </br> $\bullet$ int topLinesToSkip - the number of lines to skip in a file.<br/> <b>Example</b> |
@@ -294,20 +298,20 @@ examples:
 
 ```
 <set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
-    <log>Start cycle.</log>
-    <for var="t" in="testCycle">
-         <log>{t}</log>
-             <break if="t eq 'test3'"/>
-    </for>
-         <log>End cycle.</log>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+   <log>{t}</log>
+   <break if="t eq 'test3'"/>
+</for>
+<log>End cycle.</log>
 <set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
-     <log>Start cycle.</log>
-    <for var="t" in="testCycle">
-         <log>{t}</log>
-         <if condition="t eq 'test3'">
-             <break/>
-         \langle/if>
-    </for>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+   <log>{t}</log>
+    <if condition="t eq 'test3'">
+        <break/>
+    </if>
+</for>
 <log>End cycle.</log>
 ```
 
@@ -317,21 +321,21 @@ examples:
 
 ```
 <set var="testCycle">{['test1','test2','test3','test4']}</set>
-     <log>Start cycle.</log>
-    <for var="t" in="testCycle">
-         <continue if="t eq 'test3'"/>
-         <log>{t}</log>
-    </for>
-    <log>End cycle.</log>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+    <continue if="t eq 'test3'"/>
+    <log>{t}</log>
+</for>
+<log>End cycle.</log>
 <set var="testCycle">{['test1','test2','test3','test4']}</set>
-    <log>Start cycle.</log>
-    <for var="t" in="testCycle">
-         <if condition="t eq 'test3'">
-             <continue/>
-        \langle/if>
-         <log>{t}</log>
-     </for>
-     <log>End cycle.</log>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+     <if condition="t eq 'test3'">
+         <continue/>
+     </if>
+     <log>{t}</log>
+</for>
+<log>End cycle.</log>
 ```
 
 ### For
@@ -364,13 +368,13 @@ the **"condition"** attribute is equal to *true*.
 <set var="b">{15}</set>
 <if condition="a gt b">
      <log>a is greater then b</log>
-\langle/if>
+</if>
 <if condition="a lt b">
      <log>a is less then b</log>
-\langle/if>
+</if>
 <if condition="a eq b">
      <log>a is equal to b</log>
-\langle/if>
+</if>
 ```
 
 **Unless** construction is used only in conjunction with **IF** to execute code block if a condition is true and another code **IF** the condition is not true.
@@ -423,7 +427,7 @@ Any operator can use **IF** or **Unless**.
          <else if="b eq c">
              <log>b equal c</log>
          </else>
-\langle/if>
+</if>
 ```
 
 # DATA OPERATIONS
@@ -432,12 +436,13 @@ Any operator can use **IF** or **Unless**.
 
 **Context** construction is used when it is necessary to perform a set of operation in a specific user context. Context can be used only if current user has permissions for Impersonation usage on server.
 
+#### Table 5. Context constriction attributes.
 | <b>Attribute</b> | <b>Description</b>                                                                  | <b>Usage</b> |
-|------------------|-------------------------------------------------------------------------------------|--------------|
+|-|-|-|
 | for              | A server name that a context is created for.                                        | Required     |
 | user             | A user Id (MS CRM) / a user E-Mail address (Exchange) that the context is used for. | Required     |
 
-Table 5. Context constriction attributes.
+
 
 *Example:*
 
@@ -445,11 +450,10 @@ Table 5. Context constriction attributes.
 <context for="exchange" user="{userEmail}">
      <select from="exchange" entity="contact" var="contacts">
          <where>
-             \langle or \rangle <condition attr="crmLinkState" op="eq">0
-                  </condition>
-                  <condition attr="crmLinkState" op="eq">2
-                  </condition>
-             \langle/or\rangle <condition attr="crmid" op="ne"></condition>
+             <or> <condition attr="crmLinkState" op="eq">0</condition>
+                  <condition attr="crmLinkState" op="eq">2</condition>
+            </or>
+            <condition attr="crmid" op="ne"></condition>
          </where>
          <attr name="EntryId"/>
          <attr name="crmid"/>
@@ -464,26 +468,20 @@ Table 5. Context constriction attributes.
 
 **Select** operation looks for records of specific type in accordance with the criteria and stores the retrieved data into a specified variable. The result is always an array of dictionaries. The following tables enumerate the attributes and child elements for Read operation.
 
-| <b>Attribute</b> | <b>Description</b>                                  | <b>Usage</b> |
-|------------------|-----------------------------------------------------|--------------|
-| from             | A server name that Read operation will run for.     | Required     |
-| entity           | A type of records that the search will perform for. | Optional     |
-
 #### Table 6. Read operation attributes.
-
+| <b>Attribute</b> | <b>Description</b>                                  | <b>Usage</b> |
+|-|-|-|
+| from   | A server name that Read operation will run for.     | Required     |
+| entity | A type of records that the search will perform for. | Optional     |
 | var   | The variable name that will contain the result of search operation. | Optional |
-|-------|---------------------------------------------------------------------|----------|
 | count | A number of records that will be returned by search                 | Optional |
 | page  | Determine from which page return records                            | Optional |
 
 **NOTE:** Here in after, if "entity" attribute has not been specified, the "contact" entity will be used by default.
 
-| First Name | Last Name | Age |
-|------------|-----------|-----|
-|            |           |     |
-
+#### Table 7. Read operation children elements.
 | <b>Element</b> | <b>Description</b>                                                                         | <b>Usage</b> |
-|----------------|--------------------------------------------------------------------------------------------|--------------|
+|-|-|-|
 | attr           | An attribute name the found records always contain.                                        | Required     |
 | where          | A criteria element contains conditions set that will be used to find<br>records to update. | Optional     |
 | order          | Used for sorting search results by ordering.                                               | Optional     |
@@ -511,8 +509,7 @@ To read all names and ids of first 50 accounts where Country attribute value is 
 ```
 <select from="db" entity="tasks" var="tasks">
     <query>
-         select Tasks.Name as 'ttt', Instances.Name, Instances.InstanceID from tasks, Instances where 
-tasks.InstanceID = Instances.InstanceID and Instances.Title = @title
+         select Tasks.Name as 'ttt', Instances.Name, Instances.InstanceID from tasks, Instances where tasks.InstanceID = Instances.InstanceID and Instances.Title = @title
     </query>
      <attr name="@title">Main work</attr>
 </select>
@@ -520,11 +517,11 @@ tasks.InstanceID = Instances.InstanceID and Instances.Title = @title
 
 **Select–join** operation looks for records of specific type in accordance with the criteria applied to the entity itself and related entities.
 
-Table 8. Join operation attributes.
+#### Table 8. Join operation attributes.
 
 | <b>Attribute</b> | <b>Description</b>                                                                                                                                                                             | <b>Usage</b> |
 |------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
-| type             | Join type (based on used connector)<br>For example, for CRM connector:<br>https://docs.microsoft.com/en-us/previous-<br>versions/dynamicscrm-2016/developers-<br>guide/gg327702%28v%3dcrm.8%29 | Required     |
+| type             | Join type (based on used connector).<br/> For example, for CRM connector:  <https://docs.microsoft.com/en-us/previous-versions/dynamicscrm-2016/developers-guide/gg327702%28v%3dcrm.8%29>  | Required     |
 | entity           | Related entity name.                                                                                                                                                                           | Required     |
 | to               | Field name of the related entity.                                                                                                                                                              | Required     |
 | from             | Field name of the main entity.                                                                                                                                                                 | Required     |
@@ -556,22 +553,18 @@ Table 8. Join operation attributes.
 **Create** operation creates a specified entity record with defined attributes and stores a copy of created data into the specified variable. This operation returns an array of dictionaries.
 
 The following tables list the attributes and children elements for Create operation.
-
+#### Table 9. Create operation attributes.
 | <b>Attribute</b> | <b>Description</b>                                    | <b>Usage</b> |
 |------------------|-------------------------------------------------------|--------------|
-| $\ln$            | A server name that the create operation performs for. | Required     |
-| entity           | A type of records that will be created.               | Optional     |
+| in    | A server name that the create operation performs for. | Required    |
+| entity  | A type of records that will be created.        | Optional     |
+| var | The variable name that will contain a result of Create operation. | Required |
 
-Table 9. Create operation attributes.
 
-| The variable name that will contain a result of Create operation. | Required |
-|-------------------------------------------------------------------|----------|
-|-------------------------------------------------------------------|----------|
-
-Table 10. Create operation children elements.
+#### Table 10. Create operation children elements.
 
 | Element | <b>Description</b>                                        | <b>Usage</b> |
-|---------|-----------------------------------------------------------|--------------|
+|-|-|-|
 | attr    | An attribute name and its value for a new created record. | Required     |
 
 To create the contact, you could use the Create operation as follows:
@@ -591,17 +584,14 @@ To create the contact, you could use the Create operation as follows:
 
 **Update** operation updates the specified entity records corresponding with the search criteria with predefined attributes set. The operation returns an array of dictionaries.
 
+#### Table 11. Update operation attributes.
 | Attribute | Description                                           | Usage    |
 |-----------|-------------------------------------------------------|----------|
 | ın        | A server name that the update operation performs for. | Required |
 | entity    | A type of records that will be updated.               | Optional |
 
-Table 11. Update operation attributes.
 
-| First Name | Last Name | Table 12. Update operation children elements. | Age |
-|------------|-----------|-----------------------------------------------|-----|
-| John       | Doe       |                                               | 25  |
-
+#### Table 12. Update operation children elements.
 | Element | Description                                                                                | Usage    |
 |---------|--------------------------------------------------------------------------------------------|----------|
 | where   | A criteria element contains conditions set that will be used to find<br>records to update. | Required |
@@ -624,17 +614,17 @@ To update account with name "Adidas" and set new Primary Contact attribute, you 
 
 **Delete** operation deletes a specified entity records satisfied to search criteria.
 
+#### Table 13. Delete operation attributes.
 | <b>Attribute</b> | <b>Description</b>                                    | <b>Usage</b> |
-|------------------|-------------------------------------------------------|--------------|
-| $\ln$            | A server name that the delete operation performs for. | Required     |
+|-------------------|------------------------------------------------------|--------------|
+| in           | A server name that the delete operation performs for. | Required     |
 | entity           | A type of records that will be deleted.               | Optional     |
 
-Table 13. Delete operation attributes.
 
+#### Table 14. The Delete operation child elements.
 | Element | <b>Description</b>                                                   | <b>Usage</b> |
-|---------|----------------------------------------------------------------------|--------------|
-| where   | A criteria element contains conditions set that will be used to find | Required     |
-|         | records to delete.                                                   |              |
+|-|-|-|
+| where   | A criteria element contains conditions set that will be used to find records to delete.| Required     |
 
 #### *Example:*
 
@@ -652,18 +642,13 @@ The following script deletes an Exchange contact by known EntryId:
 
 **Batch** operation can be used to combine create, update, or delete operations into one batch to minimize the number of requests to target system.
 
+#### Table 15. Batch operation attributes.
 | <b>Attribute</b> | <b>Description</b>                                                                                                    | <b>Usage</b> |
-|------------------|-----------------------------------------------------------------------------------------------------------------------|--------------|
+|-|-|-|
 | for              | A server name that Batch operation will run for.                                                                      | Required     |
 | continueOnError  | false – do not continue processing the next request on error.                                                         | Required     |
 | var              | The variable name that will contain the response from target system. Response is presented only for create operation. | Required     |
-
-Table 15. Batch operation attributes.
-
-| returnResponses | true—return responses from each message request |          |
-|-----------------|-------------------------------------------------|----------|
-| processed.      |                                                 | Optional |
-|                 | false—do not return responses.                  |          |
+| returnResponses | true—return responses from each message request  processed.<br/> false—do not return responses.                        | Optional     |
 
 ```
  <set var="PageSize">{10}</set>
@@ -752,8 +737,9 @@ var="newIds[]">{innerResponse.Responses[0].id}</set>
 
 **Transaction** operation can be used to combine create, update or delete operations into one transaction to minimize the number of requests to target system.
 
+#### Table16 . Transaction operation attributes.
 | <b>Attribute</b> | <b>Description</b>                                                                                                          | <b>Usage</b> |
-|------------------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
+|-|-|-|
 | for              | A server name that Batch operation will run for.                                                                            | Required     |
 | var              | The variable name that will contain the response<br>from target system. Response is presented only<br>for create operation. | Required     |
 | returnResponses  | true - return responses from each message<br>request processed.<br>false - do not return responses.                         | Optional     |
@@ -786,24 +772,15 @@ var="newIds[]">{innerResponse.Responses[0].id}</set>
                  <set var="cnt">{csvContacts[index]}</set>
                  <sandbox>
                                                   <create in="crm" entity="contact">
-                                                           <attr if="cnt['lastname'].isSet and 
-cnt['lastname'] ne ''" name="lastname">{cnt['lastname']}</attr>
-                                                           <attr if="cnt['firstname'].isSet and 
-cnt['firstname'] ne ''" name="firstname">{cnt['firstname']}</attr>
-                                                           <attr if="cnt['salutation'].isSet and 
-cnt['salutation'] ne ''" name="salutation">{cnt['salutation']}</attr>
-                                                           <attr if="cnt['birthdate'].isSet and 
-cnt['birthdate'] ne ''" name="birthdate">{cnt['birthdate']}</attr>
-                                                           <attr if="cnt['slaname'].isSet and cnt['slaname'] 
-ne ''" name="slaname">{cnt['slaname']}</attr>
-                                                           <attr if="cnt['telephone1'].isSet and 
-cnt['telephone1'] ne ''" name="telephone1">{cnt['telephone1']}</attr>
-                                                           <attr if="cnt['telephone2'].isSet and 
-cnt['telephone2'] ne ''" name="telephone2">{cnt['telephone2']}</attr>
-                                                           <attr if="cnt['telephone3'].isSet and 
-cnt['telephone3'] ne ''" name="telephone3">{cnt['telephone3']}</attr>
-                                                           <attr if="cnt['websiteurl'].isSet and 
-cnt['websiteurl'] ne ''" name="websiteurl">{cnt['websiteurl']}</attr>
+                                                           <attr if="cnt['lastname'].isSet and cnt['lastname'] ne ''" name="lastname">{cnt['lastname']}</attr>
+                                                           <attr if="cnt['firstname'].isSet and cnt['firstname'] ne ''" name="firstname">{cnt['firstname']}</attr>
+                                                           <attr if="cnt['salutation'].isSet and cnt['salutation'] ne ''" name="salutation">{cnt['salutation']}</attr>
+                                                           <attr if="cnt['birthdate'].isSet and cnt['birthdate'] ne ''" name="birthdate">{cnt['birthdate']}</attr>
+                                                           <attr if="cnt['slaname'].isSet and cnt['slaname'] ne ''" name="slaname">{cnt['slaname']}</attr>
+                                                           <attr if="cnt['telephone1'].isSet and cnt['telephone1'] ne ''" name="telephone1">{cnt['telephone1']}</attr>
+                                                           <attr if="cnt['telephone2'].isSet and cnt['telephone2'] ne ''" name="telephone2">{cnt['telephone2']}</attr>
+                                                           <attr if="cnt['telephone3'].isSet and cnt['telephone3'] ne ''" name="telephone3">{cnt['telephone3']}</attr>
+                                                           <attr if="cnt['websiteurl'].isSet and cnt['websiteurl'] ne ''" name="websiteurl">{cnt['websiteurl']}</attr>
                                                            <attr name="statecode">{1}</attr>
                                                            <attr name="statuscode">{2}</attr>
                                                   </create>
@@ -824,17 +801,16 @@ cnt['websiteurl'] ne ''" name="websiteurl">{cnt['websiteurl']}</attr>
 
 There are 6 types of two operands condition operators. The following table describes them in detail.
 
+#### Table 17. Two operands operation types.
 | Name | Description                                                                                          |
-|------|------------------------------------------------------------------------------------------------------|
+|-|-|
 | eq   | Evaluates to true if an attribute has a value that is equal to the condition value.                  |
 | ne   | Evaluates to true if an attribute has a value that is not equal to the condition value.              |
 | 1t   | Evaluates to true if the attribute has a value that is less than the condition value.                |
 | le   | Evaluates to true if the attribute has a value that is less than or equal to the condition value.    |
-|      | value.                                                                                               |
 | gt   | Evaluates to true if the attribute has a value that is greater than the condition value.             |
 | ge   | Evaluates to true if the attribute has a value that is greater than or equal to the condition value. |
 
-Table 17. Two operands operation types.
 
 #### *Example:*
 
@@ -853,13 +829,14 @@ The following script returns all contacts with first name "Joe":
 
 **Contains** condition operator allow to perform text searches within string properties.Condition evaluates to true if the supplied constant value contains in the property text value.
 
+#### Table 18. The Contains condition operator search patterns for CRM servers.
 | Pattern | Description                                                                           |
-|---------|---------------------------------------------------------------------------------------|
+|-|-|
 | %text   | Evaluates to true if the property text value ends with the supplied constant value.   |
 | %text%  | Evaluates to true if the supplied constant value contains in the property text value. |
 | text%   | Evaluates to true if the property text value starts with the supplied constant value. |
 
-Table 18. The Contains condition operator search patterns for CRM servers.
+
 
 **NOTE:** %text% is equals to search without "%" symbol.
 
