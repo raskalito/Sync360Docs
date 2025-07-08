@@ -670,24 +670,15 @@ The following script deletes an Exchange contact by known EntryId:
                 <set var="cnt">{csvContacts[index]}</set>
                 <sandbox>
                    <create in="crm" entity="contact">
-                      <attr if="cnt['lastname'].isSet and cnt['lastname'] ne ''"
-name="lastname">{cnt['lastname']}</attr>
-                      <attr if="cnt['firstname'].isSet and cnt['firstname'] ne ''"
-name="firstname">{cnt['firstname']}</attr>
-                      <attr if="cnt['salutation'].isSet and cnt['salutation'] ne ''"
-name="salutation">{cnt['salutation']}</attr>
-                      <attr if="cnt['birthdate'].isSet and cnt['birthdate'] ne ''"
-name="birthdate">{cnt['birthdate']}</attr>
-                       <attr if="cnt['slaname'].isSet and cnt['slaname'] ne ''"
-name="slaname">{cnt['slaname']}</attr>
-                      <attr if="cnt['telephone1'].isSet and cnt['telephone1'] ne ''"
-name="telephone1">{cnt['telephone1']}</attr>
-                      <attr if="cnt['telephone2'].isSet and cnt['telephone2'] ne ''"
-name="telephone2">{cnt['telephone2']}</attr>
-                      <attr if="cnt['telephone3'].isSet and cnt['telephone3'] ne ''"
-name="telephone3">{cnt['telephone3']}</attr>
- <attr if="cnt['websiteurl'].isSet and cnt['websiteurl'] ne ''"
-name="websiteurl">{cnt['websiteurl']}</attr>
+                      <attr if="cnt['lastname'].isSet and cnt['lastname'] ne ''" name="lastname">{cnt['lastname']}</attr>
+                      <attr if="cnt['firstname'].isSet and cnt['firstname'] ne ''" name="firstname">{cnt['firstname']}</attr>
+                      <attr if="cnt['salutation'].isSet and cnt['salutation'] ne ''" name="salutation">{cnt['salutation']}</attr>
+                      <attr if="cnt['birthdate'].isSet and cnt['birthdate'] ne ''" name="birthdate">{cnt['birthdate']}</attr>
+                      <attr if="cnt['slaname'].isSet and cnt['slaname'] ne ''" name="slaname">{cnt['slaname']}</attr>
+                      <attr if="cnt['telephone1'].isSet and cnt['telephone1'] ne ''" name="telephone1">{cnt['telephone1']}</attr>
+                      <attr if="cnt['telephone2'].isSet and cnt['telephone2'] ne ''" name="telephone2">{cnt['telephone2']}</attr>
+                      <attr if="cnt['telephone3'].isSet and cnt['telephone3'] ne ''" name="telephone3">{cnt['telephone3']}</attr>
+                      <attr if="cnt['websiteurl'].isSet and cnt['websiteurl'] ne ''" name="websiteurl">{cnt['websiteurl']}</attr>
                       <attr name="statecode">{1}</attr>
                       <attr name="statuscode">{2}</attr>
                    </create>
@@ -709,9 +700,9 @@ name="websiteurl">{cnt['websiteurl']}</attr>
          <for var="resp" in="result.Responses">
              <if condition="resp.Fault.isSet">
                   <log>Error on index {resp.RequestIndex} with message: {resp.Fault.Message}</log>
-             \langle/if>
+             </if>
          </for>
-   \langle/if>
+   </if>
 ```
 
 *Example: (Batch response handling for create operation)*
@@ -729,7 +720,7 @@ var="newIds[]">{innerResponse.Responses[0].id}</set>
              <else>
                  <set var="newIds[]">{null}</set>
              </else>
-        \langle/if>
+        </if>
 </for>
 ```
 
@@ -739,7 +730,7 @@ var="newIds[]">{innerResponse.Responses[0].id}</set>
 
 #### Table16 . Transaction operation attributes.
 | <b>Attribute</b> | <b>Description</b>                                                                                                          | <b>Usage</b> |
-|-|-|-|
+|------------------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
 | for              | A server name that Batch operation will run for.                                                                            | Required     |
 | var              | The variable name that will contain the response<br>from target system. Response is presented only<br>for create operation. | Required     |
 | returnResponses  | true - return responses from each message<br>request processed.<br>false - do not return responses.                         | Optional     |
@@ -748,50 +739,43 @@ var="newIds[]">{innerResponse.Responses[0].id}</set>
 
 ```
 <set var="PageSize">{10}</set>
-         <log>Script started at {Utils.Now}</log>
-         <set var="csvContacts">{Csv.Read('c:/temp/contact lite test.txt', Encoding.GetEncoding('utf-8'), 
-';')}</set>
-```
-
-```
+<log>Script started at {Utils.Now}</log>
+<set var="csvContacts">{Csv.Read('c:/temp/contact lite test.txt', Encoding.GetEncoding('utf-8'),';')}</set>
 <set var="Continue">{true}</set>
-```
-
-```
-<set var="RecordsLeft">{csvContacts.er}</set>
-          <set var="Page">{0}</set>
-         <log>Import started at {Utils.Now}</log>
-          <log>Batch size = {PageSize}</log>
-          <while condition="Continue">
-                   <set var="LastPage">{RecordsLeft lt PageSize}</set>
-                   <set var="CurrentPage" if="LastPage">{RecordsLeft}</set>
-                    <set var="CurrentPage" if="!LastPage">{PageSize}</set>
-         <transaction for="crm" continueOnError="true" var="result" returnResponses="true">
-                             <for var="iter" from="0" to="CurrentPage-1" step="1">
-                                        <set var="index">{(PageSize * Page) + iter}</set>
-                 <set var="cnt">{csvContacts[index]}</set>
-                 <sandbox>
-                                                  <create in="crm" entity="contact">
-                                                           <attr if="cnt['lastname'].isSet and cnt['lastname'] ne ''" name="lastname">{cnt['lastname']}</attr>
-                                                           <attr if="cnt['firstname'].isSet and cnt['firstname'] ne ''" name="firstname">{cnt['firstname']}</attr>
-                                                           <attr if="cnt['salutation'].isSet and cnt['salutation'] ne ''" name="salutation">{cnt['salutation']}</attr>
-                                                           <attr if="cnt['birthdate'].isSet and cnt['birthdate'] ne ''" name="birthdate">{cnt['birthdate']}</attr>
-                                                           <attr if="cnt['slaname'].isSet and cnt['slaname'] ne ''" name="slaname">{cnt['slaname']}</attr>
-                                                           <attr if="cnt['telephone1'].isSet and cnt['telephone1'] ne ''" name="telephone1">{cnt['telephone1']}</attr>
-                                                           <attr if="cnt['telephone2'].isSet and cnt['telephone2'] ne ''" name="telephone2">{cnt['telephone2']}</attr>
-                                                           <attr if="cnt['telephone3'].isSet and cnt['telephone3'] ne ''" name="telephone3">{cnt['telephone3']}</attr>
-                                                           <attr if="cnt['websiteurl'].isSet and cnt['websiteurl'] ne ''" name="websiteurl">{cnt['websiteurl']}</attr>
-                                                           <attr name="statecode">{1}</attr>
-                                                           <attr name="statuscode">{2}</attr>
-                                                  </create>
-                                        </sandbox>
-                              </for>
-                   </ transaction>
-                   <log>{result}</log>
-         <set var="RecordsLeft">{RecordsLeft - CurrentPage}</set>
-         <set var="Page">{Page + 1}</set>
-        <set var="Continue" if="RecordsLeft le 0">{false}</set>
-       </while>
+<set var="RecordsLeft">{csvContacts.Count}</set>
+<set var="Page">{0}</set>
+<log>Import started at {Utils.Now}</log>
+<log>Batch size = {PageSize}</log>
+<while condition="Continue">
+    <set var="LastPage">{RecordsLeft lt PageSize}</set>
+    <set var="CurrentPage" if="LastPage">{RecordsLeft}</set>
+    <set var="CurrentPage" if="!LastPage">{PageSize}</set>
+    <transaction for="crm" continueOnError="true" var="result" returnResponses="true">
+        <for var="iter" from="0" to="CurrentPage-1" step="1">
+            <set var="index">{(PageSize * Page) + iter}</set>
+            <set var="cnt">{csvContacts[index]}</set>
+            <sandbox>
+                <create in="crm" entity="contact">
+                    <attr name="lastname" if="cnt['lastname'].isSet and cnt['lastname'] ne ''">{cnt['lastname']}</attr>
+                    <attr name="firstname" if="cnt['firstname'].isSet and cnt['firstname'] ne ''">{cnt['firstname']}</attr>
+                    <attr name="salutation" if="cnt['salutation'].isSet and cnt['salutation'] ne ''">{cnt['salutation']}</attr>
+                    <attr name="birthdate" if="cnt['birthdate'].isSet and cnt['birthdate'] ne ''" >{cnt['birthdate']}</attr>
+                    <attr name="slaname"  if="cnt['slaname'].isSet and cnt['slaname'] ne ''">{cnt['slaname']}</attr>
+                    <attr name="telephone1" if="cnt['telephone1'].isSet and cnt['telephone1'] ne ''">{cnt['telephone1']}</attr>
+                    <attr name="telephone2" if="cnt['telephone2'].isSet and cnt['telephone2'] ne ''">{cnt['telephone2']}</attr>
+                    <attr name="telephone3" if="cnt['telephone3'].isSet and cnt['telephone3'] ne ''" >{cnt['telephone3']}</attr>
+                    <attr name="websiteurl" if="cnt['websiteurl'].isSet and cnt['websiteurl'] ne ''">{cnt['websiteurl']}</attr>
+                    <attr name="statecode">{1}</attr>
+                    <attr name="statuscode">{2}</attr>
+                </create>
+            </sandbox>
+        </for>
+    </transaction>
+    <log>{result}</log>
+    <set var="RecordsLeft">{RecordsLeft - CurrentPage}</set>
+    <set var="Page">{Page + 1}</set>
+    <set var="Continue" if="RecordsLeft le 0">{false}</set>
+</while>
 <log>Import finished at {Utils.Now}</log>
 ```
 
@@ -803,7 +787,7 @@ There are 6 types of two operands condition operators. The following table descr
 
 #### Table 17. Two operands operation types.
 | Name | Description                                                                                          |
-|-|-|
+|------|------------------------------------------------------------------------------------------------------|
 | eq   | Evaluates to true if an attribute has a value that is equal to the condition value.                  |
 | ne   | Evaluates to true if an attribute has a value that is not equal to the condition value.              |
 | 1t   | Evaluates to true if the attribute has a value that is less than the condition value.                |
@@ -831,7 +815,7 @@ The following script returns all contacts with first name "Joe":
 
 #### Table 18. The Contains condition operator search patterns for CRM servers.
 | Pattern | Description                                                                           |
-|-|-|
+|---------|---------------------------------------------------------------------------------------|
 | %text   | Evaluates to true if the property text value ends with the supplied constant value.   |
 | %text%  | Evaluates to true if the supplied constant value contains in the property text value. |
 | text%   | Evaluates to true if the property text value starts with the supplied constant value. |
@@ -886,10 +870,12 @@ DoNotPhone or DoNotEmail properties are not equal to true.
 <select from="crmserver" entity="contact" var="contacts">
      <where>
         <not>
-           \langleand\rangle <condition attr="firstname" op="eq">Joe</condition>
-               \langle or \rangle <condition attr="donotphone" op="eq">{true}</condition>
-                     <condition attr="donotemail" op="eq">{true}</condition>
-                 </or>
+           <and>
+              <condition attr="firstname" op="eq">Joe</condition>
+              <or>
+                 <condition attr="donotphone" op="eq">{true}</condition>
+                  <condition attr="donotemail" op="eq">{true}</condition>
+              </or>
             </and>
         </not>
     </where>
@@ -950,9 +936,11 @@ DoNotPhone or DoNotEmail properties are equal to true.
      <where>
         <and>
           <condition attr="firstname" op="eq">Joe</condition>
-           \langle or \rangle <condition attr="donotphone" op="eq">{true}</condition>
-                <condition attr="donotemail" op="eq">{true}</condition>
-          \langle/or\rangle </and>
+          <or>
+            <condition attr="donotphone" op="eq">{true}</condition>
+            <condition attr="donotemail" op="eq">{true}</condition>
+          </or>
+         </and>
     </where>
     <attr name="contactid"/>
 </select>
@@ -999,9 +987,9 @@ The following example return all identifiers of CRM contacts, which first name i
 ```
 <select from="crmserver" entity="contact" var="contacts">
     <where>
-<condition attr="firstname" op="in">{['Bob', 'Joe', 'Michael']}</condition>
+       <condition attr="firstname" op="in">{['Bob', 'Joe', 'Michael']}</condition>
     </where>
-<attr name="contactid" />
+    <attr name="contactid" />
 </select>
 ```
 
@@ -1017,10 +1005,7 @@ All scripts return all identifiers of CRM contacts, which were created in 2011.
 <set var="dates">{[Utils.Now.AddDays(-100), Utils.Now.AddDays(-50)]}</set>
 <select from="crm" entity="contact" var="contacts">
       <where>
-```
-
-```
- <condition attr="createdon" op="between">{[dates[0],dates[1]]}</condition>
+         <condition attr="createdon" op="between">{[dates[0],dates[1]]}</condition>
       </where>
       <attr name="contactid" />
       <attr name="createdon" />
@@ -1056,7 +1041,7 @@ execution.
      </select>
      <if condition="{accounts.Count = 0}">
          <exception>There are no active accounts in {crmserver}. </exception>
-    \langle/if>
+     </if>
 </for>
 ```
 
@@ -1068,7 +1053,7 @@ execution.
 <sandbox verbose="false">
     <log>{2/0}</log>
     <onerror of="typeof System.DivideByZeroException">
-    <log>This is DivideByZero!</log>
+       <log>This is DivideByZero!</log>
     </onerror>
 </sandbox>
 ```
@@ -1099,7 +1084,7 @@ Logging is enabled for the sandbox.
           </where>
           <attr name="primarycontactid">contact:{contacts[0].contactid}</attr>
        </update>
-   \langle/if>
+   </if>
 </sandbox>
 ```
 
@@ -1147,11 +1132,8 @@ Call script "MyScriptHelper" and pass parameter "CallSettings"
 ```
 <script>
    <var callParameters='new Object()'/>
-```
-
-```
- <var callParameters.Param1='value1'/>
-    <MyScriptHelper CallSettings="callParameters"/>
+   <var callParameters.Param1='value1'/>
+   <MyScriptHelper CallSettings="callParameters"/>
 </script>
 <script>
    <var callParameters='new Object()'/>
