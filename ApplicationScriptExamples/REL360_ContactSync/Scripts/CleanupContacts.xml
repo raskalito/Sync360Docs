@@ -1,0 +1,249 @@
+<script>
+  <log>Cleanup process starting...</log>
+
+
+  <!--              CONFIGURATION SECTION                   -->
+  <set var="ManualMode">{false}</set> <!--USE FOR DEVELOPMENT/MANUAL DEBUG-->
+  <if condition="!Context.isSet">
+    <var Employee='["EmployeeId" : (Input.ObjectId ?? "a563aa50-48ac-ec11-983f-0022480ace83")]'/>
+    <include name="InitializeContext" />
+  </if>
+  <!--              CONFIGURATION END                       -->
+
+
+
+  <exception if="!Context.isSet">Context parameter is required.</exception>
+  <set var="Employee">{Context.Employee}</set>
+
+  <log></log>
+  <log>Cleanup process for Employee {Employee.Email} ({Employee.Id}) started.</log>
+  <log></log>
+
+  <set var="Settings">{Context.Settings}</set>
+
+  <log if="!Settings.ContactSyncEnabled">Contacts Sync is Disabled in Settings.</log>
+  <log if="!Settings.DeployedApps.ContactSync">ContactSync is not active in DeployedApps setting.</log>
+	
+  <if condition="Settings.DeployedApps.Onboarding">
+  	<log if="Settings.OnboardingRequestedSyncStop">Contacts Sync is Disabled by Onboarding.</log>
+  	<log if="!Employee.IsRolloutCompleted">Employee is waiting for Onboarding.</log>
+  </if>
+	
+  <set var="IsRunAllowed">{
+	Settings.ContactSyncEnabled 
+	and (Settings.DeployedApps.Onboarding ? (Employee.IsRolloutCompleted and !Settings.OnboardingRequestedSyncStop) : true)  
+	and Settings.DeployedApps.ContactSync}</set>
+
+  <set var="IsRunAllowed" if="ManualMode">{true}</set>
+
+  <if condition="IsRunAllowed">
+    <context for="exchange" user="{Employee.Email}">
+      <sandbox>
+        <log>Loading Employee Relationships records</log>
+        <select from="crm" entity="vs360_relationship" var="Relationships">
+          <where>
+            <condition attr="vs360_deletedinoutlook" op="not-null" />
+            <condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+          </where>
+          <join entity="contact" to="vs360_contactid" from="contactid">
+            <attr name="statecode" as="contact_statecode"/>
+            <attr name="contactid" as="contact_contactid" />
+            <attr name="masterid" as="contact_masterid"/>
+          </join>
+          <attr name="vs360_contactid"/>
+          <attr name="vs360_relationshipid"/>
+          <attr name="vs360_deletedinoutlook"/>
+          <attr name="vs360_syncwithoutlook"/>
+          <attr name="statecode"/>
+          <order by="statecode"/>
+        </select>
+        <log>Employee Relationships to be considered: {Relationships.Length}</log>
+
+        <set var="CrmContactsById">{new Dictionary()}</set>
+        <for var="rel" in="Relationships">
+			<if condition="!CrmContactsById.ContainsKey(rel.vs360_contactid.Id.ToString().ToLower())">
+                <set var="CrmContactsById[rel.vs360_contactid.Id.ToString().ToLower()]">{rel}</set>
+            </if>
+        </for>
+
+        <log>CrmContactsById: {CrmContactsById.Count}</log>
+
+        <log>Loading Contacts from Exchange</log>
+        <select from="exchange" entity="contact" var="contacts">
+          <where>
+			<if condition="Settings.SyncMainFolderOnly eq false">
+				<condition attr="parententryid" op="ne">deleteditems</condition>
+				<condition attr="@FolderName" op="eq">root/allitems</condition>
+				<if condition="Settings.OutlookFolder.isSet and Settings.OutlookFolder ne ''">
+					<condition attr="parententryid" op="ne">{Settings.OutlookFolder}</condition>
+				</if>
+			</if>
+            <condition attr="crmid" op="ex"/>
+            <condition attr="crmid" op="ne"></condition>
+          </where>
+          <attr name="EntryId"/>
+          <attr name="crmid"/>
+          <attr name="sensitivity"/>
+          <attr name="Keywords"/>
+          <!-- <attr name="crmLinkState"/> -->
+          <attr name="crmLinkState_vs360"/>
+        </select>
+
+        <for var="c" in="contacts">
+          <NormalizeExchangeContact Contact="c"/>
+        </for>
+        <log>Exchange Contacts to be considered: {contacts.Length}</log>
+
+        <set var="ExContactById">{new Dictionary()}</set>
+        <for var="c" in="contacts">
+          <set var="ExContactById[c.crmid.ToLower()]">{c}</set>
+        </for>
+
+        <log>ExContactById: {ExContactById.Count}</log>
+
+        <set var="ExistingIdsPairs">{new List()}</set>
+        <set var="MissingCrmContactsIds">{new List()}</set>
+        <set var="MissingExContactsIds">{new List()}</set>
+
+
+        <for var="crmKVP" in="CrmContactsById">
+          <set var="crmId">{crmKVP.Key}</set>
+
+          <if condition="ExContactById.ContainsKey(crmId)">
+            <then>
+              <set var="ExistingIdsPairs[]">{crmId}</set>
+            </then>
+            <else>
+              <set var="MissingExContactsIds[]">{crmId}</set>
+            </else>
+          </if>
+        </for>
+
+
+        <for var="exKVP" in="ExContactById">
+          <set var="exId">{exKVP.Key}</set>
+
+          <if condition="CrmContactsById.ContainsKey(exId)">
+            <then>
+              <set var="ExistingIdsPairs[]" if="!ExistingIdsPairs.Contains(exId)">{exId}</set>
+            </then>
+            <else>
+              <set var="MissingCrmContactsIds[]">{exId}</set>
+            </else>
+          </if>
+        </for>
+
+        <log>Existing Pairs found: {ExistingIdsPairs.Count}; Missing Crm Contacts: {MissingCrmContactsIds.Count}; Missing Ex Contacts: {MissingExContactsIds.Count}</log>
+
+
+        <for var="missingCrmId" in="MissingCrmContactsIds">
+          <log>Relationship for Contact with id {missingCrmId} was not found in CRM</log>
+
+          <select from="crm" entity="contact" var="crmContacts">
+            <where>
+              <condition attr="contactid" op="eq">{missingCrmId}</condition>
+            </where>
+            <attr name="contactid" />
+            <attr name="statecode" />
+            <attr name="masterid" />
+          </select>
+
+          <set var="crmContact">{crmContacts[0] ?? null}</set>
+          <set var="exContact">{ExContactById[missingCrmId]}</set>
+
+
+          <!--REMOVE ID FROM MissingExContactsIds IF THERE IS MASTERID-->
+          <if condition="crmContact.isSet and crmContact.masterid.isSet">
+            <set>{MissingExContactsIds.Remove(crmContact.masterid.Id.ToString())}</set>
+          </if>
+
+
+          <ProcessExchangeContactCleanup
+						Context="Context"
+						ExContact="exContact"
+						CrmContact="crmContact"
+						CrmRelationship="null" />
+
+        </for>
+
+
+        <for var="missingExId" in="MissingExContactsIds">
+          <set var="crmRel">{CrmContactsById[missingExId]}</set>
+
+          <continue if="crmRel.vs360_deletedinoutlook eq 1 and crmRel.vs360_syncwithoutlook eq false" />
+
+          <log>Contact with CrmId {missingExId} does not exist in Exchange</log>
+
+
+          <log>Marking the Employee Relationship (Id : {crmRel.vs360_relationshipid}) as 'Deleted In Outlook'</log>
+
+          <update in="crm" entity="vs360_relationship">
+            <where>
+              <condition attr="vs360_relationshipid" op="eq">{crmRel.vs360_relationshipid}</condition>
+            </where>
+            <attr name="vs360_deletedinoutlook">{1}</attr>
+            <attr name="vs360_syncwithoutlook">{false}</attr>
+          </update>
+        </for>
+
+        <for var="existingId" in="ExistingIdsPairs">
+
+          <set var="crmRelationship">{CrmContactsById[existingId]}</set>
+          <set var="exContact">{ExContactById[existingId]}</set>
+
+          <if condition="crmRelationship.vs360_deletedinoutlook eq 0 
+								and crmRelationship.vs360_syncwithoutlook eq true
+								and crmRelationship.statecode eq 0
+								and crmRelationship.contact_statecode.Value eq 0
+								and crmRelationship.vs360_contactid.isSet
+								and exContact.crmLinkState_vs360 ne '0'">
+            <then>
+
+              <set var="sensitivity">{(exContact.sensitivity ?? '0') eq '2'}</set>
+              <set var="keywords">{new List(exContact.Keywords ?? (new List()))}</set>
+
+              <set optOut="false"/>
+              <for var="optOutCategory" in="Settings.OptOutCategories">
+                <set optOut="true" if="keywords.Contains(optOutCategory)" />
+              </for>
+
+              <log if="sensitivity">Contact with CrmId {crmRelationship.vs360_contactid.Id} has sensitivity = 2</log>
+              <log if="optOut">Contact with CrmId {crmRelationship.vs360_contactid.Id} has optout keywords - {keywords}</log>
+
+              <if condition="sensitivity or optOut">
+                <log>Marking the Employee Relationship (Id : {crmRelationship.vs360_relationshipid}) as 'Deleted In Outlook'</log>
+
+                <update in="crm" entity="vs360_relationship">
+                  <where>
+                    <condition attr="vs360_relationshipid" op="eq">{crmRelationship.vs360_relationshipid}</condition>
+                  </where>
+                  <attr name="vs360_deletedinoutlook">{3}</attr>
+                  <attr name="vs360_syncwithoutlook">{false}</attr>
+                </update>
+              </if>
+
+
+            </then>
+            <else>
+
+              <set var="crmContact">
+                <attr name="contactid">{crmRelationship.contact_contactid}</attr>
+                <attr name="statecode">{crmRelationship.contact_statecode.Value}</attr>
+                <attr name="masterid">{crmRelationship.contact_masterid}</attr>
+              </set>
+
+              <ProcessExchangeContactCleanup
+								Context="Context"
+								ExContact="exContact"
+								CrmContact="crmContact"
+								CrmRelationship="crmRelationship" />
+            </else>
+          </if>
+
+
+        </for>
+      </sandbox>
+
+    </context>
+  </if>
+</script>

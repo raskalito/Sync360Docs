@@ -1,0 +1,67 @@
+<script>
+	<exception if="!OnboadingTeams.isSet or OnboadingTeams.Count eq 0">OnboadingTeams range is not defined.</exception>
+
+	<log>Initializing execution context for employees from '{Utils.Join(OnboadingTeams, ', ')}' team(s)...</log>
+
+	<select from="crm" entity="vs360_employee" into="employees">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+		</where>
+		<join entity="systemuser" to="vs360_systemuserid" from="systemuserid">
+			<attr name="isdisabled" as="is_systemuser_disabled"/>
+		</join>
+		<join type="inner" entity="vs360_vs360_employee_team" to="vs360_employeeid" from="vs360_employeeid">
+			<join type="inner" entity="team" to="teamid" from="teamid" as="">
+				<where>
+					<or>
+                        <for var="teamName" in="OnboadingTeams">
+							<condition attr="name" op="eq">{teamName}</condition>
+						</for>
+                    </or>
+				</where>
+			</join>
+		</join>
+		<attr name="vs360_employeeid"/>
+		<attr name="vs360_name"/>
+		<attr name="vs360_systemuserid"/>
+		<attr name="emailaddress"/>
+		<attr name="vs360_lastcontactssyncdate"/>
+		<attr name="vs360_lastcontactscreationdate"/>
+		<attr name="vs360_preferreduser"/>
+		<attr name="vs360_preferenceorder"/>
+		<attr name="vs360_isrolloutcompleted"/>
+		<attr name="vs360_syncoldway"/>
+	</select>
+
+	<log>{employees.Count} employees loaded.</log>
+
+
+	<var ObjectsForProcessing="new Dictionary()"/>
+
+	<for var="employee" in="employees">
+
+		<if condition="employee.is_systemuser_disabled.isSet and employee.is_systemuser_disabled eq true">
+			<log>SystemUser record for employee {employee.vs360_name} ({employee.vs360_employeeid}) is disabled. Employee will not be processed.</log>
+			<continue/>
+		</if>
+
+		<set Employee="new Object()"
+			 Employee.Id="employee.vs360_employeeid"
+			 Employee.Email="employee.emailaddress"
+			 Employee.UserId="employee.vs360_systemuserid"
+			 Employee.LastSyncDate="employee.vs360_lastcontactssyncdate ?? new DateTime(1901, 1, 1)"
+			 Employee.LastCreationDate="employee.vs360_lastcontactscreationdate ?? new DateTime(1901, 1, 1)"
+			 Employee.IsFirstTimeSync="!employee.vs360_lastcontactssyncdate.isSet"
+			 Employee.IsRolloutCompleted="employee.vs360_isrolloutcompleted ?? false"
+			 Employee.PreferredUser="employee.vs360_preferreduser ?? false"
+			 Employee.BypassDomainsCheck="employee.vs360_syncoldway ?? false"
+			 Employee.PreferenceOrder="employee.vs360_preferenceorder ?? 0"/>
+
+		<set var="Employee.UserId" if="Employee.UserId.isSet">{Employee.UserId.Id.ToString()}</set>
+		<!-- Employee.UserId eq empty string means all data operations will be executed in service account context-->
+		<set var="Employee.UserId" if="!Employee.UserId.isSet"></set>
+		<!--<log>Employee's Details - (Id :{Employee.Id}, UserId : {Employee.UserId}, Email : {Employee.Email}, LastSyncDate : {Employee.LastSyncDate})</log>-->
+
+		<set var="ObjectsForProcessing[employee.vs360_employeeid.ToString()]">{Employee}</set>
+	</for>
+</script>

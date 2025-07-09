@@ -1,0 +1,23 @@
+<script>
+	<exception if="!Context.isSet">Context parameter is required.</exception>
+	
+	<set var="Context.PrivateFields">{new List()}</set>
+	<set var="Context.PrivateFieldsMapping">{new List()}</set>
+	
+	
+	<if condition="Context.Settings.PrivateFieldsEnabled">
+		<select from="crm" entity="vs360_privatefield" into="PrivateFields">
+			<attr name="vs360_contactfield"/>
+			<attr name="vs360_privatefield"/>
+		</select>
+		
+		<for var="p" in="PrivateFields">
+			<set var="Context.PrivateFields[]">{p.vs360_contactfield}</set>
+			<set var="Context.PrivateFieldsMapping[]">
+				<attr name="PrivateField">{p.vs360_privatefield}</attr>
+				<attr name="ContactField">{p.vs360_contactfield}</attr>
+			</set>
+		</for>
+    </if>
+	
+</script>

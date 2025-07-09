@@ -1,0 +1,1218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set Settings.AttributesMappingVersion="'1.0.0.0'" />
+  <set Settings.AttributesMapping="new Dictionary()" />
+  <!--<set var="Settings.AttributesMapping['name']">-->
+  <!--<attr name="src">name</attr>-->
+  <!--<attr name="dst">name</attr>-->
+  <!--<attr name="type">string</attr>-->
+  <!--</set>-->
+  <set var="Settings.AttributesMapping['vs360_assistantname']">
+    <attr name="src">vs360_assistantname</attr>
+    <attr name="dst">vs360_assistantname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_emailaddress3']">
+    <attr name="src">vs360_emailaddress3</attr>
+    <attr name="dst">vs360_emailaddress3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owninguser']">
+    <attr name="src">owninguser</attr>
+    <attr name="dst">owninguser</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['importsequencenumber']">
+    <attr name="src">importsequencenumber</attr>
+    <attr name="dst">importsequencenumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_anniversary']">
+    <attr name="src">vs360_anniversary</attr>
+    <attr name="dst">vs360_anniversary</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_out_strength_lastxdays']">
+    <attr name="src">vs360_email_out_strength_lastxdays</attr>
+    <attr name="dst">vs360_email_out_strength_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_middlename']">
+    <attr name="src">vs360_middlename</attr>
+    <attr name="dst">vs360_middlename</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_fax']">
+    <attr name="src">vs360_fax</attr>
+    <attr name="dst">vs360_fax</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_emailaddress1']">
+    <attr name="src">vs360_emailaddress1</attr>
+    <attr name="dst">vs360_emailaddress1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_line2']">
+    <attr name="src">vs360_address2_line2</attr>
+    <attr name="dst">vs360_address2_line2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_optional_count_lastxdays']">
+    <attr name="src">vs360_appointment_in_optional_count_lastxdays</attr>
+    <attr name="dst">vs360_appointment_in_optional_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_bcc_count_stage']">
+    <attr name="src">vs360_email_received_bcc_count_stage</attr>
+    <attr name="dst">vs360_email_received_bcc_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_line1']">
+    <attr name="src">vs360_address1_line1</attr>
+    <attr name="dst">vs360_address1_line1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_count']">
+    <attr name="src">vs360_appointment_count</attr>
+    <attr name="dst">vs360_appointment_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_companyname']">
+    <attr name="src">vs360_companyname</attr>
+    <attr name="dst">vs360_companyname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_required_count_lastxdays']">
+    <attr name="src">vs360_appointment_out_required_count_lastxdays</attr>
+    <attr name="dst">vs360_appointment_out_required_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_postalcode']">
+    <attr name="src">vs360_address3_postalcode</attr>
+    <attr name="dst">vs360_address3_postalcode</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_nickname']">
+    <attr name="src">vs360_nickname</attr>
+    <attr name="dst">vs360_nickname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_line1']">
+    <attr name="src">vs360_address2_line1</attr>
+    <attr name="dst">vs360_address2_line1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_syncwithoutlook']">
+    <attr name="src">vs360_syncwithoutlook</attr>
+    <attr name="dst">vs360_syncwithoutlook</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_line2']">
+    <attr name="src">vs360_address1_line2</attr>
+    <attr name="dst">vs360_address1_line2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_stateorprovince']">
+    <attr name="src">vs360_address3_stateorprovince</attr>
+    <attr name="dst">vs360_address3_stateorprovince</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_yomifirstname']">
+    <attr name="src">vs360_yomifirstname</attr>
+    <attr name="dst">vs360_yomifirstname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_telephone2']">
+    <attr name="src">vs360_telephone2</attr>
+    <attr name="dst">vs360_telephone2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_employeeid']">
+    <attr name="src">vs360_employeeid</attr>
+    <attr name="dst">vs360_employeeid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_count_sent_lastxdays']">
+    <attr name="src">vs360_email_count_sent_lastxdays</attr>
+    <attr name="dst">vs360_email_count_sent_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_pager']">
+    <attr name="src">vs360_pager</attr>
+    <attr name="dst">vs360_pager</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_optional_count_stage']">
+    <attr name="src">vs360_appointment_in_optional_count_stage</attr>
+    <attr name="dst">vs360_appointment_in_optional_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_required_count_lastxdays']">
+    <attr name="src">vs360_appointment_in_required_count_lastxdays</attr>
+    <attr name="dst">vs360_appointment_in_required_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_line1']">
+    <attr name="src">vs360_address3_line1</attr>
+    <attr name="dst">vs360_address3_line1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_managername']">
+    <attr name="src">vs360_managername</attr>
+    <attr name="dst">vs360_managername</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_relationshipid']">
+    <attr name="src">vs360_relationshipid</attr>
+    <attr name="dst">vs360_relationshipid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_telephone3']">
+    <attr name="src">vs360_telephone3</attr>
+    <attr name="dst">vs360_telephone3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_required_count']">
+    <attr name="src">vs360_appointment_out_required_count</attr>
+    <attr name="dst">vs360_appointment_out_required_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statuscode']">
+    <attr name="src">statuscode</attr>
+    <attr name="dst">statuscode</attr>
+    <attr name="type">Status</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_count_stage']">
+    <attr name="src">vs360_appointment_count_stage</attr>
+    <attr name="dst">vs360_appointment_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_home2']">
+    <attr name="src">vs360_home2</attr>
+    <attr name="dst">vs360_home2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_in_strength']">
+    <attr name="src">vs360_email_in_strength</attr>
+    <attr name="dst">vs360_email_in_strength</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningteam']">
+    <attr name="src">owningteam</attr>
+    <attr name="dst">owningteam</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_lastname']">
+    <attr name="src">vs360_lastname</attr>
+    <attr name="dst">vs360_lastname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_optional_count_stage']">
+    <attr name="src">vs360_appointment_out_optional_count_stage</attr>
+    <attr name="dst">vs360_appointment_out_optional_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_required_count_stage']">
+    <attr name="src">vs360_appointment_in_required_count_stage</attr>
+    <attr name="dst">vs360_appointment_in_required_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_websiteurl']">
+    <attr name="src">vs360_websiteurl</attr>
+    <attr name="dst">vs360_websiteurl</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_composite']">
+    <attr name="src">vs360_address2_composite</attr>
+    <attr name="dst">vs360_address2_composite</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_department']">
+    <attr name="src">vs360_department</attr>
+    <attr name="dst">vs360_department</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_to_count_lastxdays']">
+    <attr name="src">vs360_email_sent_to_count_lastxdays</attr>
+    <attr name="dst">vs360_email_sent_to_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_in_strength_lastxdays']">
+    <attr name="src">vs360_email_in_strength_lastxdays</attr>
+    <attr name="dst">vs360_email_in_strength_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_strength_nextxdays']">
+    <attr name="src">vs360_appointment_strength_nextxdays</attr>
+    <attr name="dst">vs360_appointment_strength_nextxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_stateorprovince']">
+    <attr name="src">vs360_address2_stateorprovince</attr>
+    <attr name="dst">vs360_address2_stateorprovince</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_cc_count']">
+    <attr name="src">vs360_email_sent_cc_count</attr>
+    <attr name="dst">vs360_email_sent_cc_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_lastxdaysstrength']">
+    <attr name="src">vs360_lastxdaysstrength</attr>
+    <attr name="dst">vs360_lastxdaysstrength</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_to_count_stage']">
+    <attr name="src">vs360_email_received_to_count_stage</attr>
+    <attr name="dst">vs360_email_received_to_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_assistantphone']">
+    <attr name="src">vs360_assistantphone</attr>
+    <attr name="dst">vs360_assistantphone</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_relationship_strength']">
+    <attr name="src">vs360_relationship_strength</attr>
+    <attr name="dst">vs360_relationship_strength</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedonbehalfby']">
+    <attr name="src">modifiedonbehalfby</attr>
+    <attr name="dst">modifiedonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['versionnumber']">
+    <attr name="src">versionnumber</attr>
+    <attr name="dst">versionnumber</attr>
+    <attr name="type">BigInt</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_optional_count']">
+    <attr name="src">vs360_appointment_in_optional_count</attr>
+    <attr name="dst">vs360_appointment_in_optional_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_ocategories']">
+    <attr name="src">vs360_ocategories</attr>
+    <attr name="dst">vs360_ocategories</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_count_sent_stage']">
+    <attr name="src">vs360_email_count_sent_stage</attr>
+    <attr name="dst">vs360_email_count_sent_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_required_count_nextxdays']">
+    <attr name="src">vs360_appointment_in_required_count_nextxdays</attr>
+    <attr name="dst">vs360_appointment_in_required_count_nextxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_count_received_lastxdays']">
+    <attr name="src">vs360_email_count_received_lastxdays</attr>
+    <attr name="dst">vs360_email_count_received_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_jobtitle']">
+    <attr name="src">vs360_jobtitle</attr>
+    <attr name="dst">vs360_jobtitle</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_line2']">
+    <attr name="src">vs360_address3_line2</attr>
+    <attr name="dst">vs360_address3_line2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_strength_lastxdays']">
+    <attr name="src">vs360_appointment_strength_lastxdays</attr>
+    <attr name="dst">vs360_appointment_strength_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningbusinessunit']">
+    <attr name="src">owningbusinessunit</attr>
+    <attr name="dst">owningbusinessunit</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_to_count_stage']">
+    <attr name="src">vs360_email_sent_to_count_stage</attr>
+    <attr name="dst">vs360_email_sent_to_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_bcc_count_lastxdays']">
+    <attr name="src">vs360_email_sent_bcc_count_lastxdays</attr>
+    <attr name="dst">vs360_email_sent_bcc_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_typeofrelationship']">
+    <attr name="src">vs360_typeofrelationship</attr>
+    <attr name="dst">vs360_typeofrelationship</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_salutation']">
+    <attr name="src">vs360_salutation</attr>
+    <attr name="dst">vs360_salutation</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_phonecall_out_count']">
+    <attr name="src">vs360_phonecall_out_count</attr>
+    <attr name="dst">vs360_phonecall_out_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_total_count']">
+    <attr name="src">vs360_total_count</attr>
+    <attr name="dst">vs360_total_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_cc_count_lastxdays']">
+    <attr name="src">vs360_email_sent_cc_count_lastxdays</attr>
+    <attr name="dst">vs360_email_sent_cc_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_callback']">
+    <attr name="src">vs360_callback</attr>
+    <attr name="dst">vs360_callback</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_bcc_count']">
+    <attr name="src">vs360_email_received_bcc_count</attr>
+    <attr name="dst">vs360_email_received_bcc_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_to_count_lastxdays']">
+    <attr name="src">vs360_email_received_to_count_lastxdays</attr>
+    <attr name="dst">vs360_email_received_to_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_cc_count_lastxdays']">
+    <attr name="src">vs360_email_received_cc_count_lastxdays</attr>
+    <attr name="dst">vs360_email_received_cc_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdon']">
+    <attr name="src">createdon</attr>
+    <attr name="dst">overriddencreatedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_count_sent']">
+    <attr name="src">vs360_email_count_sent</attr>
+    <attr name="dst">vs360_email_count_sent</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_bdaction_count']">
+    <attr name="src">vs360_bdaction_count</attr>
+    <attr name="dst">vs360_bdaction_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_cc_count']">
+    <attr name="src">vs360_email_received_cc_count</attr>
+    <attr name="dst">vs360_email_received_cc_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_count_nextxdays']">
+    <attr name="src">vs360_appointment_count_nextxdays</attr>
+    <attr name="dst">vs360_appointment_count_nextxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ownerid']">
+    <attr name="src">ownerid</attr>
+    <attr name="dst">ownerid</attr>
+    <attr name="type">Owner</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_lastdateofinteraction']">
+    <attr name="src">vs360_lastdateofinteraction</attr>
+    <attr name="dst">vs360_lastdateofinteraction</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_composite']">
+    <attr name="src">vs360_address3_composite</attr>
+    <attr name="dst">vs360_address3_composite</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['utcconversiontimezonecode']">
+    <attr name="src">utcconversiontimezonecode</attr>
+    <attr name="dst">utcconversiontimezonecode</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_birthdate']">
+    <attr name="src">vs360_birthdate</attr>
+    <attr name="dst">vs360_birthdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_composite']">
+    <attr name="src">vs360_address1_composite</attr>
+    <attr name="dst">vs360_address1_composite</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_spousesname']">
+    <attr name="src">vs360_spousesname</attr>
+    <attr name="dst">vs360_spousesname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_postalcode']">
+    <attr name="src">vs360_address2_postalcode</attr>
+    <attr name="dst">vs360_address2_postalcode</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_country']">
+    <attr name="src">vs360_address3_country</attr>
+    <attr name="dst">vs360_address3_country</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_optional_count']">
+    <attr name="src">vs360_appointment_out_optional_count</attr>
+    <attr name="dst">vs360_appointment_out_optional_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_country']">
+    <attr name="src">vs360_address2_country</attr>
+    <attr name="dst">vs360_address2_country</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_yomilastname']">
+    <attr name="src">vs360_yomilastname</attr>
+    <attr name="dst">vs360_yomilastname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_out_strength']">
+    <attr name="src">vs360_email_out_strength</attr>
+    <attr name="dst">vs360_email_out_strength</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_optional_count_nextxdays']">
+    <attr name="src">vs360_appointment_in_optional_count_nextxdays</attr>
+    <attr name="dst">vs360_appointment_in_optional_count_nextxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_line3']">
+    <attr name="src">vs360_address1_line3</attr>
+    <attr name="dst">vs360_address1_line3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_required_count_stage']">
+    <attr name="src">vs360_appointment_out_required_count_stage</attr>
+    <attr name="dst">vs360_appointment_out_required_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_city']">
+    <attr name="src">vs360_address2_city</attr>
+    <attr name="dst">vs360_address2_city</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_count_received_stage']">
+    <attr name="src">vs360_email_count_received_stage</attr>
+    <attr name="dst">vs360_email_count_received_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_childrensnames']">
+    <attr name="src">vs360_childrensnames</attr>
+    <attr name="dst">vs360_childrensnames</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_phonecall_in_count']">
+    <attr name="src">vs360_phonecall_in_count</attr>
+    <attr name="dst">vs360_phonecall_in_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_to_count']">
+    <attr name="src">vs360_email_sent_to_count</attr>
+    <attr name="dst">vs360_email_sent_to_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_line3']">
+    <attr name="src">vs360_address3_line3</attr>
+    <attr name="dst">vs360_address3_line3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statecode']">
+    <attr name="src">statecode</attr>
+    <attr name="dst">statecode</attr>
+    <attr name="type">State</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_city']">
+    <attr name="src">vs360_address3_city</attr>
+    <attr name="dst">vs360_address3_city</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_emailaddress2']">
+    <attr name="src">vs360_emailaddress2</attr>
+    <attr name="dst">vs360_emailaddress2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_optional_count_lastxdays']">
+    <attr name="src">vs360_appointment_out_optional_count_lastxdays</attr>
+    <attr name="dst">vs360_appointment_out_optional_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_message']">
+    <attr name="src">vs360_message</attr>
+    <attr name="dst">vs360_message</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_bcc_count_stage']">
+    <attr name="src">vs360_email_sent_bcc_count_stage</attr>
+    <attr name="dst">vs360_email_sent_bcc_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_governmentid']">
+    <attr name="src">vs360_governmentid</attr>
+    <attr name="dst">vs360_governmentid</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_postalcode']">
+    <attr name="src">vs360_address1_postalcode</attr>
+    <attr name="dst">vs360_address1_postalcode</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_stateorprovince']">
+    <attr name="src">vs360_address1_stateorprovince</attr>
+    <attr name="dst">vs360_address1_stateorprovince</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_postofficebox']">
+    <attr name="src">vs360_address2_postofficebox</attr>
+    <attr name="dst">vs360_address2_postofficebox</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedby']">
+    <attr name="src">modifiedby</attr>
+    <attr name="dst">modifiedby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_strength']">
+    <attr name="src">vs360_appointment_strength</attr>
+    <attr name="dst">vs360_appointment_strength</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_in_required_count']">
+    <attr name="src">vs360_appointment_in_required_count</attr>
+    <attr name="dst">vs360_appointment_in_required_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedon']">
+    <attr name="src">modifiedon</attr>
+    <attr name="dst">modifiedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_ftpsiteurl']">
+    <attr name="src">vs360_ftpsiteurl</attr>
+    <attr name="dst">vs360_ftpsiteurl</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_city']">
+    <attr name="src">vs360_address1_city</attr>
+    <attr name="dst">vs360_address1_city</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_note_count']">
+    <attr name="src">vs360_note_count</attr>
+    <attr name="dst">vs360_note_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_count_received']">
+    <attr name="src">vs360_email_count_received</attr>
+    <attr name="dst">vs360_email_count_received</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_phonecall_strength']">
+    <attr name="src">vs360_phonecall_strength</attr>
+    <attr name="dst">vs360_phonecall_strength</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_bcc_count_lastxdays']">
+    <attr name="src">vs360_email_received_bcc_count_lastxdays</attr>
+    <attr name="dst">vs360_email_received_bcc_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_postofficebox']">
+    <attr name="src">vs360_address1_postofficebox</attr>
+    <attr name="dst">vs360_address1_postofficebox</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address2_line3']">
+    <attr name="src">vs360_address2_line3</attr>
+    <attr name="dst">vs360_address2_line3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_firstname']">
+    <attr name="src">vs360_firstname</attr>
+    <attr name="dst">vs360_firstname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address1_country']">
+    <attr name="src">vs360_address1_country</attr>
+    <attr name="dst">vs360_address1_country</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_optional_count_nextxdays']">
+    <attr name="src">vs360_appointment_out_optional_count_nextxdays</attr>
+    <attr name="dst">vs360_appointment_out_optional_count_nextxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_address3_postofficebox']">
+    <attr name="src">vs360_address3_postofficebox</attr>
+    <attr name="dst">vs360_address3_postofficebox</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_name']">
+    <attr name="src">vs360_name</attr>
+    <attr name="dst">vs360_name</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_bdaction_strength']">
+    <attr name="src">vs360_bdaction_strength</attr>
+    <attr name="dst">vs360_bdaction_strength</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_rolloutweight']">
+    <attr name="src">vs360_rolloutweight</attr>
+    <attr name="dst">vs360_rolloutweight</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_telephone1']">
+    <attr name="src">vs360_telephone1</attr>
+    <attr name="dst">vs360_telephone1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_bcc_count']">
+    <attr name="src">vs360_email_sent_bcc_count</attr>
+    <attr name="dst">vs360_email_sent_bcc_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_phonecall_count']">
+    <attr name="src">vs360_phonecall_count</attr>
+    <attr name="dst">vs360_phonecall_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_sent_cc_count_stage']">
+    <attr name="src">vs360_email_sent_cc_count_stage</attr>
+    <attr name="dst">vs360_email_sent_cc_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdby']">
+    <attr name="src">createdby</attr>
+    <attr name="dst">createdby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_out_required_count_nextxdays']">
+    <attr name="src">vs360_appointment_out_required_count_nextxdays</attr>
+    <attr name="dst">vs360_appointment_out_required_count_nextxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_contactid']">
+    <attr name="src">vs360_contactid</attr>
+    <attr name="dst">vs360_contactid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_to_count']">
+    <attr name="src">vs360_email_received_to_count</attr>
+    <attr name="dst">vs360_email_received_to_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_email_received_cc_count_stage']">
+    <attr name="src">vs360_email_received_cc_count_stage</attr>
+    <attr name="dst">vs360_email_received_cc_count_stage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_deletedinoutlook']">
+    <attr name="src">vs360_deletedinoutlook</attr>
+    <attr name="dst">vs360_deletedinoutlook</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_mobilephone']">
+    <attr name="src">vs360_mobilephone</attr>
+    <attr name="dst">vs360_mobilephone</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdonbehalfby']">
+    <attr name="src">createdonbehalfby</attr>
+    <attr name="dst">createdonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_appointment_count_lastxdays']">
+    <attr name="src">vs360_appointment_count_lastxdays</attr>
+    <attr name="dst">vs360_appointment_count_lastxdays</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_crmactivity_count']">
+    <attr name="src">vs360_crmactivity_count</attr>
+    <attr name="dst">vs360_crmactivity_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['timezoneruleversionnumber']">
+    <attr name="src">timezoneruleversionnumber</attr>
+    <attr name="dst">timezoneruleversionnumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_business2']">
+    <attr name="src">vs360_business2</attr>
+    <attr name="dst">vs360_business2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_mailingaddress']">
+    <attr name="src">vs360_mailingaddress</attr>
+    <attr name="dst">vs360_mailingaddress</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_description']">
+    <attr name="src">vs360_description</attr>
+    <attr name="dst">vs360_description</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_strengthindicator']">
+    <attr name="src">vs360_strengthindicator</attr>
+    <attr name="dst">vs360_strengthindicator</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+</script>

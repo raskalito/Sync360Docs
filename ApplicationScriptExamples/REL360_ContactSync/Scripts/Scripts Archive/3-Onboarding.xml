@@ -1,0 +1,142 @@
+<script>
+	<!-- ********************************************************************************************* -->
+	<!--	NOTE: This process only "onboards" contacts from participants' Exchange contacts.          --> 
+	<!--			This does not involve Email Processing functionality at all.                       --> 
+	<!-- ********************************************************************************************* -->
+	
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  ******************************* -->
+
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Onboarding (Exchange to CRM)</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+	
+	<set var="OnboadingTeams">{new List()}</set>
+	
+	
+	<!--ONBOARDING SETTINGS-->
+	<set var="RuninTestMode">{true}</set><!--true to run test onboarding/ false to run production onboarding-->
+	<set var="crmxmlmode">exchange</set><!-- crm or exchange -->
+
+	<!--'REL360 Contacts Sync Nodes' 360VS Setting MUST BE CREATED before run this script
+	Setting format:
+
+	[node name]: [team name], [another team name], ..., [another team name];
+	...
+	[node name]: [team name], [another team name], ..., [another team name];
+
+	Example:
+	Node1: SyncTeam 1, SyncTeam 2, SyncTeam 3;
+	Node2: SyncTeam 4;
+	Node3: SyncTeam 5, SyncTeam 6;-->
+
+
+	<set var="CurrentSyncNode">Node1</set>
+	
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+	
+	<log>    Current Sync Node: {CurrentSyncNode}</log>
+	<set var="SettingsContainer">{new Object()}</set>
+	<call name="@private/GetSettings" Context="SettingsContainer"></call>
+	
+	
+	<exception if="!SettingsContainer.Settings.DeployedApps.Onboarding">Onboarding is not active in DeployedApps setting.</exception>
+	<exception if="!SettingsContainer.Settings.SyncNodes.isSet">REL360 Contacts Sync Nodes configuration is missing.</exception>
+	<exception if="!SettingsContainer.Settings.SyncNodes.ContainsKey(CurrentSyncNode)">Configuration for '{CurrentSyncNode}' node is missing.</exception>
+	
+	<set var="OnboadingTeams">{SettingsContainer.Settings.SyncNodes[CurrentSyncNode]}</set>
+	
+	<log>    Current onboarding teams: {OnboadingTeams}</log>
+	
+	<include name="Ranges/SyncEmployeesContextOnboarding.xml"></include>
+	<exception if="!ObjectsForProcessing.isSet">ObjectsForProcessing is missing.</exception>
+	
+	<include name="GetWeightingStats" />
+	
+	
+	<select from="crm" entity="vs360_employee" var="empPref">
+		<attr name="vs360_employeeid"/>
+		<attr name="vs360_preferreduser"/>
+		<attr name="vs360_preferenceorder"/>
+	</select>
+	<set var="EmployeePreference">{new Dictionary()}</set>
+	<for var="e" in="empPref">
+		<set var="EmployeePreference[e.vs360_employeeid.ToString()]">{e}</set>
+	</for>
+	
+	<set ValidateOnboardingStartParams="new Object()"
+		 ValidateOnboardingStartParams.Range="ObjectsForProcessing"
+		 ValidateOnboardingStartParams.Teams="OnboadingTeams"
+		 ValidateOnboardingStartParams.SyncNodesConfiguration="SettingsContainer.Settings.SyncNodes"
+		 ValidateOnboardingStartParams.CurrentSyncNode="CurrentSyncNode"
+		 ValidateOnboardingStartParams.Settings="SettingsContainer.Settings"
+		 ValidateOnboardingStartParams.CanStartOnboarding="false"
+		 ValidateOnboardingStartParams.CannotStartOnboardingReason="''"/>
+	<ValidateOnboardingStart Params="ValidateOnboardingStartParams" />
+	
+	<log if="!ValidateOnboardingStartParams.CanStartOnboarding">Onboarding can not start: {ValidateOnboardingStartParams.CannotStartOnboardingReason}</log>
+	
+	<if condition="ValidateOnboardingStartParams.CanStartOnboarding or RuninTestMode">
+
+		<set var="empCnt">{0}</set>
+		
+		<for var="emplKVP" in="ObjectsForProcessing">
+			<sandbox>
+
+				<set var="empl">{emplKVP.Value}</set>
+				<set var="empCnt">{empCnt + 1}</set>
+				
+				<log>Onbaording employee {empCnt} of {ObjectsForProcessing.Count}:  {empl.Id} ({empl.Email})</log>
+
+				<if condition="empl.IsRolloutCompleted">
+					<log>Rollout has already been completed for this employee.</log>
+
+					<continue />
+				</if>
+
+				<set Input="new Object()"
+					 Input.ObjectId="empl.Id"
+					 Input.ObjectPayload="empl"
+					 Input.Settings="SettingsContainer.Settings"
+					 Input.OnboardingSettings="new Object()"
+					 Input.OnboardingSettings.IsTestMode="RuninTestMode"
+					 Input.OnboardingSettings.CrmXmlMode="crmxmlmode"
+					 Input.OnboardingSettings.EmployeePreference="EmployeePreference"
+					 Input.OnboardingSettings.WeightStats="StatsDict"/>
+
+
+
+				<call name="ExchangeToCrmProcessing" Input="Input"></call>
+
+
+				<update in="crm" entity="vs360_employee">
+					<where>
+						<condition attr="vs360_employeeid" op="eq">{empl.Id}</condition>
+					</where>
+					<attr name="vs360_isrolloutcompleted">{true}</attr>
+				</update>
+
+				<set var="empl.IsRolloutCompleted">{true}</set>
+			</sandbox>
+		</for>
+		
+		<set ValidateOnboardingProcessingResultsParams="new Object()"
+			 ValidateOnboardingProcessingResultsParams.Teams="OnboadingTeams"
+			 ValidateOnboardingProcessingResultsParams.Range="ObjectsForProcessing" 
+			 ValidateOnboardingProcessingResultsParams.SyncNodesConfiguration="SettingsContainer.Settings.SyncNodes"
+			 ValidateOnboardingProcessingResultsParams.Settings="SettingsContainer.Settings"
+			 ValidateOnboardingProcessingResultsParams.CurrentSyncNode="CurrentSyncNode"/>
+		<ValidateOnboardingProcessingResults Params="ValidateOnboardingProcessingResultsParams" />
+	</if>
+	
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+</script>

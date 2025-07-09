@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <include name="Config" />
+  <set var="EntityName">{Settings.EntityName}</set>
+  <set var="KeyField">{Settings.KeyField}</set>
+  <set var="RelatedKeyField">{Settings.RelatedKeyField}</set>
+  <set var="Settings.PrimaryField" unless="Settings.PrimaryField.isSet and Settings.PrimaryField &lt;&gt; ''">{KeyField}</set>
+  <set var="PrimaryField">{Settings.PrimaryField}</set>
+  <log>Synchronize entity: {EntityName}</log>
+  <include name="MapAttributes/MapAttributes_{EntityName}" />
+  <set var="AttributesMapping">{Settings.AttributesMapping}</set>
+  <set var="EntitiesMappingReverse">{Settings.EntitiesMappingReverse}</set>
+  <select from="dbmigration" entity="Sessions" count="1" page="0" var="Sessions">
+    <where>
+      <condition attr="EntityName" op="eq">{EntityName}</condition>
+    </where>
+    <order by="Start" desc="true" />
+    <attr name="Start" />
+  </select>
+  <set var="FirstSyncDateTime">{new DateTime(1901, 1, 1)}</set>
+  <set var="LastSyncDateTime">{FirstSyncDateTime}</set>
+  <set var="LastSyncDateTime" if="Sessions.Length &gt; 0">{Sessions[0].Start.ToLocalTime()}</set>
+  <log>LastSyncDateTime: {LastSyncDateTime}</log>
+  <create in="dbmigration" entity="Sessions" var="SessionID">
+    <attr name="SessionID">{null}</attr>
+    <attr name="EntityName">{EntityName}</attr>
+    <attr name="Start">{Utils.Now.ToUniversalTime()}</attr>
+  </create>
+  <set Settings.SessionID="SessionID" />
+  <log>SessionID: {SessionID}</log>
+  <select from="dbmigration" entity="Entities" var="StoredProcessingEntities">
+    <where>
+      <condition attr="EntityName" op="eq">{EntityName}</condition>
+    </where>
+    <attr name="EntityID" />
+    <attr name="RelatedEntityID" />
+    <attr name="State" />
+    <attr name="IsDirty" />
+    <attr name="AttributesMappingVersion" />
+  </select>
+  <set var="ProcessingEntities">{new Dictionary()}</set>
+  <set var="ProcessedIDs">{new List()}</set>
+  <for var="Entity" in="StoredProcessingEntities">
+    <set var="ProcessingEntities[Entity.EntityID.ToString() + ':' + Entity.RelatedEntityID.ToString()]">{Entity}</set>
+    <set var="ProcessedIDs[]" if="Entity.State eq 'SUCCESS' and Entity.AttributesMappingVersion eq Settings.AttributesMappingVersion">{Entity.EntityID}</set>
+  </for>
+  <log>ProcessedIDs.Count: {ProcessedIDs.Count}</log>
+  <set var="Continue">{true}</set>
+  <set var="Page">{0}</set>
+  <while condition="Continue">
+    <select from="crmsrc" entity="{EntityName}" var="SrcEntities" page="Page" count="Settings.PageSize">
+      <where></where>
+      <attr name="{KeyField}" />
+      <attr name="{PrimaryField}" />
+      <for var="Attr" in="AttributesMapping.Values">
+        <attr name="{Attr.src}" />
+      </for>
+    </select>
+    <log>SrcEntities.Count: {SrcEntities.Count}</log>
+    <set var="Page">{Page + 1}</set>
+    <set var="Continue" if="SrcEntities.Count lt Settings.PageSize">{false}</set>
+    <for var="Entity" in="SrcEntities">
+      <if condition="!ProcessedIDs.Contains(Entity[KeyField]) or (AttributesMapping['modifiedon'].isSet and Entity.modifiedon gt LastSyncDateTime.ToUniversalTime())">
+        <set Params="new Object()" Params.Settings="Settings" Params.Entity="Entity" />
+        <MapValues CallSettings="Params" />
+        <set var="Entity">{Params.Entity}</set>
+        <create in="dbmigration" entity="Entities" unless="ProcessingEntities[Entity.CombinedKey].isSet">
+          <attr name="EntityID">{Entity.KeyField}</attr>
+          <attr name="RelatedEntityID" if="RelatedKeyField ne ''">{Entity.RelatedKeyField}</attr>
+          <attr name="RelatedEntityID" if="RelatedKeyField eq ''">{new Guid()}</attr>
+          <attr name="EntityName">{EntityName}</attr>
+          <attr name="State">NOT PROCESSED</attr>
+          <attr name="IsDirty">{false}</attr>
+          <attr name="AttributesMappingVersion">{Settings.AttributesMappingVersion}</attr>
+        </create>
+        <set Entity.IsDirty="ProcessingEntities[Entity.CombinedKey].isSet and ProcessingEntities[Entity.CombinedKey].IsDirty" />
+        <set Params="new Object()" Params.Settings="Settings" Params.Entity="Entity" />
+        <ProcessEntity CallSettings="Params" />
+      </if>
+    </for>
+  </while>
+  <update in="dbmigration" entity="Sessions">
+    <where>
+      <condition attr="SessionID" op="eq">{SessionID}</condition>
+    </where>
+    <attr name="Finish">{Utils.Now.ToUniversalTime()}</attr>
+  </update>
+  <log>Synchronization finished</log>
+</script>

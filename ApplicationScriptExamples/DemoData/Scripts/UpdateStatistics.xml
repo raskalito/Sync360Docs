@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set var="Settings">{new Object()}</set>
+  <include name="Config" />
+  <set var="EntityNames">{new List()}</set>
+  <for var="Entity" in="Settings.Entities">
+    <if condition="Entity.Value.State eq 'Supported' and Entity.Value.Selected">
+      <set var="EntityNames[]">{Entity.Key}</set>
+      <select from="dbmigration" entity="MigrationStatistics" var="stat">
+        <where>
+          <condition attr="EntityName" op="eq">{Entity.Key}</condition>
+        </where>
+        <attr name="TotalSrcCount" />
+        <attr name="TotalDstCount" />
+        <attr name="LastUpdated" />
+      </select>
+      <select from="crmsrc" entity="contact" var="srcEntities">
+        <query><![CDATA[
+				<fetch version="1.0" output-format="xml-platform" aggregate="true">
+					 <entity name="{Entity.Key}">
+					 <attribute name="{Entity.Value.Key}" aggregate="count" alias="TotalCount" />
+					 </entity>
+				</fetch>
+				]]></query>
+      </select>
+      <select from="crmdst" entity="contact" var="dstEntities">
+        <query><![CDATA[
+				<fetch version="1.0" output-format="xml-platform" aggregate="true">
+					 <entity name="{Entity.Key}">
+					 <attribute name="{Entity.Value.Key}" aggregate="count" alias="TotalCount" />
+					 </entity>
+				</fetch>
+				]]></query>
+      </select>
+      <create in="dbmigration" entity="MigrationStatistics" if="stat.Count.isSet and  stat.Count eq 0">
+        <attr name="EntityName">{Entity.Key}</attr>
+        <attr name="TotalSrcCount">{srcEntities[0].TotalCount}</attr>
+        <attr name="TotalDstCount">{dstEntities[0].TotalCount}</attr>
+        <attr name="LastUpdated">{Utils.Now.ToUniversalTime()}</attr>
+      </create>
+      <update in="dbmigration" entity="MigrationStatistics" if="stat.Count.isSet and  stat.Count gt 0">
+        <where>
+          <condition attr="EntityName" op="eq">{Entity.Key as 'string'}</condition>
+        </where>
+        <attr name="TotalSrcCount">{srcEntities[0].TotalCount}</attr>
+        <attr name="TotalDstCount">{dstEntities[0].TotalCount}</attr>
+        <attr name="LastUpdated">{Utils.Now.ToUniversalTime()}</attr>
+      </update>
+    </if>
+  </for>
+  <delete in="dbmigration" entity="MigrationStatistics">
+    <where>
+      <not>
+        <condition attr="EntityName" op="in">{EntityNames}</condition>
+      </not>
+    </where>
+  </delete>
+  <log>Statistics updated!</log>
+</script>

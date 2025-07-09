@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set var="Settings">{new Object()}</set>
+  <set var="Settings.EntityName">campaignactivityitem</set>
+  <set var="Settings.KeyField">campaignactivityid</set>
+  <set var="Settings.RelatedKeyField">itemid</set>
+  <set var="Settings.TargetEntityName">campaignactivity</set>
+  <set var="Settings.TargetEntityKeyField">{null}</set>
+  <set var="Settings.OtherEntityName">list</set>
+  <set var="Settings.RelationshipName">campaignactivitylist_association</set>
+  <set var="Settings.PrimaryField">name</set>
+  <set var="Settings.ClosedStatusCodes">{new List()}</set>
+  <set var="Settings.OpenStateCode">{}</set>
+  <set var="Settings.OpenStatusCode">{}</set>
+  <set var="Settings.HasClosedState">{false}</set>
+  <include name="../SynchronizeEntity" />
+</script>

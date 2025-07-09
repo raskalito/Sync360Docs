@@ -1,0 +1,22 @@
+<script>
+	
+	<select from="crm" entity="vs360_setting" into="readSettings">
+		<where>
+		  <condition attr="vs360_name" op="eq">weightingstats</condition>
+		</where>
+		<attr name="vs360_value"/>
+	</select>
+	
+	<set StatsDict="new Dictionary()" />
+	
+	<if condition="readSettings.Count gt 0">
+		<set var="StatsString">{readSettings[0].vs360_value}</set>
+		<set StatsList="Utils.SplitIntoUniqueList(StatsString, ',')" />
+		<for var="key" in="StatsList">
+			<set var="values">{Utils.Split(key, ":")}</set>
+			<set var="StatsDict[values[0]]">{values[1] as 'int'}</set>
+		</for>
+	</if>
+	
+	<log>Loaded stats for Rollout {StatsDict}</log>
+</script>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set Settings.AttributesMappingVersion="'1.0.0.0'" />
+  <set Settings.AttributesMapping="new Dictionary()" />
+  <!--<set var="Settings.AttributesMapping['name']">-->
+  <!--<attr name="src">name</attr>-->
+  <!--<attr name="dst">name</attr>-->
+  <!--<attr name="type">string</attr>-->
+  <!--</set>-->
+  <set var="Settings.AttributesMapping['vs360_contact_vs360_interestid']">
+    <attr name="src">vs360_contact_vs360_interestid</attr>
+    <attr name="dst">vs360_contact_vs360_interestid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['versionnumber']">
+    <attr name="src">versionnumber</attr>
+    <attr name="dst">versionnumber</attr>
+    <attr name="type">BigInt</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['contactid']">
+    <attr name="src">contactid</attr>
+    <attr name="dst">contactid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_interestid']">
+    <attr name="src">vs360_interestid</attr>
+    <attr name="dst">vs360_interestid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+</script>

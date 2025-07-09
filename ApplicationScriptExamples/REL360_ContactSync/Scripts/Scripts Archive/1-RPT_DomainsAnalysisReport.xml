@@ -1,0 +1,523 @@
+<script>
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  ******************************* -->
+
+	<!-- ******************************************** -->
+	<!--              CRM Report Setup                -->
+	<!-- ******************************************** -->
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Domains Anlysis Report</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+	<!-- Data sources and output files -->
+	<set var="CRM">crm</set>
+	<set var="Exchange">exchange</set>
+	<set var="TimeStampAsText">{Utils.Now.ToString('yyyy-MM-dd-hh-mm')}</set>
+	<set var="CRMDomainsReportFile">C:\Temp\REL360Output\DomainsAnalysisReport-{TimeStampAsText}.csv</set>
+	<!-- Report Output file path & name -->
+
+	<!-- Run Configuration attributes -->
+	<set EmailEngine="typeof 'EmailParser.EmailProcessingFacade, EmailParser'"/>
+	<set EmailEngines="static EmailEngine"/>
+
+	<set var="ProcessEmails">{true}</set>	<!-- if true (default), this will evaluate users email traffic in exchange. -->
+	<set var="IncludeProhibitedDomains">{false}</set>	<!-- if true, the Prohibited Domains will be included in the statistics/counts. -->
+	<set var="ExcludeInactiveContacts">{true}</set>	<!-- If true, NO inactive contacts will be considered in statistics/counts -->
+	<set var="CleanupCompaniesByContactsCount">{false}</set>	<!-- If true, when duplicate domains exist, will pick a winner company and remove the losers by contact count. -->
+	<set var="IncludeCompanyStastics">{false}</set>	<!-- If true, the includes counts of Opportunites, Leads, and Projects/Jobs/Matters -->
+	<set var="CheckExistingCRMDomains">{false}</set>	<!-- For second report: whether or not to report includes existing domains information -->
+
+	<!-- Data Variables -->
+	<set var="DataStorage">{new Dictionary()}</set>
+	<set var="ExDataStorage">{new Dictionary()}</set>
+	<set var="emailList">{new List()}</set>
+
+	<set var="TeamName">SyncTeam All</set>	<!-- Team containing employees whos Exchange data will be analyzed. -->
+
+	<!-- ******************************************** -->
+	<!--         Exchange Report Setup                -->
+	<!-- ******************************************** -->
+
+	<!-- Processing Variables -->
+	<set var="CutOffDate">{Utils.Now.AddMonths(-3)}</set>
+	<!-- This is how far back in the email history it will search for data -->
+	<set var="SignatureDebugMode">{false}</set>
+	<set var="LogBody">{false}</set>
+
+	<set var="PageSize">{500}</set>
+	<log>Exchange page size: {PageSize}</log>
+
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	<!-- ******************************************** -->
+	<!--             CRM Report Run                   -->
+	<!-- ******************************************** -->
+	<set Context="new Object()" Context.NonCorpDomains="null"/>
+
+	<!-- INCLUDES -->
+	<GetNonCorpDomains Context="Context"/>
+
+	<if condition="CheckExistingCRMDomains">
+		<then>
+			<var DomainsDict="new Dictionary()"/>
+
+			<!-- Load All Domain Records & Create Dictionary -->
+			<log>Loading Existing Domains List...</log>
+			<select from="{CRM}" entity="vs360_companydomain" var="domains">
+				<where>
+					<condition attr="statecode" op="eq">{0}</condition>
+				</where>
+				<attr name="vs360_name"/>
+				<attr name="vs360_primarycompanyid"/>
+				<order by="vs360_name"/>
+			</select>
+
+			<for var="dom" in="domains">
+				<var DomInfo="new Object()"/>
+				<set var="DomInfo.DomainName">{dom.vs360_name}</set>
+				<set var="DomInfo.IsLegacy"/>
+				<set var="DomInfo.IsLegacy" if="dom.vs360_primarycompanyid ne null">X</set>
+				<set var="DomInfo.IsPreferred"/>
+				<set var="DomInfo.IsPotential"/>
+				<set var="DomainsDict[dom.vs360_name]">{DomInfo}</set>
+			</for>
+			<log>     Main Domains List Loaded: {domains.Count}</log>
+
+			<!-- Load Preferred Domains -->
+			<select from="{CRM}" entity="vs360_companydomain" var="domains">
+				<where>
+					<condition attr="statecode" op="eq">{0}</condition>
+				</where>
+				<join type="inner" entity="vs360_vs360_companydomain_account" to="vs360_companydomainid" from="vs360_companydomainid" as="PrefDoms">
+					<attr name="vs360_vs360_companydomain_accountid" as="PrefDomainid"/>
+				</join>
+				<attr name="vs360_name"/>
+			</select>
+
+			<for var="dom" in="domains">
+				<set var="DomainsDict[dom.vs360_name].IsPreferred">X</set>
+			</for>
+			<log>     Preferred Domains Loaded: {domains.Count}</log>
+
+			<!-- Load Potential Domains -->
+			<select from="{CRM}" entity="vs360_companydomain" var="domains">
+				<where>
+					<condition attr="statecode" op="eq">{0}</condition>
+				</where>
+				<join type="inner" entity="vs360_vs360_companydomain_vs360_potentialcom" to="vs360_companydomainid" from="vs360_companydomainid" as="PotDoms">
+					<attr name="vs360_vs360_companydomain_vs360_potentialcomid" as="PotentialOTMid"/>
+				</join>
+				<attr name="vs360_name"/>
+			</select>
+
+			<for var="dom" in="domains">
+				<set var="DomainsDict[dom.vs360_name].IsPotential">X</set>
+			</for>
+			<log>     Potential Domains Loaded: {domains.Count} {Utils.NewLine}</log>
+			<log>Full Domains Dictionary: {DomainsDict.Count}</log>
+		</then>
+	</if>
+
+	<!-- Load Contacts -->
+	<log>Reading Contact Data...</log>
+	<select from="{CRM}" entity="contact" var="CrmContacts">
+		<where>
+			<if condition="ExcludeInactiveContacts">
+				<condition attr="statecode" op="eq">{0}</condition>
+			</if>
+			<condition attr="emailaddress1" op="co">@</condition>
+			<!--<condition attr="parentcustomerid" op="ex" />-->
+		</where>
+		<join type="leftouter" entity="account" to="parentcustomerid" from="accountid" as="comp">
+			<attr name="accountnumber" as="CompanyNumber"/>
+		</join>
+		<attr name="emailaddress1" as="ContactEmail"/>
+		<attr name="parentcustomerid"/>
+		<order by="parentcustomerid" desc="true"/>
+	</select>
+	<log>     Loaded {CrmContacts.Count} contacts from CRM.</log>
+
+	<log>Organizing Data...</log>
+	<for var="contact" in="CrmContacts">
+		<set var="domain">{Utils.Split(contact.ContactEmail, "@")[1].ToLower()}</set>
+
+		<continue if="IncludeProhibitedDomains eq false and Context.NonCorpDomains.Contains(domain)" />
+
+		<set var="DataStorage[domain]" if="!DataStorage.ContainsKey(domain)">{new Dictionary()}</set>
+
+		<set var="companyId">{contact.parentcustomerid.Id.ToString() ?? ''}</set>
+		<set var="companyName">{contact.parentcustomerid.Name ?? ''}</set>
+
+		<set var="DataStorage[domain][companyId]" if="!DataStorage[domain].ContainsKey(companyId)">
+			<attr name="CrmCompanyName">{companyName}</attr>
+			<attr name="CrmCompanyNumber">{contact.CompanyNumber ?? ''}</attr>
+			<attr name="ExchangePotentialCompanyNames"></attr>
+			<attr name="CrmContactsCount">{0}</attr>
+			<attr name="ExchangeContactsCount">{0}</attr>
+			<attr name="ExchangeEmailsCount">{0}</attr>
+			<attr name="ExchangeEmployeesCount">{0}</attr>
+			<attr name="DomainDuplicate"/>
+			<attr name="DomainOwner"/>
+			<if condition="IncludeCompanyStastics eq true">
+				<attr name="OpportunitiesCount">{0}</attr>
+				<attr name="LeadsCount">{0}</attr>
+				<attr name="JobsCount">{0}</attr>
+			</if>
+		</set>
+
+		<set var="DataStorage[domain][companyId].CrmContactsCount">{DataStorage[domain][companyId].CrmContactsCount + 1}</set>
+	</for>
+
+
+	<!--Leave companies with the maximum number of contacts by domain-->
+	<if condition="CleanupCompaniesByContactsCount">
+		<log>Determing Domain Winners...</log>
+		<for var="rec" in="DataStorage">
+			<set var="companies">{rec.Value}</set>
+
+			<!--1. FIND MAX COUNT-->
+			<set var="maxContactsCount">{0}</set>
+			<for var="company" in="companies">
+				<set var="maxContactsCount" if="maxContactsCount lt company.Value.CrmContactsCount">{company.Value.CrmContactsCount}</set>
+			</for>
+
+			<!--2. Find LOSERS-->
+			<set var="losersList">{new List()}</set>
+			<for var="company" in="companies">
+				<set var="losersList[]" if="company.Value.CrmContactsCount lt maxContactsCount">{company.Key}</set>
+			</for>
+
+			<!--3. DELETE LOSERS FROM DATA STORAGE-->
+			<for var="loser" in="losersList">
+				<set>{companies.Remove(loser)}</set>
+			</for>
+
+		</for>
+	</if>
+
+	<log>Marking Domain Winners and Getting Company Stats...</log>
+	<!-- NEW: Mark winning company within each domain grouping for multiple company domains -->
+	<for var="rec" in="DataStorage">
+		<set var="companies">{rec.Value}</set>
+
+		<if condition="companies.Count > 1">
+			<!--1. FIND MAX COUNT Company-->
+			<set var="maxContactsCount">{0}</set>
+			<set var="winner"/>
+
+			<for var="company" in="companies">
+				<!--<set var="maxContactsCount" if="maxContactsCount lt company.Value.CrmContactsCount">{company.Value.CrmContactsCount}</set>-->
+
+				<if condition="maxContactsCount lt company.Value.CrmContactsCount">
+					<set var="maxContactsCount">{company.Value.CrmContactsCount}</set>
+					<set var="winner">{company}</set>
+				</if>
+				<set var="company.Value.DomainDuplicate">Y</set>
+
+				<!-- *********************  START: GET COMPANY STATS ***************************** -->
+				<if condition="IncludeCompanyStastics eq true and company.Key.isSet and company.Key ne ''">
+					<!-- Get Opportunities Count for this company -->
+					<select from="{CRM}" entity="opportunity" var="opps">
+						<where>
+							<condition attr="accountid" op="eq">{company.Key}</condition>
+						</where>
+					</select>
+
+					<!-- Get Project Leads Count for this company -->
+					<select from="{CRM}" entity="vs360_joblead" var="leads">
+						<where>
+							<condition attr="vs360_accountid" op="eq">{company.Key}</condition>
+						</where>
+					</select>
+
+					<!-- Get Jobs Count for this company -->
+					<select from="{CRM}" entity="vs360_job" var="jobs">
+						<where>
+							<condition attr="vs360_accountid" op="eq">{company.Key}</condition>
+						</where>
+					</select>
+
+					<set var="company.Value.OpportunitiesCount">{opps.Count ?? 0}</set>
+					<set var="company.Value.LeadsCount">{leads.Count ?? 0}</set>
+					<set var="company.Value.JobsCount">{jobs.Count ?? 0}</set>
+				</if>
+				<!-- *********************  END: GET COMPANY STATS ***************************** -->
+
+			</for>
+
+			<set var="winner.Value.DomainOwner">Y</set>
+
+		</if>
+	</for>
+
+
+	<!-- ********************************** -->
+	<!-- Process Domains for Exchange Users -->
+	<!-- ********************************** -->
+	<if condition="!TeamName.isSet or (TeamName.isSet and TeamName eq '')">
+		<exception>TeamName is required</exception>
+	</if>
+	<sandbox>
+		<!-- Select employee ids from team -->
+		<select from="{CRM}" entity="vs360_vs360_employee_team" var="teammemberships">
+			<join type="inner" entity="team" to="teamid" from="teamid" as="teams">
+				<where>
+					<condition attr="name" op="eq">{TeamName}</condition>
+				</where>
+			</join>
+			<join type="inner" entity="vs360_employee" to="vs360_employeeid" from="vs360_employeeid">
+				<where>
+					<condition attr="emailaddress" op="ex"></condition>
+				</where>
+				<attr name="vs360_name" as="vs360_name"/>
+				<attr name="emailaddress" as="emailaddress"/>
+			</join>
+			<attr name="vs360_employeeid"/>
+		</select>
+		<if condition="teammemberships.Count eq 0">
+			<exception>No employees in CRM Team ({TeamName})</exception>
+		</if>
+		<if condition="teammemberships.Count gt 0">
+			<for var="teammembership" in="teammemberships">
+				<set var="emailList[]">{Utils.ToLower(teammembership.emailaddress)}</set>
+			</for>
+		</if>
+	</sandbox>
+	<log>{emailList.Count} Mailboxes loaded for processing.</log>
+
+	<!-- Process each emailbox in list -->
+	<for var="emailbox" in="emailList">
+		<sandbox>
+			<set var="ProcessedDomains">{new Dictionary()}</set>
+			<log>Processing mailbox: {emailbox}</log>
+			<context for="{Exchange}" user="{emailbox}">
+				<select from="{Exchange}" entity="contact" var="UserContacts">
+					<where>
+						<condition attr="email1address" op="co">@</condition>
+					</where>
+					<attr name="companyname"/>
+					<attr name="email1address"/>
+					<attr name="email1displayname"/>
+					<attr name="email2address"/>
+					<attr name="email2displayname"/>
+					<attr name="email3address"/>
+					<attr name="email3displayname"/>
+				</select>
+
+				<set var="userSMTPs">{new List()}</set>
+				<set var="resolutions">{@exchange.ResolveNames(emailbox, 'ActiveDirectory', true)}</set>
+
+				<if condition="resolutions.isSet and resolutions.Count gt 0">
+					<for var="adr" in="resolutions[0].Contact.EmailAddresses">
+						<set var="tmpAdr">{adr.Value.ToLower()}</set>
+						<if condition="tmpAdr.StartsWith('smtp:')">
+							<set var="userSMTPs[]">{tmpAdr.Replace('smtp:', '')}</set>
+						</if>
+					</for>
+				</if>
+				<set var="PageLimit">{-1}</set>
+				<set var="Continue">{true}</set>
+				<set var="Page">{0}</set>
+				<set var="AllEmails">{new List()}</set>
+				<if condition="ProcessEmails">
+					<while condition="Continue">
+
+						<select from="{Exchange}" entity="message" var="emails" page="Page" count="PageSize">
+							<where>
+								<condition attr="received" op="gt">{CutOffDate.ToString("yyyy-MM-ddTHH:mm:ssZ")}</condition>
+								<for var="addr" in="userSMTPs">
+									<condition attr="senderemailaddress" op="ne">{addr}</condition>
+								</for>
+								<condition attr="parententryid" op="ne">deleteditems</condition>
+								<condition attr="senderemailaddress" op="ex" />
+								<condition attr="@BodyResponseType" op="eq">Text</condition>
+								<condition attr="@FolderName" op="eq">root/allitems</condition>
+							</where>
+							<attr name="subject"/>
+							<attr name="from"/>
+							<attr name="uniquebody"/>
+							<order by="received" desc="true"/>
+						</select>
+						<log>Page number: {Page}. {emails.Count} records to add.</log>
+						<for var="e" in="emails">
+							<set var="AllEmails[]">{e}</set>
+						</for>
+
+						<set var="Page">{Page + 1}</set>
+						<set var="Continue" if="emails.Count lt PageSize">{false}</set>
+						<set var="Continue" if="PageLimit gt 0 and Page gt PageLimit">{false}</set>
+					</while>
+				</if>
+			</context>
+			<log>   Processing {UserContacts.Count} for mailbox {emailbox}</log>
+
+			<for var="cnt" in="UserContacts">
+				<set var="companyName">{cnt.companyname.Trim() ?? null}</set>
+
+				<set ValidationResult="new Object()" ValidationResult.isInvalid="false" />
+				<ProcessX500Emailaddress exContact="cnt" Output="ValidationResult" />
+				<continue if="ValidationResult.isInvalid" />
+
+				<set var="domain">{Utils.Split(cnt.email1address,'@')[1].ToLower()}</set>
+				<continue if="IncludeProhibitedDomains eq false and Context.NonCorpDomains.Contains(domain)" />
+
+				<set var="ExDataStorage[domain]" if="!ExDataStorage.ContainsKey(domain)">
+					<attr name="CompanyNames">{new Dictionary()}</attr>
+					<attr name="ContactsCount">{0}</attr>
+					<attr name="EmailsCount">{0}</attr>
+					<attr name="EmployeesCount">{0}</attr>
+				</set>
+
+				<set var="ExDataStorage[domain].CompanyNames[companyName.ToLower()]" if="companyName.isSet">{companyName}</set>
+				<set var="ExDataStorage[domain].ContactsCount">{ExDataStorage[domain].ContactsCount + 1}</set>
+				<set var="ProcessedDomains[domain]">{null}</set>
+
+			</for>
+			<for var="email" in="AllEmails">
+				<set var="skip">{!(email.from.isSet and email.from.Item.isSet and email.from.Item.EmailAddress.isSet)}</set>
+				<log if="!(email.from.isSet and email.from.Item.isSet and email.from.Item.EmailAddress.isSet)">Email does not contain 'from' field. Skipping...</log>
+
+				<if condition="email.from.isSet and email.from.Item.isSet and email.from.Item.EmailAddress.isSet">
+					<set ValidationResult="new Object()" ValidationResult.isInvalid="false" />
+					<set var="cnt">
+						<attr name="email1address">{email.from.Item.EmailAddress}</attr>
+						<attr name="email1displayname">{email.from.Item.EmailAddress}</attr>
+					</set>
+					<ProcessX500Emailaddress exContact="cnt" Output="ValidationResult" />
+					<continue if="ValidationResult.isInvalid" />
+
+					<set var="domain">{Utils.Split(cnt.email1address,'@')[1].ToLower()}</set>
+					<continue if="IncludeProhibitedDomains eq false and Context.NonCorpDomains.Contains(domain)" />
+
+					<set var="ExDataStorage[domain]" if="!ExDataStorage.ContainsKey(domain)">
+						<attr name="CompanyNames">{new Dictionary()}</attr>
+						<attr name="ContactsCount">{0}</attr>
+						<attr name="EmailsCount">{0}</attr>
+						<attr name="EmployeesCount">{0}</attr>
+					</set>
+
+					<set var="ebody">{email.uniquebody}</set>
+					<set var="result" if="!SignatureDebugMode">{EmailEngines.Process(email.from.Item.Name, email.from.Item.EmailAddress, ebody)}</set>
+					<set var="result" if="SignatureDebugMode">{EmailEngines.ProcessDebug(email.from.Item.Name, email.from.Item.EmailAddress, ebody)}</set>
+					<set var="sign">{result.Signature}</set>
+
+					<if condition="sign.Email.isSet and sign.CompanyName.isSet and sign.NameMatch gt 0">
+						<then>
+							<log>	Main signature info: {sign.Email} from {sign.CompanyName}</log>
+						</then>
+						<else>
+							<log>	Email signature was not recognized.</log>
+						</else>
+					</if>
+
+					<set var="companyName"></set>
+					<set var="companyName" if="sign.CompanyName.isSet">{sign.CompanyName.ToLower().Trim().Replace("&#xD;", "").Replace("&#xA;", "")}</set>
+
+					<set var="ExDataStorage[domain].CompanyNames[companyName.ToLower()]" if="companyName.isSet">{companyName}</set>
+					<set var="ExDataStorage[domain].EmailsCount">{ExDataStorage[domain].EmailsCount + 1}</set>
+					<set var="ProcessedDomains[domain]">{null}</set>
+				</if>
+			</for>
+			<for var="domain" in="ProcessedDomains.Keys">
+				<set var="ExDataStorage[domain].EmployeesCount">{ExDataStorage[domain].EmployeesCount + 1}</set>
+			</for>
+
+
+		</sandbox>
+
+	</for>
+
+	<!--MERGE DATA STORAGE AND EXCHANGE DATA STORAGE-->
+
+	<for var="exDataKvp" in="ExDataStorage">
+		<set var="domain">{exDataKvp.Key}</set>
+		<set var="exData">{exDataKvp.Value}</set>
+
+		<set var="domainCompanies">{Utils.Join(exData.CompanyNames.Values, ';')}</set>
+
+		<if condition="!DataStorage.ContainsKey(domain)">
+			<set var="DataStorage[domain]">{new Dictionary()}</set>
+			<set var="DataStorage[domain]['']">
+				<attr name="CrmCompanyName"></attr>
+				<attr name="CrmCompanyNumber"></attr>
+				<attr name="ExchangePotentialCompanyNames"></attr>
+				<attr name="CrmContactsCount">{0}</attr>
+				<attr name="ExchangeContactsCount">{0}</attr>
+				<attr name="ExchangeEmailsCount">{0}</attr>
+				<attr name="ExchangeEmployeesCount">{0}</attr>
+				<attr name="DomainDuplicate"/>
+				<attr name="DomainOwner"/>
+				<if condition="IncludeCompanyStastics eq true">
+					<attr name="OpportunitiesCount"/>
+					<attr name="LeadsCount"/>
+					<attr name="JobsCount"/>
+				</if>
+			</set>
+		</if>
+
+		<for var="companiesData" in="DataStorage[domain]">
+			<set var="companiesData.Value.ExchangePotentialCompanyNames">{domainCompanies}</set>
+			<set var="companiesData.Value.ExchangeContactsCount">{exData.ContactsCount}</set>
+			<set var="companiesData.Value.ExchangeEmailsCount">{exData.EmailsCount}</set>
+			<set var="companiesData.Value.ExchangeEmployeesCount">{exData.EmployeesCount}</set>
+		</for>
+
+	</for>
+
+
+	<log>{Utils.NewLine}Generating Report...</log>
+	<set var="csvData">{new List()}</set>
+
+	<for var="domainItem" in="DataStorage">
+		<set var="domain">{domainItem.Key}</set>
+		<set var="companies">{domainItem.Value}</set>
+		<for var="companyItem" in="companies">
+			<set var="companyId">{companyItem.Key}</set>
+			<set var="companyData">{companyItem.Value}</set>
+
+			<set var="csvRow">{new Dictionary()}</set>
+			<set var="csvRow['Domain']">{domain}</set>
+
+			<if condition="CheckExistingCRMDomains">
+				<if condition="DomainsDict[domain].Value.isSet">
+					<set var="csvRow['Exists']">EXISTS</set>
+					<set var="csvRow['IsLegacy']">{DomainsDict[domain].Value.IsLegacy}</set>
+					<set var="csvRow['IsPreferred']">{DomainsDict[domain].Value.IsPreferred}</set>
+					<set var="csvRow['IsPotential']">{DomainsDict[domain].Value.IsPotential}</set>
+				</if>
+			</if>
+
+			<set var="csvRow['DomainDuplicate']">{companyData.DomainDuplicate}</set>
+			<set var="csvRow['DomainOwner']">{companyData.DomainOwner}</set>
+			<set var="csvRow['CrmCompanyNumber']">{companyData.CrmCompanyNumber}</set>
+			<set var="csvRow['CrmCompanyName']">{companyData.CrmCompanyName}</set>
+			<set var="csvRow['CrmCompanyID']">{companyId}</set>
+			<set var="csvRow['ExchangePotentialCompanyNames']">{companyData.ExchangePotentialCompanyNames}</set>
+			<set var="csvRow['CRMContactsCount']">{companyData.CrmContactsCount}</set>
+			<set var="csvRow['ExchangeContactsCount']">{companyData.ExchangeContactsCount}</set>
+			<set var="csvRow['ExchangeEmailsCount']">{companyData.ExchangeEmailsCount}</set>
+			<set var="csvRow['ExchangeEmployeesCount']">{companyData.ExchangeEmployeesCount}</set>
+
+			<if condition="IncludeCompanyStastics eq true">
+				<set var="csvRow['OpportunitiesCount']">{companyData.OpportunitiesCount}</set>
+				<set var="csvRow['LeadsCount']">{companyData.LeadsCount}</set>
+				<set var="csvRow['JobsCount']">{companyData.JobsCount}</set>
+			</if>
+			<set var="csvData[]">{csvRow}</set>
+		</for>
+	</for>
+
+	<set var="result">{Csv.Write(csvData, CRMDomainsReportFile, Encoding.UTF8, ',', '"')}</set>
+	<log>{Utils.NewLine}Report Created: {CRMDomainsReportFile}</log>
+
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+</script>

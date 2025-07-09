@@ -1,0 +1,61 @@
+<script>
+
+
+<update in="crm" entity="vs360_employee">
+	<where>
+		<condition attr="vs360_lastcontactscreationdate" op="not-null" />
+	</where>
+	<attr name="vs360_lastcontactscreationdate">{null}</attr>
+</update>
+
+	<log>{DateTime.Now.ToUniversalTime()}</log>
+
+    <context for="exchange" user="administrator@pcrm.int">
+        <select from="exchange" entity="contact" var="tempContacts" count="1">
+			<where>
+			
+				<condition attr="parententryid" op="ne">deleteditems</condition>
+				<condition attr="@BodyResponseType" op="eq">Text</condition>
+				<condition attr="@FolderName" op="eq">root/allitems</condition>
+				
+				
+				<condition attr="email1address" op="eq">diffold@test.test</condition>
+			</where>
+			
+			<attr name="EntryId"/>
+			<attr name="email1displayname"/>
+			<attr name="companyname"/>
+			<attr name="crmLinkState_vs360"/>
+			<attr name="lastmodifieddate"/>
+			<attr name="lastcommitdate"/>
+			<attr name="crmid"/>
+			<attr name="Keywords"/>
+			<attr name="hasattachments"/>
+			<attr name="attachments"/>
+			<!--<attr name="itemid"/>-->
+			<attr name="parententryid"/>
+		</select>
+		  
+		  
+		<log>{tempContacts}</log>
+		  
+		
+		<update in="exchange" entity="contact">
+            <where>
+				<condition attr="@FolderName" op="eq">root/allitems</condition>
+                <condition attr="EntryId" op="eq">{tempContacts[0].EntryId}</condition>
+            </where>
+            <attr name="companyname">updated</attr>
+        </update>
+		
+		  
+    </context>
+	
+	
+	
+	
+	
+
+	
+	
+</script>

@@ -1,0 +1,83 @@
+<script>
+	<set var="CrmJob">{new Object()}</set>
+	<set var="CrmJob.Id">{null}</set>
+	<set var="CrmJob.Exception">{null}</set>
+	<set var="CrmJob.Rows">{null}</set>
+	<set var="CrmJob.CurrentRow">{1}</set>
+	<set var="CrmJob.RowError">{0}</set>
+	<set var="CrmJob.RowSuccess">{0}</set>
+	<set var="CrmJob.Created">{0}</set>
+	<set var="CrmJob.Updated">{0}</set>
+	<set var="CrmJob.Associated">{0}</set>
+	<set var="CrmJob.Status">{857440001}</set>
+	<set var="CrmJob.ActionNumber">{1}</set>
+  <set var="CrmJob.ContextUser"></set>
+	<if condition="ImportJob.Mode eq 'SharedFolder'">
+        <sandbox>
+			<set File="static 'System.IO.File'" />
+			<set Path="static 'System.IO.Path'"/>
+			<set var="NTAccount">{typeof 'System.Security.Principal.NTAccount'}</set>
+			<set var="owner">{File.GetAccessControl(ImportJob.SourcePath + pObject).GetOwner(NTAccount).ToString()}</set>
+			<set var="username">{Path.GetFileName(owner)}</set>
+			<set var="CrmJob.Rows">{Csv.Read(ImportJob.SourcePath + pObject, Encoding.GetEncoding('utf-8'), ',','"','#',true)}</set>
+			<create in="crm" entity="vs360_importjob" var="CrmJob.Id">
+                <attr name="vs360_name">Auto Import for file - {pObject} - by {username}</attr>
+				<attr name="statuscode">{857440000}</attr>
+				<attr name="vs360_start">{Utils.Now.ToUniversalTime()}</attr>
+				<attr name="vs360_totalrows">{CrmJob.Rows.Count}</attr>
+            </create>
+			<onerror var="ex">
+				<set var="CrmJob.Exception">{ex.ToString()}</set>
+				<create in="crm" entity="vs360_importjob" var="!CrmJob.Id.isSet">
+					<attr name="vs360_name">Auto Import for file - {pObject} - by {username}</attr>
+					<attr name="statuscode">{857440003}</attr>
+					<attr name="vs360_start">{Utils.Now.ToUniversalTime()}</attr>
+					<attr name="vs360_exception">{CrmJob.Exception}</attr>
+				</create>
+				<set var="CrmJob.Status">{857440003}</set>
+			</onerror>
+		</sandbox>
+    </if>
+	<if condition="ImportJob.Mode eq 'Attachment'">
+		<set var="CrmJob.Id">{pObject.vs360_importjobid}</set>
+		<sandbox>
+			<select from="crm" entity="annotation" var="records">
+				<where>
+					<condition attr="objectid" op="eq">{CrmJob.Id}</condition>
+				</where>
+				<attr name="documentbody"/>
+        <attr name="ownerid"/>
+			</select>
+			<if condition="records.Count gt 0">
+        <set var="CrmJob.ContextUser" if="ImportJob.UseContext">{records[0].ownerid.Id}</set>
+				<set var="byteArray">{Utils.Base64ToByteArray(records[0].documentbody)}</set>
+				<set>{File.WriteAllBytes('c:\temp\Temporary.csv',Utils.Base64ToByteArray(records[0].documentbody))}</set>
+				<set var="CrmJob.Rows">{Csv.Read('c:\temp\Temporary.csv', Encoding.GetEncoding('utf-8'), ',','"','#',true)}</set>
+				<update in="crm" entity="vs360_importjob">
+					<where>
+						<condition attr="vs360_importjobid" op="eq">{CrmJob.Id}</condition>
+					</where>
+					<attr name="vs360_totalrows">{CrmJob.Rows.Count}</attr>
+					<attr name="statuscode">{857440000}</attr>
+					<attr name="vs360_start">{Utils.Now.ToUniversalTime()}</attr>
+				</update>
+			</if>
+			<onerror var="ex">
+				<set var="CrmJob.Exception">{ex.ToString()}</set>
+				<set var="CrmJob.Status">{857440003}</set>
+			</onerror>
+		</sandbox>
+    </if>
+	<if condition="CrmJob.Rows.isSet">
+		<set var="NotFoundColumns">{new List()}</set>
+        <for var="map" in="FieldsMapping">
+			<if condition="map.csv ne ''">
+                <set var="NotFoundColumns[]" if="!CrmJob.Rows[0].Contains(map.csv)">{map.csv}</set>
+            </if>
+        </for>
+		<if condition="NotFoundColumns.Count gt 0">
+            <set var="CrmJob.Exception">File format is invalid, it is missing the following columns: {NotFoundColumns}</set>
+			<set var="CrmJob.Status">{857440003}</set>
+        </if>
+    </if>
+</script>

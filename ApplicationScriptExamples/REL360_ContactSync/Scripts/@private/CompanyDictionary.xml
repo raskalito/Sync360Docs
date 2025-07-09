@@ -1,0 +1,17 @@
+<script>
+	<set CompanyDictionary="new Dictionary()"/>
+
+    <!-- Load Companies -->
+	<log>Loading Company Dictionary...</log>
+	<select from="{CRM}" entity="account" var="Companies" >
+		<attr name="accountid"/>
+		<attr name="name"/>
+		<order by="name" desc="false"/>
+    </select>
+	
+	<for var="c" in="Companies">
+        <set var="CompanyDictionary[c.accountid.ToString()]">{c.name}</set>
+    </for>
+
+
+</script>

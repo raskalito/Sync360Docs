@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set var="Entity">{CallSettings.Entity}</set>
+  <set var="Settings">{CallSettings.Settings}</set>
+  <set var="AttributesMapping">{CallSettings.AttributesMapping}</set>
+  <for var="Attr" in="AttributesMapping.Values">
+    <set var="Checked">{true}</set>
+    <if condition="Entity[Attr.src].isSet        and (Attr.type eq 'Lookup' or Attr.type eq 'Customer' or Attr.type eq 'EntityName' or Attr.type eq 'Owner')       and Entity[Attr.src].LogicalName.isSet       and Settings.Entities[Entity[Attr.src].LogicalName].State eq 'Supported'">
+      <select from="dbmigration" entity="Entities" var="CreatedEntities">
+        <where>
+          <condition attr="EntityID" op="eq">{Entity[Attr.src].Id}</condition>
+          <condition attr="EntityName" op="eq">{Entity[Attr.src].LogicalName}</condition>
+          <condition attr="State" op="in">{["SUCCESS","PARTIAL"]}</condition>
+          <condition attr="AttributesMappingVersion" op="eq">{Settings.AttributesMappingVersion}</condition>
+        </where>
+        <attr name="EntityID" />
+      </select>
+      <set var="Checked" if="CreatedEntities.Count eq 0">{false}</set>
+    </if>
+    <set var="CallSettings.CheckedAttributes[]" if="Checked">{Attr.dst}</set>
+  </for>
+</script>

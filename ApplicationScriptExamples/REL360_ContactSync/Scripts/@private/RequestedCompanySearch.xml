@@ -1,0 +1,114 @@
+<!-- RequestedCompanySearch.xml -->
+<script name="RequestedCompanySearch">
+
+  <include name="nonCorpDomainsList" />
+
+  <set var="extdomain">.au</set>
+  <set var="accounts">{new List()}</set>
+  <set var="accountId"></set>
+
+  <select from="crm" entity="account" var="accounts" if="companyName.isSet and companyName ne ''">
+    <where>
+      <condition attr="name" op="eq">{companyName}</condition>
+      <condition attr="statecode" op="eq">{0}</condition>
+    </where>
+    <attr name="accountid" />
+  </select>
+
+  <if condition="accounts.Count gt 0">
+    <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Found account by exact match. AccountId is '{accounts[0].accountid}'</set>
+    <set var="accountId">{accounts[0].accountid}</set>
+  </if>
+
+  <if condition="accounts.Count eq 0">
+    <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Account not found by exact match.</set>
+
+    <if condition="email.isSet and email.Length gt 0">
+      <set var="atIndex">{email.IndexOf('@')}</set>
+      <if condition="atIndex > -1">
+        <set var="emailDomain">{email.Substring(atIndex+1)}</set>
+        <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Contact's email domain is {emailDomain}.</set>
+
+        <if condition="nonCorpDomains.Contains(emailDomain)">
+          <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Contact's email domain is not corporative, skipping search by email domain.</set>
+        </if>
+        <if condition="!nonCorpDomains.Contains(emailDomain)">
+          <select from="crm" entity="contact" var="contacts">
+            <where>
+              <condition attr="emailaddress1" op="co">%@{emailDomain}</condition>
+              <condition attr="parentcustomerid" op="ex" />
+              <condition attr="statecode" op="eq">{0}</condition>
+            </where>
+            <attr name="parentcustomerid"/>
+          </select>
+
+          <if condition="contacts.Count eq 0 and emailDomain.Contains(extdomain)">
+            <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Contact was not found but have .au domain, try to find in com domain</set>
+            <set var="emailDomain">{emailDomain.Substring(0,emailDomain.Length-3)}</set>
+
+            <select from="crm" entity="contact" var="contacts">
+              <where>
+                <condition attr="emailaddress1" op="co">%@{emailDomain}</condition>
+                <condition attr="parentcustomerid" op="ex" />
+                <condition attr="statecode" op="eq">{0}</condition>
+              </where>
+              <attr name="parentcustomerid"/>
+            </select>
+          </if>
+
+          <if condition="contacts.Count gt 0">
+            <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Found {contacts.Count} contacts with same email domain.</set>
+
+            <if condition="companyName.isSet and companyName.Length ge 10">
+              <for var="c" in="contacts">
+                <select from="crm" entity="account" var="crmacs">
+                  <where>
+                    <condition attr="accountid" op="eq">{c.parentcustomerid.Id}</condition>
+                    <condition attr="statecode" op="eq">{0}</condition>
+                  </where>
+                  <attr name="name"/>
+                </select>
+                <if condition="crmacs.Count gt 0">
+                  <set var="cn">{companyName.Substring(0,10)}</set>
+                  <set var="pn">{null}</set>
+                  <if condition="crmacs[0].name.isSet and crmacs[0].name.Length ge 10">
+                    <set var="pn">{crmacs[0].name.Substring(0,10)}</set>
+                  </if>
+                  <if condition="cn eq pn">
+                    <set var="accountId">{c.parentcustomerid.Id}</set>
+                  </if>
+                </if>
+              </for>
+            </if>
+            <if condition="!companyName.isSet or companyName.Length eq 0">
+              <set var="accountId">{contacts[0].parentcustomerid.Id}</set>
+            </if>
+          </if>
+
+          <if condition="accountId.ToString()  ne ''">
+            <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Found parentcustomerid '{accountId}' in contact with same email domain.</set>
+          </if>
+        </if>
+      </if>
+    </if>
+  </if>
+
+  <if condition="accountId.ToString() eq ''">
+    <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Parentcustomerid is not found in contacts with same email domain. Creating new company.</set>
+
+    <set var="companyIsFilled">{companyName ne null and companyName.Length > 0}</set>
+    <if condition="!companyIsFilled">
+      <set var="companyLog.LogDescription">{companyLog.LogDescription}{Utils.NewLine}Exchange contact's company name is empty. Skipping company name creating.</set>
+    </if>
+
+    <if condition="companyIsFilled">
+      <create in="crm" entity="account" var="accountId">
+        <attr name="name">{companyName}</attr>
+      </create>
+      <set var="companyLog.LogInserted">{1}</set>
+    </if>
+  </if>
+
+  <set var="account.Id">{accountId}</set>
+  <call name="GenerateExecutionLog" CallObject="companyLog"/>
+</script>

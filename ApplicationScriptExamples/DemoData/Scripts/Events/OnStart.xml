@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set var="Settings">{new Object()}</set>
+  <include name="..\Config" />
+  <call name="..\CreateSchema" CallSettings="Settings.ProjectName" />
+</script>

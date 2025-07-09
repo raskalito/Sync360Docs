@@ -1,0 +1,110 @@
+<script name="FindCompanyMergeWinner">
+	<!-- 
+	***************************************************************************************************
+		Script Name: FindCompanyMergeWinner.xml
+		Description: Script takes a company ID and checks it to see if it has been merged.
+						- If NOT merged, it returns the company ID you sent
+						- If MERGED, it searches the entire merge chain for the winner.
+						- If any of these fail to find a company to use, it returns NULL in WinnerID
+						
+		INPUT
+			Object: Params
+					Params.CompanyID		INPUT	ID of company you want to searches
+					Params.IsMerged			OUTPUT	Result indicating if Company ID you sent was merged.
+					Params.WinnerID			OUTPUT	ID of either company you sent (not merged) or winner
+													of the merge chain.
+					Params.IsWinnerActive	OUTPUT	If status of winner company is Active.
+					Params.MergedChain		OUTPUT	List of merged companies
+													Object Structure
+														INDEX: Company ID
+														ORDER: Numeric order of merge chain
+														Property: Company Name
+														Property: Is Winner
+					Params.ResultMessage	OUTPUT	Any text messages from the routine.
+
+
+	===============================================================================================
+		Date                     Developer                                         Details
+	===============================================================================================
+		2023.12.12     Glen Wolinsky                      		
+	...............................................................................................
+	***************************************************************************************************
+	-->
+	<exception if="!Params.isSet">Parameters variable "Params" is required!</exception>
+	<exception if="!Params.CompanyID.isSet">Company ID is missing!</exception>
+
+	<!-- Intialize Variables -->
+	<set var="Params.IsMerged">{false}</set>
+	<set var="Params.WinnerID">{null}</set>
+	<set var="Params.IsWinnerActive">{false}</set>
+	<set Params.MergeChain="new List()"/>
+	<set var="Params.ResultMessage"/>
+	<set var="checkID">{Params.CompanyID}</set>
+	<set var="loserName">{null}</set>
+	<set var="mergeCount">{0}</set>
+
+	<sandbox>
+		<set var="KeepLooking">{true}</set>
+		<while condition="KeepLooking">
+			<select from="crm" entity="account" var="nextComp">
+				<where>
+					<condition attr="accountid" op="eq">{checkID}</condition>
+				</where>
+				<attr name="accountid"/>
+				<attr name="name"/>
+				<attr name="merged"/>
+				<attr name="masterid"/>
+				<attr name="statecode"/>
+			</select>
+
+			<!-- Company record found -->
+			<if condition="nextComp.Count gt 0">
+				<!-- Check if company is merged -->
+				<if condition="nextComp[0].merged and nextComp[0].masterid.Id.isSet">
+					<then>
+						<!-- MERGED -->
+						<set var="Params.ResultMessage" if="mergeCount le 0">{Params.ResultMessage}      Company {nextComp[0].name} was merged.  Checking merge chain... {Utils.NewLine}</set>
+						<set var="Params.ResultMessage" if="mergeCount gt 0">{Params.ResultMessage}                Company {loserName ?? "Unknown"} merged into {nextComp[0].name} {Utils.NewLine}</set>
+						<set var="Params.IsMerged">{true}</set>
+						<set var="mergeCount">{mergeCount+1}</set>
+						<set var="checkID">{nextComp[0].masterid.Id ?? null}</set>
+						<set var="loserName">{nextComp[0].name}</set>
+
+						<!-- Add Item to Merge Chain Dictionary -->
+						<set var="mergeItem">{new Object()}</set>
+						<set var="mergeItem.CompanyID">{nextComp[0].accountid}</set>
+						<set var="mergeItem.CompanyName">{nextComp[0].name}</set>
+						<set var="mergeItem.IsWinner">{false}</set>
+						<set var="mergeItem.MergeOrder">{mergeCount}</set>
+						<set var="Params.MergeChain[]">{mergeItem}</set>
+					</then>
+					<else>
+						<!-- NOT MERGED - Winner -->
+						<set var="KeepLooking">{false}</set>
+						<set var="Params.WinnerID">{nextComp[0].accountid}</set>
+						<set var="Params.IsWinnerActive" if="nextComp[0].statecode.isSet and nextComp[0].statecode eq 0">{true}</set>
+						<if condition="Params.IsMerged">
+							<then>
+								<set var="Params.ResultMessage" if="mergeCount gt 0">{Params.ResultMessage}                Company {loserName ?? "Unknown"} merged into {nextComp[0].name} {Utils.NewLine}</set>
+								<set var="Params.ResultMessage">{Params.ResultMessage}                Company {nextComp[0].name} is merge winner. {Utils.NewLine}</set>
+
+								<if condition="mergeCount gt 0">
+									<!-- Add Item to Merge Chain Dictionary -->
+									<set var="mergeItem">{new Object()}</set>
+									<set var="mergeItem.CompanyID">{nextComp[0].accountid}</set>
+									<set var="mergeItem.CompanyName">{nextComp[0].name}</set>
+									<set var="mergeItem.IsWinner">{true}</set>
+									<set var="mergeItem.MergeOrder">{mergeCount+1}</set>
+									<set var="Params.MergeChain[]">{mergeItem}</set>
+								</if>
+							</then>
+							<else>
+								<set var="Params.ResultMessage">{Params.ResultMessage}                Company {nextComp[0].name} was not merged. {Utils.NewLine}</set>
+							</else>
+						</if>
+					</else>
+				</if>
+			</if>
+		</while>
+	</sandbox>
+</script>

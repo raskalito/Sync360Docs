@@ -1,0 +1,6 @@
+<script>
+    <set var="EmailAddressCacheKey">EmailAddressesBlockList</set>
+	<set var="DomainsCacheKey">DomainsBlockList</set>
+	<set var="EmailNamesCacheKey">EmailNamesBlockList</set>
+	<set var="JobTitlesCacheKey">JobTitlesBlockList</set>
+</script>

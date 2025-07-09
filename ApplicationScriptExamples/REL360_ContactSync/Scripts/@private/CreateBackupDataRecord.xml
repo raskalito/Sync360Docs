@@ -1,0 +1,27 @@
+<script>
+    <exception if="!ExContact.isSet">ExContact param is missing</exception>
+    <exception if="!CrmContactId.isSet">CrmContactId param is missing</exception>
+    <exception if="!EmployeeId.isSet">EmployeeId param is missing</exception>
+    <exception if="!Mapping.isSet">Mapping param is missing</exception>
+    <exception if="!AdditionalCrmValues.isSet">AdditionalCrmValues param is missing</exception>
+	
+	<!-- Create CRM Backup data for Exchange contact -->
+	<create in="crm" entity="vs360_usercontactexchangedata" var="crmBackupEntityId">
+		<for var="mapping" in="Mapping.ContactMapping">
+			<if condition="ExContact[mapping.Exchange].isSet">
+				<set mappingValue="ExContact[mapping.Exchange]"/>
+				<attr name="vs360_{mapping.Crm}" if="mapping.Type eq 'String' and mapping.ExchangeType eq 'String'">{mappingValue.Replace("&#xD;&#xA;", "&#xA;").Replace("&#xA;", "&#xD;&#xA;").TrimEnd()}</attr>
+				<attr name="vs360_{mapping.Crm}" if="mapping.Type eq 'String' and mapping.ExchangeType eq 'Array'">{Utils.Join(mappingValue, ', ')}</attr>
+				<attr name="vs360_{mapping.Crm}" if="mapping.Type eq 'DateTime' and mapping.ExchangeType eq 'DateTime'">{Utils.StringToDate(mappingValue, "yyyy-MM-dd'T'HH:mm:ss'Z'")}</attr>
+			</if>
+		</for>
+		<for var="property" in="AdditionalCrmValues">
+			<attr name="vs360_{property.Name}">{property.Value}</attr>
+		</for>
+		<attr name="vs360_contactid">contact:{CrmContactId}</attr>
+		<attr name="vs360_lastcommitdate" if="ExContact.lastmodifieddate.isSet">{Utils.StringToDate(ExContact.lastmodifieddate, "yyyy-MM-dd'T'HH:mm:ss'Z'")}</attr>
+		<attr name="vs360_lastcommitdate" if="ExContact.lastcommitdate.isSet">{Utils.StringToDate(ExContact.lastcommitdate, "yyyy-MM-dd'T'HH:mm:ss'Z'")}</attr>
+		<attr name="vs360_employeeid">vs360_employee:{EmployeeId}</attr>
+		<attr name="vs360_name">Backup data for '{ExContact.firstname} {ExContact.lastname}' at {Utils.Now.ToUniversalTime()}</attr>
+	</create>
+</script>

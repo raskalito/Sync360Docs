@@ -1,0 +1,49 @@
+<script>
+	<exception if="!LiveLog.isSet">LiveLog parameter object is missing</exception>
+	<exception if="!LiveLog.UseLog.isSet">LiveLog Use object is missing</exception>
+	<exception if="!LiveLog.FileName.isSet">LiveLog FileNameName object is missing</exception>
+	<exception if="!LiveLog.Text.isSet">LiveLog Text object is missing</exception>
+
+	<log>{LiveLog.Text}</log>
+
+	<if condition="LiveLog.UseLog eq true">
+		<set>{FileUtils.WriteToFile(LiveLog.FileName, LiveLog.Text, true)}</set>
+	</if>
+
+	<!-- Clear Text after use -->
+	<set val="LiveLog.Text"/>
+
+	<!-- 
+	***************************************************** 
+	        Setup and Usage Syntax Examples
+	*****************************************************	
+	
+	Setup WITH LiveLog use 
+		<set var="TimeStampAsText">{Utils.Now.ToString('yyyy-MM-dd-hh-mm')}</set>
+
+		<set var="LiveLog">{new Object()}</set>
+		<set var="LiveLog.UseLog">{true}</set>
+		<set var="LiveLog.FileName">C:\Temp\Sync360 LiveLogs\[Log File Name]_LOG {TimeStampAsText}</set>
+
+		<var BlockInfo="new Object()"/>
+		<set var="BlockInfo.LiveLog">{LiveLog}</set>
+		<set var="BlockInfo.Title">[Title to Display and/or Name of script]</set>
+			
+
+	Setup WITHOUT LiveLog use 
+		<var BlockInfo="new Object()"/>
+		<set var="BlockInfo.Title">[Title to Display and/or Name of script]</set>
+	
+	
+	Display/Log Message Examples 
+		BASIC ONE-LINE MESSAGE
+			<set var="LiveLog.Text">Resetting Onboarding Status for employees in team: {currentTeam.name}</set>
+			<LiveLog LiveLog="LiveLog"/>
+			
+		Multi-Line Message
+			<set var="LiveLog.Text">***************************************************************************{Utils.NewLine}</set>
+			<set var="LiveLog.Text">{LiveLog.Text}  SUCCESS! NO exceptions detected.{Utils.NewLine}</set>
+			<set var="LiveLog.Text">{LiveLog.Text}***************************************************************************</set>
+			<LiveLog LiveLog="LiveLog"/>
+	-->
+</script>

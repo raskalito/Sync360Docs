@@ -1,0 +1,14 @@
+<script name="GetCRMCompanyDomains">
+
+	<exception if="!Context.isSet">Context parameter is required.</exception>
+
+	<select from="{CRM}" entity="vs360_companydomain" var="domains">
+		<attr name="vs360_name"/>
+	</select>
+
+	<set var="Context.CRMDomains">{new List()}</set>
+	<for var="domain" in="domains">
+		<set var="Context.CRMDomains[]">{vs360_name}</set>
+	</for>
+
+</script>

@@ -1,0 +1,49 @@
+<!-- Version 1.24.8.16 -->
+<script>
+	<!--
+		Params CrmRow, CrmJob, Operation, Label, ex
+	-->
+	
+	<if condition="entityName eq 'listmember'">
+        <then>
+			<set var="Label">Associate Contact with List</set>
+		</then>
+		<else>
+			<set var="Label" if="Operation eq 857440000">Create new {DisplayNames[entityName]}</set>
+			<set var="Label" if="Operation eq 857440001">Update existing {DisplayNames[entityName]}</set>
+		</else>
+    </if>
+	
+    <create in="crm" entity="vs360_importaction" var="CrmActionId">
+		<attr name="vs360_name">{Label}</attr>
+		<attr name="vs360_importrowid">{CrmRow.Id}</attr>
+		<attr name="vs360_importjobid">{CrmJob.Id}</attr>
+		<attr name="vs360_operation">{Operation}</attr>
+		<attr name="vs360_actionnumber">{CrmRow.ActionNumber}</attr>
+		<attr name="vs360_actionnumberglobal">{CrmJob.ActionNumber}</attr>
+		<if condition="details.isSet">
+            <attr name="vs360_details">{details.ToString()}</attr>
+        </if>
+		<attr name="statuscode" if="!ex.isSet">{1}</attr>
+		<if condition="ex.isSet">
+            <attr name="vs360_exception">{ex.ToString()}</attr>
+			<attr name="statuscode">{857440000}</attr>
+        </if>
+		<if condition="additionalLookups.isSet">
+			<for var="lookup" in="additionalLookups">
+                 <attr name="{lookup.field}">{lookup.id}</attr>
+            </for>
+        </if>
+	</create>
+	<set var="CrmRow.ActionNumber">{CrmRow.ActionNumber+1}</set>
+	<set var="CrmJob.ActionNumber">{CrmJob.ActionNumber+1}</set>
+	<if condition="ex.isSet">
+        <set var="CrmRow.StatusCode">{857440001}</set>
+		<set var="CrmJob.Status">{857440002}</set>
+    </if>
+	<if condition="!ex.isSet">
+        <set var="CrmJob.Created" if="Operation eq 857440000">{CrmJob.Created+1}</set>
+		<set var="CrmJob.Updated" if="Operation eq 857440001">{CrmJob.Updated+1}</set>
+		<set var="CrmJob.Associated" if="Operation eq 857440003">{CrmJob.Associated+1}</set>
+    </if>
+</script>

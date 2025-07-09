@@ -1,0 +1,34 @@
+<!-- Version 1.24.8.16 -->
+<script>
+	<set var="ImportJob">{new Object()}</set>
+	<set var="ImportJob.Mode">Attachment</set>												<!-- SharedFolder or Attachment-->
+	<set var="ImportJob.Template">{360000000}</set>											<!-- Attachment Only -->
+	<set var="ImportJob.SourcePath">C:\temp\MailingListImports\Import\</set> 				<!-- SharedFolder Only -->
+	<set var="ImportJob.ProcessedPath">C:\temp\MailingListImports\Import\Processed\</set>	<!-- SharedFolder Only -->
+	<set var="ImportJob.RemoveSourceFile">{false}</set>										<!-- Attachment Only -->
+	<set var="ImportJob.UseContext">{false}</set>                   <!-- Attachment Only -->
+	
+	<set var="ImportJob.ProcessingObjects">{new List()}</set>
+	<set var="ImportJob.CrmCache">{new Dictionary()}</set>
+	
+    <include name="Mapping" />
+	<include name="GetProcessingObjects" />
+	<include name="GlobalCache" />
+	
+	<for var="pObject" in="ImportJob.ProcessingObjects">
+        <include name="ProcessObjectStart" />
+		<sandbox>
+			<if condition="CrmJob.Rows.isSet and CrmJob.Status ne 857440003">
+				<for var="row" in="CrmJob.Rows">
+					<include name="ProcessRow" />
+				</for>
+			</if>
+			<onerror var="ex">
+                <set var="CrmJob.Status">{857440003}</set>
+				<set var="CrmJob.Exception">{ex.ToString()}</set>
+            </onerror>
+		</sandbox>
+		<include name="ProcessObjectFinish" />
+    </for>
+
+</script>

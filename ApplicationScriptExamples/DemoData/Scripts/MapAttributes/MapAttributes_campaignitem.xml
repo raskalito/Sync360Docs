@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set Settings.AttributesMappingVersion="'1.0.0.0'" />
+  <set Settings.AttributesMapping="new Dictionary()" />
+  <!--<set var="Settings.AttributesMapping['name']">-->
+  <!--<attr name="src">name</attr>-->
+  <!--<attr name="dst">name</attr>-->
+  <!--<attr name="type">string</attr>-->
+  <!--</set>-->
+  <set var="Settings.AttributesMapping['versionnumber']">
+    <attr name="src">versionnumber</attr>
+    <attr name="dst">versionnumber</attr>
+    <attr name="type">BigInt</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['campaignid']">
+    <attr name="src">campaignid</attr>
+    <attr name="dst">campaignid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owninguser']">
+    <attr name="src">owninguser</attr>
+    <attr name="dst">owninguser</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['name']">
+    <attr name="src">name</attr>
+    <attr name="dst">name</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningbusinessunit']">
+    <attr name="src">owningbusinessunit</attr>
+    <attr name="dst">owningbusinessunit</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['timezoneruleversionnumber']">
+    <attr name="src">timezoneruleversionnumber</attr>
+    <attr name="dst">timezoneruleversionnumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ownerid']">
+    <attr name="src">ownerid</attr>
+    <attr name="dst">ownerid</attr>
+    <attr name="type">Owner</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['entitytype']">
+    <attr name="src">entitytype</attr>
+    <attr name="dst">entitytype</attr>
+    <attr name="type">EntityName</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['utcconversiontimezonecode']">
+    <attr name="src">utcconversiontimezonecode</attr>
+    <attr name="dst">utcconversiontimezonecode</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['campaignitemid']">
+    <attr name="src">campaignitemid</attr>
+    <attr name="dst">campaignitemid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['entityid']">
+    <attr name="src">entityid</attr>
+    <attr name="dst">entityid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['importsequencenumber']">
+    <attr name="src">importsequencenumber</attr>
+    <attr name="dst">importsequencenumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+</script>

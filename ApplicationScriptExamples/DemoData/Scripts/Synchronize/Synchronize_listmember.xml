@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set var="Settings">{new Object()}</set>
+  <set var="Settings.EntityName">listmember</set>
+  <set var="Settings.KeyField">listid</set>
+  <set var="Settings.RelatedKeyField">entityid</set>
+  <set var="Settings.TargetEntityName">list</set>
+  <set var="Settings.TargetEntityKeyField">{null}</set>
+  <set var="Settings.OtherEntityName">account</set>
+  <set var="Settings.RelationshipName">listaccount_association</set>
+  <set var="Settings.PrimaryField">name</set>
+  <set var="Settings.ClosedStatusCodes">{new List()}</set>
+  <set var="Settings.OpenStateCode">{}</set>
+  <set var="Settings.OpenStatusCode">{}</set>
+  <set var="Settings.HasClosedState">{false}</set>
+  <include name="../SynchronizeEntity2" />
+</script>

@@ -1,0 +1,386 @@
+<script>
+	<exception if="!Context.isSet">Context parameter is required.</exception>
+	
+	<log>Loading Fields mapping...</log>
+	
+	<var Mapping='["ContactMapping" : new List(), "ContactMultiLineMapping" : new List() ]'/>
+	
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">birthdate</attr>
+		<attr name="Exchange">birthday</attr>
+		<attr name="Type">DateTime</attr>
+		<attr name="ExchangeType">DateTime</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">anniversary</attr>
+		<attr name="Exchange">weddinganniversary</attr>
+		<attr name="Type">DateTime</attr>
+		<attr name="ExchangeType">DateTime</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">assistantname</attr>
+		<attr name="Exchange">assistant</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">assistantphone</attr>
+		<attr name="Exchange">assistantphone</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<!-- Outlook Notes field mapping.  UNCOMMENT to enable synchronization.-->
+	<!--<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">description</attr>
+		<attr name="Exchange">body</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{false}</attr>
+	</set>-->
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">childrensnames</attr>
+		<attr name="Exchange">children</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">Array</attr>
+		<attr name="IncludeInReports">{false}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">callback</attr>
+		<attr name="Exchange">callbackphone</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">department</attr>
+		<attr name="Exchange">department</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">emailaddress1</attr>
+		<attr name="Exchange">email1address</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+	<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">emailaddress2</attr>
+		<attr name="Exchange">email2address</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">emailaddress3</attr>
+		<attr name="Exchange">email3address</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">firstname</attr>
+		<attr name="Exchange">firstname</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">ftpsiteurl</attr>
+		<attr name="Exchange">ftpsite</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">governmentid</attr>
+		<attr name="Exchange">governmentid</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{false}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">home2</attr>
+		<attr name="Exchange">homephone2</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">telephone2</attr>
+		<attr name="Exchange">homephone</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">lastname</attr>
+		<attr name="Exchange">lastname</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">managername</attr>
+		<attr name="Exchange">manager</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">middlename</attr>
+		<attr name="Exchange">middlename</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">mobilephone</attr>
+		<attr name="Exchange">mobilephone</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">suffix</attr>
+		<attr name="Exchange">namesuffix</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">nickname</attr>
+		<attr name="Exchange">nickname</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">telephone3</attr>
+		<attr name="Exchange">otherphone</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">salutation</attr>
+		<attr name="Exchange">salutation</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">spousesname</attr>
+		<attr name="Exchange">spouse</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">jobtitle</attr>
+		<attr name="Exchange">title</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">websiteurl</attr>
+		<attr name="Exchange">businesshomepage</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">fax</attr>
+		<attr name="Exchange">workfax</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">pager</attr>
+		<attr name="Exchange">workpager</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">telephone1</attr>
+		<attr name="Exchange">workphone</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">business2</attr>
+		<attr name="Exchange">business2</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">yomifirstname</attr>
+		<attr name="Exchange">yomifirstname</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">yomilastname</attr>
+		<attr name="Exchange">yomilastname</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">vs360_companyname</attr>
+		<attr name="Exchange">companyname</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<!--<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">ccrm_keywords</attr>
+		<attr name="Exchange">Keywords</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeToCrmOnly">{true}</attr>
+	</set>-->
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address1_city</attr>
+		<attr name="Exchange">workaddresscity</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IsAddressModeHandler">yes</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address1_country</attr>
+		<attr name="Exchange">workaddresscountry</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IsAddressModeHandler">yes</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address1_postalcode</attr>
+		<attr name="Exchange">workaddresspostalcode</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IsAddressModeHandler">yes</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address1_postofficebox</attr>
+		<attr name="Exchange">workaddresspostofficebox</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IsAddressModeHandler">yes</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address1_stateorprovince</attr>
+		<attr name="Exchange">workaddressstate</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IsAddressModeHandler">yes</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMultiLineMapping[]">
+		<attr name="Exchange">workaddressstreet</attr>
+		<attr name="Crm">{["address1_line1","address1_line2","address1_line3"]}</attr>
+		<attr name="IsAddressModeHandler">yes</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address2_city</attr>
+		<attr name="Exchange">homeaddresscity</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address2_country</attr>
+		<attr name="Exchange">homeaddresscountry</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address2_postalcode</attr>
+		<attr name="Exchange">homeaddresspostalcode</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address2_postofficebox</attr>
+		<attr name="Exchange">homeaddresspostofficebox</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address2_stateorprovince</attr>
+		<attr name="Exchange">homeaddressstate</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMultiLineMapping[]">
+		<attr name="Exchange">homeaddressstreet</attr>
+		<attr name="Crm">{["address2_line1","address2_line2","address2_line3"]}</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+
+
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address3_city</attr>
+		<attr name="Exchange">otheraddresscity</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address3_country</attr>
+		<attr name="Exchange">otheraddresscountry</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address3_postalcode</attr>
+		<attr name="Exchange">otheraddresspostalcode</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address3_postofficebox</attr>
+		<attr name="Exchange">otheraddresspostofficebox</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMapping[]">
+		<attr name="Crm">address3_stateorprovince</attr>
+		<attr name="Exchange">otheraddressstate</attr>
+		<attr name="Type">String</attr>
+		<attr name="ExchangeType">String</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	<set var="Mapping.ContactMultiLineMapping[]">
+		<attr name="Exchange">otheraddressstreet</attr>
+		<attr name="Crm">{["address3_line1","address3_line2","address3_line3"]}</attr>
+		<attr name="IncludeInReports">{true}</attr>
+	</set>
+	
+	
+	<set var="Context.Mapping">{Mapping}</set>
+</script>

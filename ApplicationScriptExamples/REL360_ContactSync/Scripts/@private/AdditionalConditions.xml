@@ -1,0 +1,34 @@
+<script>
+	<not>
+		<condition attr="email1displayname" op="co">/o=</condition>
+	</not>
+	<not>
+		<condition attr="email1displayname" op="co">_o=</condition>
+	</not>
+	<and>
+		<condition attr="email1address" op="ne"></condition>
+		<condition attr="email1address" op="ex"/>
+	</and>
+	
+	
+	<!--
+	<or>
+		<and>
+			<condition attr="workphone" op="ne"></condition>
+			<condition attr="workphone" op="ex"/>
+		</and>
+		<and>
+			<condition attr="mobilephone" op="ne"></condition>
+			<condition attr="mobilephone" op="ex"/>
+		</and>
+	</or>
+	-->
+	<and>
+		<condition attr="firstname" op="ne"></condition>
+		<condition attr="firstname" op="ex"/>
+	</and>
+	<and>
+		<condition attr="lastname" op="ne"></condition>
+		<condition attr="lastname" op="ex"/>
+	</and>
+</script>

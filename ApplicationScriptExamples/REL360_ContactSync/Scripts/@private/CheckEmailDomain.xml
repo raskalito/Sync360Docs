@@ -1,0 +1,41 @@
+<script>
+	<exception if="!Context.isSet">Context parameter is required.</exception>
+	<exception if="!EmailAddress.isSet">EmailAddress parameter is required.</exception>
+	<exception if="!CheckEmailDomainResults.isSet">CheckEmailDomainResults parameter is required.</exception>
+
+	<set var="emailDomain">{Utils.Split(EmailAddress, '@')[1] ?? null}</set>
+
+	<if condition="emailDomain.isSet">
+		<select from="crm" entity="account" var="accounts" count="1">
+			<where>
+                <condition attr="statecode" op="eq">{0}</condition>
+            </where>
+			<join type="inner" entity="vs360_vs360_companydomain_account" to="accountid" from="accountid">
+				<join type="inner" entity="vs360_companydomain" to="vs360_companydomainid" from="vs360_companydomainid">
+					<where>
+						<condition attr="vs360_name" op="eq">{emailDomain}</condition>
+						<condition attr="statecode" op="eq">{0}</condition>
+					</where>
+				</join>
+			</join>
+			<join entity="account" to="accountid" from="parentaccountid">
+				<attr name="accountid" as="ChildAccount"/>
+			</join>
+
+			<attr name="name"/>
+			<attr name="accountid"/>
+		</select>
+
+
+		<if condition="accounts.Count gt 0">
+			<set var="account">
+				<attr name="Id">{accounts[0].accountid}</attr>
+				<attr name="Name">{accounts[0].name}</attr>
+				<attr name="HasChildAccounts">{accounts[0].ChildAccount.isSet ?? false}</attr>
+			</set>
+			<set var="CheckEmailDomainResults.Account">{account}</set>
+		</if>
+
+	</if>
+
+</script>

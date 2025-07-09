@@ -1,0 +1,116 @@
+<!--FillCRMContactEmptyFieldsWithDataFromExchange-->
+<!-- 
+		Call Example:
+      <var CallObject='new Object()'/>
+      <set var="CallObject.Contactid">{'4E412729-6769-E611-80F0-5065F38B11C1' as 'Guid'}</set>
+      <set var="CallObject.Mapping">{Mapping}</set>
+      <set var="CallObject.ExContact">{excontact}</set>
+      <call name="FillCRMContactEmptyFieldsWithDataFromExchange" CallObject="CallObject"/>
+-->
+
+<script>
+
+	<set var="Mapping">{CallObject.Mapping}</set>
+	<set var="excontact">{CallObject.ExContact}</set>
+	<set var="privateFields">{CallObject.PrivateFields}</set>
+	<set var="settings">{CallObject.Settings}</set>
+	<set var="Employee">{CallObject.Employee}</set>
+
+	<context for="crm" user="{Employee.UserId}">
+		<select from="crm" entity="contact" var="existingCrmContacts">
+			<where>
+				<condition attr="contactid" op="eq">{CallObject.Contactid}</condition>
+			</where>
+			<attr name="contactid" />
+			<attr name="parentcustomerid" />
+			<for var="mapping" in="Mapping.ContactMapping">
+				<if condition="!mapping.Multiline.isSet">
+					<attr name="{mapping.Crm}" />
+				</if>
+			</for>
+			<for var="mapping" in="Mapping.ContactMultiLineMapping">
+				<for var="multiLineMapping" in="mapping.Crm">
+					<attr name="{multiLineMapping}" />
+				</for>
+			</for>
+		</select>
+
+		<set var="existingCrmContact">{existingCrmContacts[0]}</set>
+		<set var="mappingsToProcess">{new List()}</set>
+		<set var="multiLineMappingsToProcess">{new List()}</set>
+		<set var="multiLineMappingsValues">{new List()}</set>
+
+		<!-- Multi-line mapping -->
+		<for var="mapping" in="Mapping.ContactMultiLineMapping">
+			<set var="isCrmMappingToProcess">{true}</set>
+			<for var="multiLineMapping" in="mapping.Crm">
+				<if condition="existingCrmContact[multiLineMapping].isSet">
+					<set var="isCrmMappingToProcess">{false}</set>
+				</if>
+			</for>
+			<if condition="isCrmMappingToProcess and excontact[mapping.Exchange].isSet">
+				<set var="multiLineMappingsToProcess[]">{mapping}</set>
+			</if>
+		</for>
+
+		<for var="mapping" in="multiLineMappingsToProcess">
+			<set var="cleanValue">{excontact[mapping.Exchange].Replace("&#xD;&#xA;", "&#xA;").Replace("&#xD;", "&#xA;") ?? null}</set>
+			<set var="values">{Utils.Split(cleanValue, "&#xA;")}</set>
+			<set var="counter">{0}</set>
+
+			<for var="value" in="values">
+				<if condition="value!='' and counter != mapping.Crm.Count">
+					<set var="multiLineMappingsValues[]">
+						<attr name="Name">{mapping.Crm[counter]}</attr>
+						<attr name="Value">{value}</attr>
+					</set>
+					<set var="counter">{counter+1}</set>
+				</if>
+			</for>
+		</for>
+
+		<!-- Simple mapping -->
+		<for var="mapping" in="Mapping.ContactMapping">
+			<if condition="!mapping.Multiline.isSet and !existingCrmContact[mapping.Crm].isSet and excontact[mapping.Exchange].isSet">
+				<set var="mappingsToProcess[]">{mapping}</set>
+			</if>
+		</for>
+
+		<if condition="mappingsToProcess.Count gt 0 or multiLineMappingsValues.Count gt 0">
+
+			<update in="crm" entity="contact">
+				<where>
+					<condition attr="contactid" op="eq">{existingCrmContact.contactid}</condition>
+				</where>
+				<for var="mapping" in="mappingsToProcess">
+					<if condition="!privateFields.Contains(mapping.Crm)">
+						<set mappingValue="excontact[mapping.Exchange]"/>
+						<attr name="{mapping.Crm}" if="mapping.Type eq 'String'">{mappingValue.Replace("&#xD;&#xA;", "&#xA;").Replace("&#xA;", "&#xD;&#xA;").TrimEnd()}</attr>
+						<attr name="{mapping.Crm}" if="mapping.Type eq 'String' and mapping.ExchangeType eq 'Array'">{Utils.Join(mappingValue, ', ')}</attr>
+						<attr name="{mapping.Crm}" if="mapping.Type eq 'DateTime'">{Utils.StringToDate(mappingValue, "yyyy-MM-dd'T'HH:mm:ss'Z'")}</attr>
+					</if>
+				</for>
+				<for var="mapping" in="multiLineMappingsValues">
+					<if condition="!privateFields.Contains(mapping.Name)">
+						<attr name="{mapping.Name}">{mapping.Value}</attr>
+					</if>
+				</for>
+				<attr name="vs360_modifiedbyemployeeid">vs360_employee:{Employee.Id}</attr>
+			</update>
+
+		</if>
+
+		<!--Empty CRM "Company" and not empty exchange-->
+		<if condition="!existingCrmContact.parentcustomerid.isSet and CallObject.AssociatedAccount.isSet"><!-- or (CallObject.AssociatedAccount.Name ne existingCrmContact.parentcustomerid.Name)-->
+
+			<update in="crm" entity="contact">
+				<where>
+					<condition attr="contactid" op="eq">{existingCrmContact.contactid}</condition>
+				</where>
+				<attr name="parentcustomerid">account:{CallObject.AssociatedAccount.Id}</attr>
+				<attr name="vs360_modifiedbyemployeeid">vs360_employee:{Employee.Id}</attr>
+			</update>
+
+		</if>
+  </context>
+</script>

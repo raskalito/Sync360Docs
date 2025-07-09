@@ -1,0 +1,16 @@
+<script>
+	<set var="GlobalCache">{new Dictionary()}</set>
+	
+  
+	<set var="GlobalCache['vs360_employee']">{new Dictionary()}</set>
+	<select from="crm" entity="vs360_employee" var="records">
+        <where>
+            <condition attr="emailaddress" op="ex"></condition>
+        </where>
+        <attr name="emailaddress"/>
+		<attr name="vs360_employeeid"/>
+    </select>
+	<for var="r" in="records">
+        <set var="GlobalCache['vs360_employee'][r.emailaddress.ToLower()]">{r.vs360_employeeid}</set>
+    </for>
+</script>

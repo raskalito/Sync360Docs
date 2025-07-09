@@ -1,0 +1,498 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set Settings.AttributesMappingVersion="'1.0.0.0'" />
+  <set Settings.AttributesMapping="new Dictionary()" />
+  <!--<set var="Settings.AttributesMapping['name']">-->
+  <!--<attr name="src">name</attr>-->
+  <!--<attr name="dst">name</attr>-->
+  <!--<attr name="type">string</attr>-->
+  <!--</set>-->
+  <set var="Settings.AttributesMapping['activityid']">
+    <attr name="src">activityid</attr>
+    <attr name="dst">activityid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['sortdate']">
+    <attr name="src">sortdate</attr>
+    <attr name="dst">sortdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['stageid']">
+    <attr name="src">stageid</attr>
+    <attr name="dst">stageid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['actualstart']">
+    <attr name="src">actualstart</attr>
+    <attr name="dst">actualstart</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['scheduleddurationminutes']">
+    <attr name="src">scheduleddurationminutes</attr>
+    <attr name="dst">scheduleddurationminutes</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedon']">
+    <attr name="src">modifiedon</attr>
+    <attr name="dst">modifiedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningteam']">
+    <attr name="src">owningteam</attr>
+    <attr name="dst">owningteam</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['serviceid']">
+    <attr name="src">serviceid</attr>
+    <attr name="dst">serviceid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningbusinessunit']">
+    <attr name="src">owningbusinessunit</attr>
+    <attr name="dst">owningbusinessunit</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['optionalattendees']">
+    <attr name="src">optionalattendees</attr>
+    <attr name="dst">optionalattendees</attr>
+    <attr name="type">PartyList</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['traversedpath']">
+    <attr name="src">traversedpath</attr>
+    <attr name="dst">traversedpath</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['actualdurationminutes']">
+    <attr name="src">actualdurationminutes</attr>
+    <attr name="dst">actualdurationminutes</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['transactioncurrencyid']">
+    <attr name="src">transactioncurrencyid</attr>
+    <attr name="dst">transactioncurrencyid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ownerid']">
+    <attr name="src">ownerid</attr>
+    <attr name="dst">ownerid</attr>
+    <attr name="type">Owner</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['processid']">
+    <attr name="src">processid</attr>
+    <attr name="dst">processid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['attachmentcount']">
+    <attr name="src">attachmentcount</attr>
+    <attr name="dst">attachmentcount</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['isalldayevent']">
+    <attr name="src">isalldayevent</attr>
+    <attr name="dst">isalldayevent</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['onholdtime']">
+    <attr name="src">onholdtime</attr>
+    <attr name="dst">onholdtime</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['globalobjectid']">
+    <attr name="src">globalobjectid</attr>
+    <attr name="dst">globalobjectid</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['isworkflowcreated']">
+    <attr name="src">isworkflowcreated</attr>
+    <attr name="dst">isworkflowcreated</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['organizer']">
+    <attr name="src">organizer</attr>
+    <attr name="dst">organizer</attr>
+    <attr name="type">PartyList</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['scheduledstart']">
+    <attr name="src">scheduledstart</attr>
+    <attr name="dst">scheduledstart</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statuscode']">
+    <attr name="src">statuscode</attr>
+    <attr name="dst">statuscode</attr>
+    <attr name="type">Status</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['subject']">
+    <attr name="src">subject</attr>
+    <attr name="dst">subject</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['category']">
+    <attr name="src">category</attr>
+    <attr name="dst">category</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['importsequencenumber']">
+    <attr name="src">importsequencenumber</attr>
+    <attr name="dst">importsequencenumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['isbilled']">
+    <attr name="src">isbilled</attr>
+    <attr name="dst">isbilled</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['actualend']">
+    <attr name="src">actualend</attr>
+    <attr name="dst">actualend</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['isdraft']">
+    <attr name="src">isdraft</attr>
+    <attr name="dst">isdraft</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdonbehalfby']">
+    <attr name="src">createdonbehalfby</attr>
+    <attr name="dst">createdonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owninguser']">
+    <attr name="src">owninguser</attr>
+    <attr name="dst">owninguser</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['seriesid']">
+    <attr name="src">seriesid</attr>
+    <attr name="dst">seriesid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['utcconversiontimezonecode']">
+    <attr name="src">utcconversiontimezonecode</attr>
+    <attr name="dst">utcconversiontimezonecode</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['subcategory']">
+    <attr name="src">subcategory</attr>
+    <attr name="dst">subcategory</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedonbehalfby']">
+    <attr name="src">modifiedonbehalfby</attr>
+    <attr name="dst">modifiedonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['activityadditionalparams']">
+    <attr name="src">activityadditionalparams</attr>
+    <attr name="dst">activityadditionalparams</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['slainvokedid']">
+    <attr name="src">slainvokedid</attr>
+    <attr name="dst">slainvokedid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedfieldsmask']">
+    <attr name="src">modifiedfieldsmask</attr>
+    <attr name="dst">modifiedfieldsmask</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['scheduledend']">
+    <attr name="src">scheduledend</attr>
+    <attr name="dst">scheduledend</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['timezoneruleversionnumber']">
+    <attr name="src">timezoneruleversionnumber</attr>
+    <attr name="dst">timezoneruleversionnumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedby']">
+    <attr name="src">modifiedby</attr>
+    <attr name="dst">modifiedby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['prioritycode']">
+    <attr name="src">prioritycode</attr>
+    <attr name="dst">prioritycode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['exchangerate']">
+    <attr name="src">exchangerate</attr>
+    <attr name="dst">exchangerate</attr>
+    <attr name="type">Decimal</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['isunsafe']">
+    <attr name="src">isunsafe</attr>
+    <attr name="dst">isunsafe</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ismapiprivate']">
+    <attr name="src">ismapiprivate</attr>
+    <attr name="dst">ismapiprivate</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdby']">
+    <attr name="src">createdby</attr>
+    <attr name="dst">createdby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdon']">
+    <attr name="src">createdon</attr>
+    <attr name="dst">overriddencreatedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['versionnumber']">
+    <attr name="src">versionnumber</attr>
+    <attr name="dst">versionnumber</attr>
+    <attr name="type">BigInt</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['isregularactivity']">
+    <attr name="src">isregularactivity</attr>
+    <attr name="dst">isregularactivity</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['regardingobjectid']">
+    <attr name="src">regardingobjectid</attr>
+    <attr name="dst">regardingobjectid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['attachmenterrors']">
+    <attr name="src">attachmenterrors</attr>
+    <attr name="dst">attachmenterrors</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['description']">
+    <attr name="src">description</attr>
+    <attr name="dst">description</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['slaid']">
+    <attr name="src">slaid</attr>
+    <attr name="dst">slaid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['requiredattendees']">
+    <attr name="src">requiredattendees</attr>
+    <attr name="dst">requiredattendees</attr>
+    <attr name="type">PartyList</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['outlookownerapptid']">
+    <attr name="src">outlookownerapptid</attr>
+    <attr name="dst">outlookownerapptid</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statecode']">
+    <attr name="src">statecode</attr>
+    <attr name="dst">statecode</attr>
+    <attr name="type">State</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['lastonholdtime']">
+    <attr name="src">lastonholdtime</attr>
+    <attr name="dst">lastonholdtime</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['activitytypecode']">
+    <attr name="src">activitytypecode</attr>
+    <attr name="dst">activitytypecode</attr>
+    <attr name="type">EntityName</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['instancetypecode']">
+    <attr name="src">instancetypecode</attr>
+    <attr name="dst">instancetypecode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['location']">
+    <attr name="src">location</attr>
+    <attr name="dst">location</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['originalstartdate']">
+    <attr name="src">originalstartdate</attr>
+    <attr name="dst">originalstartdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+</script>

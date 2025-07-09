@@ -1,0 +1,14 @@
+<script>
+	<exception if="!Collection.isSet">Collection param is missing.</exception>
+
+    <select from="crm" entity="vs360_jobtitleblocklist" var="jobTitlesBlockList">
+        <where>
+            <condition attr="statecode" op="eq">{0}</condition>
+        </where>
+		<attr name="vs360_name"/>
+    </select>
+	
+	<for var="item" in="jobTitlesBlockList">
+		<set var="Collection[item.vs360_name.ToLower()]">{null}</set>
+	</for>
+</script>

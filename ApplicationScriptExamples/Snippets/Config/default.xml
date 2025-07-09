@@ -1,0 +1,49 @@
+<config>
+	<connections>	
+		<add 
+			name="sqlExample" 
+			type="db" 
+			version="1.0" 
+			user="XXXXXXXXXXX"
+			password="XRZdZXXXXXXXXXXhS6ZQ=="
+			url="ProviderType=System.Data.SqlClient;Data Source= XXXXXXXX;Initial Catalog=XXXXXXXXXX;uid={user};pwd={password}" />
+
+		<add
+			name="crmExample" 
+			type="crm" 
+			version="2011" 
+			user="c2cacf2f-XXXX-XXXX-XXXX-89e36a1e725c" 
+			password="[y[6s]XXXXXXXXXXXXCgm3_"
+			url="AuthType=ClientSecret;url=https://XXXXXXXXXXX.crm.dynamics.com;ClientId={user};ClientSecret={password};"/>
+
+		<add 
+			name="exchangeExample" 
+			type="exchange" 
+			version="Online.OAuth.ExchangeImpersonation" 
+			user="" 
+			password="Xz0?XXXXXXXXX[xYwEFaLnbp1[" 
+			url="ClientId=1a931ace-XXXX-XXXX-XXXX-41ef2ff69169;TenantId=45d8241b-XXXX-XXXX-XXXX-86d67cc7dfb8"/>
+		
+		<add
+			name="visionExample"
+			type="deltek"
+			version="7.1"
+			user="XXXXXXXX"
+			password="XXXXXXXX"
+			domain="XXXXXXXX"
+			url="Data Source=http://deltek/XXXXXXXX/visionws.asmx;Initial Catalog=Vision XXXXXXXX;uid=XXXXXXXX;pwd=XXXXXXXX;timeout=300000;trace=1"
+			org=""/>
+		
+		<add
+			name="FOExample"
+			type="dynamicsax"
+			version="7.0"
+			user="XXXXXXXXX.onmicrosoft.com"
+			password="XXXXXXXX"
+			url="ServiceUrl=https://XXXXXXXXXXX.dynamics.com;OAuthUrl=https://login.microsoftonline.com/XXXXXXXXXX.com;ClienAppId=06b367b2-XXXX-XXXX-XXXX-e289442f8618;Trace=1"/>
+
+	</connections>
+	<settings>
+		<!--<add name="EncryptPasswords" value="1" />-->
+	</settings>
+</config>

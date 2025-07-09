@@ -1,0 +1,86 @@
+<script>
+
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  ******************************* -->
+
+	<!-- Data sources -->
+	<set var="CRM">crm</set>
+	<set var="EXCHANGE">exchange</set>
+
+	<!-- INCLUDES -->
+	<include name="TimeStampAsText"/>
+
+	<!-- Script Run Setup Variables -->
+	<set var="TeamName">XXXXXX</set>
+	<set var="ExchangeContactsCountList">C:\Temp\REL360Output\ExchangeContactsCountList - {TeamName} - {TimeStampAsText}.csv</set>  <!-- Report Output file path & name -->
+
+	<!-- Prints log text and adds to external log file -->
+	<var LiveLog="new Object()"/>
+	<set var="LiveLog.UseLog">{false}</set> 	<!-- TRUE will send window log entries to text file.   FALSE will not create text file but still log to window -->
+	<set var="LiveLog.FileName">C:\Temp\Sync360 LiveLogs\Exchange Contacts Count List for {TeamName}_{TimeStampAsText}.txt</set>
+
+	<!-- Displays start block info -->
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Exchange Contacts Count List for {TeamName}</set>
+	<set var="BlockInfo.LiveLog">{LiveLog}</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+	<!-- Load Employees From Team -->
+	<log>Loading Employees from team {TeamName}...</log>
+	<select from="crm" entity="vs360_employee" into="employees">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+		</where>
+		<join entity="systemuser" to="vs360_systemuserid" from="systemuserid">
+			<attr name="isdisabled" as="is_systemuser_disabled"/>
+		</join>
+		<join type="inner" entity="vs360_vs360_employee_team" to="vs360_employeeid" from="vs360_employeeid">
+			<join type="inner" entity="team" to="teamid" from="teamid" as="">
+				<where>
+					<condition attr="name" op="eq">{TeamName}</condition>
+				</where>
+			</join>
+		</join>
+		<attr name="vs360_employeeid"/>
+		<attr name="vs360_name"/>
+		<attr name="emailaddress"/>
+	</select>
+	<log>     {employees.Count} employees loaded.</log>
+
+	<set var="csvData">{new List()}</set>
+	<for var="emp" in="employees">
+		<log>Processing employee {emp.vs360_name}...</log>
+		<context for="{EXCHANGE}" user="{emp.emailaddress}">
+			<select from="{EXCHANGE}" entity="contact" var="contacts">
+				<where>
+					<!--<condition attr="@BodyResponseType" op="eq">Text</condition>-->
+				</where>
+				<attr name="EntryId"/>
+			</select>
+
+			<log>     {contacts.Count} contacts found.</log>
+
+			<set var="csvRow">{new Dictionary()}</set>
+			<set var="csvRow['Employee Name']">{emp.vs360_name}</set>
+			<set var="csvRow['Contacts Count']">{contacts.Count}</set>
+			<set var="csvData[]">{csvRow}</set>
+		</context>
+    </for>
+	
+	<log>{Utils.NewLine}Generating Report...</log>
+	<set var="result">{Csv.Write(csvData, ExchangeContactsCountList, Encoding.UTF8, ',', '"')}</set>
+	<log>{Utils.NewLine}Report Created: {ExchangeContactsCountList}</log>
+	<log>     Report Complete.</log>
+
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+</script>

@@ -1,0 +1,59 @@
+<script>
+    <exception if="!Params.isSet">Params is requred.</exception>
+    <exception if="!Params.Settings.isSet">Params.Settings is requred.</exception>
+	
+	
+	<set var="results">{new Dictionary()}</set>
+	
+	<select from="crm" entity="vs360_setting" var="settings">
+        <where>
+			<or>
+				<for var="setting" in="Params.Settings">
+					<condition attr="vs360_name" op="eq">{setting.Name}</condition>
+				</for>
+			</or>
+        </where>
+        <attr name="vs360_settingid"/>
+        <attr name="vs360_name"/>
+        <attr name="vs360_value"/>
+    </select>
+	
+	<set var="settingsDictionary">{new Dictionary()}</set>
+	<for var="setting" in="settings">
+        <set var="settingsDictionary[setting.vs360_name]">{setting.vs360_value}</set>
+    </for>
+	
+	<for var="setting" in="Params.Settings">
+        <set var="name">{setting.Name}</set>
+        <set var="type">{setting.Type ?? string}</set>
+        <set var="defaultValue">{setting.Default ?? null}</set>
+		
+		<set var="crmValue">{settingsDictionary[name] ?? null}</set>
+		
+		<if condition="crmValue eq null">
+            <set var="results[name]">{defaultValue}</set>
+			<continue />
+        </if>
+		
+		<if condition="type eq 'bool'">
+            <set var="results[name]">{crmValue eq '1' or crmValue eq 'true' ?? false}</set>
+        </if>
+		<if condition="type eq 'string'">
+            <set var="results[name]">{crmValue}</set>
+        </if>
+		<if condition="type eq 'datetime'">
+			<sandbox>
+                <set var="results[name]">{Utils.StringToDate(crmValue, 'o')}</set>
+				<onerror var="ex">
+                    <exception>Setting '{name}' DateTime value '{crmValue}' has inconsistent format.</exception>
+                </onerror>
+            </sandbox>
+        </if>
+		<if condition="type eq 'int' or type eq 'array'">
+            <exception>Setting type '{type}' not supported.</exception>
+        </if>
+    </for>
+	
+	<set var="Params.Results">{results}</set>
+	
+</script>

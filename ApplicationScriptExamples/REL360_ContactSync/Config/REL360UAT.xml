@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config>
+	<settings>
+		<!--<add name="EncryptPasswords" value="1" />-->
+	</settings>
+	<connections>
+
+		<!-- CRM - OAuth Security -->
+		<add
+			name="crm"
+			type="crm"
+			version="2011"
+			user="aaaaaaaa-bbbb-1111-ffff-000000000000"
+			password="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+			url="AuthType=ClientSecret;url=https://XXXXXXXXXXX.crm.dynamics.com;ClientId={user};ClientSecret={password};"
+			use-connections-cache="true" 
+			connections-cache-lifetime-minutes="120"
+		/>
+
+		<!-- Used for Exchange Online -->  
+		<add  
+			name="exchange"  
+			type="exchange"  
+			version="Online.OAuth.ExchangeImpersonation"  
+			user=""  
+			password="[client secret]"  
+			url="ClientId=[application ID];
+				TenantId=[tenant ID]"
+			use-connections-cache="true" 
+			connections-cache-lifetime-minutes="120"
+		/> 
+		  
+	
+  </connections>
+	
+</config>

@@ -1,0 +1,45 @@
+<script>
+	<if condition="ImportJob.Mode eq 'SharedFolder'">
+        <sandbox>
+			<set>{FileUtils.MoveFile(ImportJob.SourcePath + pObject, ImportJob.ProcessedPath + pObject)}</set>
+			<update in="crm" entity="vs360_importjob">
+				<where>
+                    <condition attr="vs360_importjobid" op="eq">{CrmJob.Id}</condition>
+                </where>
+				<attr name="statuscode">{CrmJob.Status}</attr>
+				<attr name="vs360_exception" if="CrmJob.Exception.isSet">{CrmJob.Exception}</attr>
+				<attr name="vs360_end">{Utils.Now.ToUniversalTime()}</attr>
+				<attr name="vs360_rowsuccess">{CrmJob.RowSuccess}</attr>
+				<attr name="vs360_rowerror">{CrmJob.RowError}</attr>
+				<attr name="vs360_created">{CrmJob.Created}</attr>
+				<attr name="vs360_updated">{CrmJob.Updated}</attr>
+				<attr name="vs360_associated">{CrmJob.Associated}</attr>
+            </update>
+			
+		</sandbox>
+    </if>
+	<if condition="ImportJob.Mode eq 'Attachment'">
+		<if condition="CrmJob.Rows.isSet">
+			<update in="crm" entity="vs360_importjob">
+				<where>
+					<condition attr="vs360_importjobid" op="eq">{CrmJob.Id}</condition>
+				</where>
+				<attr name="statuscode">{CrmJob.Status}</attr>
+				<attr name="vs360_exception" if="CrmJob.Exception.isSet">{CrmJob.Exception}</attr>
+				<attr name="vs360_end">{Utils.Now.ToUniversalTime()}</attr>
+				<attr name="vs360_rowsuccess">{CrmJob.RowSuccess}</attr>
+				<attr name="vs360_rowerror">{CrmJob.RowError}</attr>
+				<attr name="vs360_created">{CrmJob.Created}</attr>
+				<attr name="vs360_updated">{CrmJob.Updated}</attr>
+				<attr name="vs360_associated">{CrmJob.Associated}</attr>
+			</update>
+			<if condition="ImportJob.RemoveSourceFile">
+				<delete in="crm" entity="annotation">
+					<where>
+						<condition attr="objectid" op="eq">{CrmJob.Id}</condition>
+					</where>
+				</delete>
+			</if>
+		</if>
+    </if>
+</script>

@@ -1,0 +1,92 @@
+<!-- NotificationEmail_InitializeMappings.xml -->
+<script>
+
+	<set var="Mappings[]">
+		<attr name="crm">fullname</attr>
+		<attr name="html_crm">#FullNameCurrent#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="exchange">firstname</attr>
+		<attr name="html_exchange">#FirstNameDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="exchange">lastname</attr>
+		<attr name="html_exchange">#LastNameDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="crm">jobtitle</attr>
+		<attr name="exchange">title</attr>
+		<attr name="html_crm">#JobTitleCurrent#</attr>
+		<attr name="html_exchange">#JobTitleDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="crm">parentcustomerid</attr>
+		<attr name="exchange">companyname</attr>
+		<attr name="crm_fieldtype">lookup</attr>
+		<attr name="html_crm">#CompanyNameCurrent#</attr>
+		<attr name="html_exchange">#CompanyNameDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="crm">department</attr>
+		<attr name="exchange">department</attr>
+		<attr name="html_crm">#DepartmentCurrent#</attr>
+		<attr name="html_exchange">#DepartmentDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="crm">emailaddress1</attr>
+		<attr name="exchange">email1address</attr>
+		<attr name="html_crm">#EmailCurrent#</attr>
+		<attr name="html_exchange">#EmailDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="crm">telephone1</attr>
+		<attr name="exchange">workphone</attr>
+		<attr name="html_crm">#BusinessPhoneCurrent#</attr>
+		<attr name="html_exchange">#BusinessPhoneDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="crm">mobilephone</attr>
+		<attr name="exchange">mobilephone</attr>
+		<attr name="html_crm">#MobilePhoneCurrent#</attr>
+		<attr name="html_exchange">#MobilePhoneDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="crm">address1_composite</attr>
+		<attr name="html_crm">#PhysicalAddressCurrent#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="exchange">workaddressstreet</attr>
+		<attr name="html_exchange">#AddressDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="exchange">workaddresscity</attr>
+		<attr name="html_exchange">#CityDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="exchange">workaddressstate</attr>
+		<attr name="html_exchange">#StateDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="exchange">workaddresspostalcode</attr>
+		<attr name="html_exchange">#ZipDuplicate#</attr>
+	</set>
+
+	<set var="Mappings[]">
+		<attr name="exchange">workaddresscountry</attr>
+		<attr name="html_exchange">#CountryDuplicate#</attr>
+	</set>
+  
+</script>

@@ -1,0 +1,95 @@
+<script>
+
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  ******************************* -->
+
+	<!-- Data sources -->
+	<set var="EXCHANGE">exchange</set>
+
+	<!-- INCLUDES -->
+	<include name="TimeStampAsText"/>
+
+	<!-- Script Run Setup Variables -->
+	<set var="TargetExchangeAccount">email1address@domain.com</set>
+	<set var="DisplayXMLData">{false}</set>
+	<set var="ExchangeContactsList">C:\Temp\REL360Output\ExchangeContactsList - {TargetExchangeAccount} - {TimeStampAsText}.csv</set>  <!-- Report Output file path & name -->
+
+	<!-- Prints log text and adds to external log file -->
+	<var LiveLog="new Object()"/>
+	<set var="LiveLog.UseLog">{false}</set> 	<!-- TRUE will send window log entries to text file.   FALSE will not create text file but still log to window -->
+	<set var="LiveLog.FileName">C:\Temp\Sync360 LiveLogs\Exchange Contacts List for {TargetExchangeAccount}_{TimeStampAsText}.txt</set>
+
+	<!-- Displays start block info -->
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Exchange Contacts List for {TargetExchangeAccount}</set>
+	<set var="BlockInfo.LiveLog">{LiveLog}</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	<context for="{EXCHANGE}" user="{TargetExchangeAccount}">
+
+		<select from="{EXCHANGE}" entity="contact" var="contacts">
+			<where>
+				<!--<condition attr="@BodyResponseType" op="eq">Text</condition>-->
+			</where>
+			<attr name="EntryId"/>
+			<attr name="displayname"/>
+			<attr name="createddate"/>
+			<attr name="lastmodifieddate"/>
+			<attr name="email1address"/>
+			<attr name="body"/>
+			<!-- <attr name="crmLinkState"/> -->
+			<attr name="crmLinkState_vs360"/>
+			<attr name="crmid"/>
+			<if condition="DisplayXMLData">
+				<attr name="crmxml"/>
+				<attr name="crmxml_vs360"/>
+			</if>
+		</select>
+
+		<log>{contacts.Count} contacts found.</log>
+		<log>{Utils.NewLine}Generating Report...</log>
+		<for var="c" in="contacts">
+			<set var="LogText">{c.displayname} / {c.email1address}</set>
+			<set var="LogText">{LogText}{Utils.NewLine}          Created: {c.createddate}, LastModified: {c.lastmodifieddate}, CRMLinkState_VS360: {c.crmLinkState_vs360}</set>
+			<set var="LogText">{LogText}{Utils.NewLine}          EntryID: {c.EntryId}</set>
+			<set var="LogText">{LogText}{Utils.NewLine}          CRMID: {c.crmid}</set>
+			<if condition="DisplayXMLData">
+				<set var="LogText">{LogText}{Utils.NewLine}          CRMXML: {c.crmxml}</set>
+				<set var="LogText">{LogText}{Utils.NewLine}          CRMVS360XML: {c.crmxml_vs360}</set>
+			</if>
+			<set var="LiveLog.Text">{LogText}</set>
+			<LiveLog LiveLog="LiveLog"/>
+		</for>
+		
+		<set var="csvData">{new List()}</set>
+		<for var="c" in="contacts">
+			<set var="csvRow">{new Dictionary()}</set>
+			<set var="csvRow['ContactName']">{c.displayname}</set>
+			<set var="csvRow['EmailAddress']">{c.email1address}</set>
+			<set var="csvRow['CreatedOn']">{c.createddate}</set>
+			<set var="csvRow['LastModified']">{c.lastmodifieddate}</set>
+			<set var="csvRow['CRMLinkState_VS360']">{c.crmLinkState_vs360}</set>
+			<set var="csvRow['EntryID']">{c.EntryID}</set>
+			<set var="csvRow['CRM_XL']">{c.crmxml}</set>
+			<set var="csvRow['CRM_VS360_XML']">{c.crmxml_vs360}</set>
+			<set var="csvData[]">{csvRow}</set>
+		</for>
+
+		<set var="result">{Csv.Write(csvData, ExchangeContactsList, Encoding.UTF8, ',', '"')}</set>
+		<log>{Utils.NewLine}Report Created: {ExchangeContactsList}</log>
+
+	</context>
+	
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+</script>

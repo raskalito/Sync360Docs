@@ -1,0 +1,239 @@
+<script>
+	<exception if="!Context.isSet">Context parameter is required.</exception>
+	<exception if="!ExContact.isSet">ExContact parameter is required.</exception>
+	<!--CrmContact is param
+	CrmRelationship is param-->
+	<set var="Employee">{Context.Employee}</set>
+	<set var="Settings">{Context.Settings}</set>
+	
+	<set var="FinalMasterId">{null}</set>
+	
+	<context for="exchange" user="{Employee.Email}">
+	<sandbox>
+		<set var="mode">{"skip"}</set>
+		<set var="actionReason" />
+
+		<if condition="!CrmRelationship.isSet">
+		  <set var="actionReason">Relationship was deleted</set>
+		  <set var="mode">{Utils.ToLower(Settings.UcDeletionMode)}</set>
+		</if>
+
+		<if condition="CrmRelationship.isSet and CrmRelationship.statecode != 0">
+			<set var="actionReason">Relationship was deactivated</set>
+			<set var="mode">{Utils.ToLower(Settings.UcDeactivationMode)}</set>
+		</if>
+		
+		<if condition="Settings.SyncMainFolderOnly eq false and (mode eq 'movetofolder' or mode eq 'movetodeleteditems')">
+			<log>SyncMainFolderOnly setting is 'false'. {mode} mode replaced with 'UnLink'</log>
+			<set var="mode">unlink</set>
+        </if>
+		
+		<if condition="CrmRelationship.isSet and CrmRelationship.vs360_deletedinoutlook eq 3">
+		  <set var="actionReason">The user marked contact as private</set>
+		  <set var="mode">{Utils.ToLower(Settings.MarkAsPrivateMode)}</set>
+		  <set var="crmmode">{Utils.ToLower(Settings.CRMPrivateAction)}</set>
+		  
+		  <if condition="Settings.SyncMainFolderOnly eq false and (mode eq 'movetofolder' or mode eq 'movetodeleteditems')">
+			<log>SyncMainFolderOnly setting is 'false'. {mode} mode replaced with 'UnLink'</log>
+			<set var="mode">unlink</set>
+          </if>
+		  
+		  <select from="crm" entity="vs360_relationship" var="crmActiveRelationships">
+			<where>
+			  <condition attr="vs360_contactid" op="eq">{CrmContact.contactid}</condition>
+			  <condition attr="vs360_employeeid" op="ne">{Employee.Id}</condition>
+			  <condition attr="statecode" op="eq">{0}</condition>
+			  <condition attr="vs360_deletedinoutlook" op="eq">{0}</condition>
+			</where>
+			<attr name="vs360_relationshipid" />
+		  </select>
+		  <if condition="crmActiveRelationships.Count eq 0">
+			<if condition="crmmode eq 'delete'">
+			  <delete in="crm" entity="contact">
+				<where>
+				  <condition attr="contactid" op="eq">{CrmContact.contactid}</condition>
+				</where>
+			  </delete>
+			</if>
+			<if condition="crmmode eq 'deactivate'">
+			  <update in="crm" entity="contact">
+				<where>
+				  <condition attr="contactid" op="eq">{CrmContact.contactid}</condition>
+				</where>
+				<attr name="statecode">{1}</attr>
+			  </update>
+			  <update in="crm" entity="vs360_relationship">
+				<where>
+				  <condition attr="vs360_contactid" op="eq">{CrmContact.contactid}</condition>
+				  <condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+				</where>
+				<attr name="statecode">{1}</attr>
+			  </update>
+			</if>
+		  </if>
+		  <if condition="crmActiveRelationships.Count gt 0">
+			<if condition="crmmode eq 'delete'">
+			  <delete in="crm" entity="vs360_relationship">
+				<where>
+				  <condition attr="vs360_contactid" op="eq">{CrmContact.contactid}</condition>
+				  <condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+				</where>
+			  </delete>
+			</if>
+			<if condition="crmmode eq 'deactivate'">
+			  <update in="crm" entity="vs360_relationship">
+				<where>
+				  <condition attr="vs360_contactid" op="eq">{CrmContact.contactid}</condition>
+				  <condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+				</where>
+				<attr name="statecode">{1}</attr>
+			  </update>
+			</if>
+		  </if>
+		</if>
+
+
+		<if condition="!CrmContact.isSet">
+			<set var="actionReason">The contact was deleted</set>
+			<set var="mode">{Utils.ToLower(Settings.DeletionMode)}</set>
+		</if>
+
+		<if condition="CrmContact.isSet and CrmContact.statecode != 0">
+			<set var="actionReason">The contact was deactivated</set>
+			<set var="mode">{Utils.ToLower(Settings.DeactivationMode)}</set>
+			<if condition="CrmContact.masterid.isSet">
+				<set var="actionReason">The contact was deactivated after merge</set>
+				<log>{Settings.DeactivationMergeMode}</log>
+				<if condition="Settings.DeactivationMergeMode.ToLower() eq 'keeploser'">
+					
+					<set var="masterIdIterator">{CrmContact.masterid.Id.ToString()}</set>
+					<set var="mergeChain">{new List()}</set>
+					<set var="mergeChain[]">{masterIdIterator}</set>
+					
+					<while condition="masterIdIterator.isSet">
+						<select from="crm" entity="contact" var="c" count="1">
+							<where>
+								<condition attr="contactid" op="eq">{masterIdIterator}</condition>
+							</where>
+							<attr name="masterid"/>
+						</select>
+						
+						<set var="masterIdIterator">{c[0].masterid.Id.ToString() ?? null}</set>
+						<set var="mergeChain[]" if="c[0].masterid.isSet">{c[0].masterid.Id.ToString()}</set>
+					</while>
+					
+					<set var="FinalMasterId">{mergeChain[mergeChain.Count - 1]}</set>
+					
+					<select from="exchange" entity="contact" var="existingContacts">
+						<where>
+							<if condition="Settings.SyncMainFolderOnly eq false">
+								<condition attr="parententryid" op="ne">deleteditems</condition>
+								<condition attr="@FolderName" op="eq">root/allitems</condition>
+								<if condition="Settings.OutlookFolder.isSet and Settings.OutlookFolder ne ''">
+                                    <condition attr="parententryid" op="ne">{Settings.OutlookFolder}</condition>
+                                </if>
+							</if>
+							<or>
+								<for var="crmId" in="mergeChain">
+                                    <condition attr="crmid" op="co">{crmId}</condition>
+                                </for>
+                            </or>
+						</where>
+						<attr name="crmid" />
+					</select>
+					
+					<set var="mode" if="existingContacts.Count eq 0">keeploser</set>
+					<set var="mode" if="existingContacts.Count gt 0">movetofolder</set>
+					<set var="mode" if="existingContacts.Count gt 0 and Settings.SyncMainFolderOnly eq false">unlink</set>
+				</if>
+			</if>
+
+		</if>  
+		
+		<if condition="Settings.SyncMainFolderOnly eq false and (mode eq 'movetofolder' or mode eq 'movetodeleteditems')">
+			<log>SyncMainFolderOnly setting is 'false'. {mode} mode replaced with 'UnLink'</log>
+			<set var="mode">unlink</set>
+        </if>
+		
+		
+		<if condition="mode!='skip'">
+			<log>Contact: {ExContact}</log>
+			<log>Action: {mode} {actionReason}</log>
+		</if>
+
+		<if condition="mode == 'keeploser'">
+		  <update in="exchange" entity="contact">
+			<where>
+			  <if condition="Settings.SyncMainFolderOnly eq false">
+				<condition attr="@FolderName" op="eq">root/allitems</condition>
+			  </if>
+			  <condition attr="EntryId" op="eq">{ExContact.EntryId}</condition>
+			</where>
+			<attr name="crmid">{FinalMasterId}</attr>
+		  </update>
+		  <update in="crm" entity="vs360_relationship">
+			<where>
+			  <condition attr="vs360_deletedinoutlook" op="eq">{2}</condition>
+			  <condition attr="vs360_contactid" op="eq">{FinalMasterId}</condition>
+			  <condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+			</where>
+			<attr name="vs360_deletedinoutlook">{0}</attr>
+		  </update>
+		</if>
+	  
+		<if condition="mode == 'unlink' or mode == 'movetofolder' or mode == 'movetodeleteditems'">
+
+			<update in="exchange" entity="contact">
+				<where>
+					<if condition="Settings.SyncMainFolderOnly eq false">
+						<condition attr="@FolderName" op="eq">root/allitems</condition>
+					</if>
+					<condition attr="EntryId" op="eq">{ExContact.EntryId}</condition>
+				</where>
+				<attr name="crmid"></attr>
+				<attr name="iconindex">{512}</attr>
+				<attr name="crmLinkState">{0}</attr>
+				<attr name="crmLinkState_vs360">{0}</attr>
+				<attr name="unlinkedcrmid">{ExContact.crmid ?? ''}</attr>
+				<attr name="crmactionreason">{actionReason}</attr>
+			</update>
+		</if>
+
+		<if condition="mode == 'cleanout'">
+		  <update in="exchange" entity="contact">
+			<where>
+			  <if condition="Settings.SyncMainFolderOnly eq false">
+				<condition attr="@FolderName" op="eq">root/allitems</condition>
+			  </if>
+			  <condition attr="EntryId" op="eq">{ExContact.EntryId}</condition>
+			</where>
+			<attr name="crmid">{null}</attr>
+			<attr name="iconindex">{512}</attr>
+			<attr name="crmLinkState">{null}</attr>
+			<attr name="crmLinkState_vs360">{null}</attr>
+			<attr name="unlinkedcrmid">{ExContact.crmid ?? ''}</attr>
+			<attr name="crmactionreason">{actionReason}</attr>
+		  </update>
+		</if>
+		<if condition="mode == 'delete'">
+			<delete in="exchange" entity="contact">
+				<where>
+					<if condition="Settings.SyncMainFolderOnly eq false">
+						<condition attr="@FolderName" op="eq">root/allitems</condition>
+					</if>
+					<condition attr="EntryId" op="eq">{ExContact.EntryId}</condition>
+				</where>
+			</delete>
+		</if>
+
+		<if condition="mode == 'movetofolder'">
+		  <set>{@exchange.MoveToFolder(ExContact.EntryId, 'contacts', Settings.OutlookFolder,'contact')}</set>
+		</if>
+
+		<if condition="mode == 'movetodeleteditems'">
+			<set>{@exchange.MoveToDeletedItems(ExContact.EntryId)}</set>
+		</if>
+		<set var="ExContact.IsSynced">{mode == 'skip'}</set>
+	</sandbox>
+	</context>
+</script>

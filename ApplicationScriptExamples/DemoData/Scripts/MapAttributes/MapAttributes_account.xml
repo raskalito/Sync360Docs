@@ -1,0 +1,1650 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set Settings.AttributesMappingVersion="'1.0.0.0'" />
+  <set Settings.AttributesMapping="new Dictionary()" />
+  <!--<set var="Settings.AttributesMapping['name']">-->
+  <!--<attr name="src">name</attr>-->
+  <!--<attr name="dst">name</attr>-->
+  <!--<attr name="type">string</attr>-->
+  <!--</set>-->
+  <set var="Settings.AttributesMapping['emailaddress3']">
+    <attr name="src">emailaddress3</attr>
+    <attr name="dst">emailaddress3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['emailaddress2']">
+    <attr name="src">emailaddress2</attr>
+    <attr name="dst">emailaddress2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['emailaddress1']">
+    <attr name="src">emailaddress1</attr>
+    <attr name="dst">emailaddress1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_city']">
+    <attr name="src">address1_city</attr>
+    <attr name="dst">address1_city</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_line1']">
+    <attr name="src">address1_line1</attr>
+    <attr name="dst">address1_line1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016environmental_base']">
+    <attr name="src">vs360_2016environmental_base</attr>
+    <attr name="dst">vs360_2016environmental_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedon']">
+    <attr name="src">modifiedon</attr>
+    <attr name="dst">modifiedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['aging90']">
+    <attr name="src">aging90</attr>
+    <attr name="dst">aging90</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016geotechnical']">
+    <attr name="src">vs360_2016geotechnical</attr>
+    <attr name="dst">vs360_2016geotechnical</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['websiteurl']">
+    <attr name="src">websiteurl</attr>
+    <attr name="dst">websiteurl</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_longitude']">
+    <attr name="src">address1_longitude</attr>
+    <attr name="dst">address1_longitude</attr>
+    <attr name="type">Double</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['donotpostalmail']">
+    <attr name="src">donotpostalmail</attr>
+    <attr name="dst">donotpostalmail</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_addresstypecode']">
+    <attr name="src">address1_addresstypecode</attr>
+    <attr name="dst">address1_addresstypecode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_grossrevenue']">
+    <attr name="src">vs360_grossrevenue</attr>
+    <attr name="dst">vs360_grossrevenue</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['sharesoutstanding']">
+    <attr name="src">sharesoutstanding</attr>
+    <attr name="dst">sharesoutstanding</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015gr']">
+    <attr name="src">vs360_2015gr</attr>
+    <attr name="dst">vs360_2015gr</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['creditonhold']">
+    <attr name="src">creditonhold</attr>
+    <attr name="dst">creditonhold</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_city']">
+    <attr name="src">address2_city</attr>
+    <attr name="dst">address2_city</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['aging30']">
+    <attr name="src">aging30</attr>
+    <attr name="dst">aging30</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['donotbulkpostalmail']">
+    <attr name="src">donotbulkpostalmail</attr>
+    <attr name="dst">donotbulkpostalmail</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['aging60_base']">
+    <attr name="src">aging60_base</attr>
+    <attr name="dst">aging60_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016facilities']">
+    <attr name="src">vs360_2016facilities</attr>
+    <attr name="dst">vs360_2016facilities</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_stateid']">
+    <attr name="src">vs360_stateid</attr>
+    <attr name="dst">vs360_stateid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['telephone1']">
+    <attr name="src">telephone1</attr>
+    <attr name="dst">telephone1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['paymenttermscode']">
+    <attr name="src">paymenttermscode</attr>
+    <attr name="dst">paymenttermscode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_countryid']">
+    <attr name="src">vs360_countryid</attr>
+    <attr name="dst">vs360_countryid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_shippingmethodcode']">
+    <attr name="src">address1_shippingmethodcode</attr>
+    <attr name="dst">address1_shippingmethodcode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016gr']">
+    <attr name="src">vs360_2016gr</attr>
+    <attr name="dst">vs360_2016gr</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['opendeals_date']">
+    <attr name="src">opendeals_date</attr>
+    <attr name="dst">opendeals_date</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016geotechnical_base']">
+    <attr name="src">vs360_2016geotechnical_base</attr>
+    <attr name="dst">vs360_2016geotechnical_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['originatingleadid']">
+    <attr name="src">originatingleadid</attr>
+    <attr name="dst">originatingleadid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['accountcategorycode']">
+    <attr name="src">accountcategorycode</attr>
+    <attr name="dst">accountcategorycode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_categoryid']">
+    <attr name="src">vs360_categoryid</attr>
+    <attr name="dst">vs360_categoryid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_stateorprovince']">
+    <attr name="src">address2_stateorprovince</attr>
+    <attr name="dst">address2_stateorprovince</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['timespentbymeonemailandmeetings']">
+    <attr name="src">timespentbymeonemailandmeetings</attr>
+    <attr name="dst">timespentbymeonemailandmeetings</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['territoryid']">
+    <attr name="src">territoryid</attr>
+    <attr name="dst">territoryid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_country']">
+    <attr name="src">address2_country</attr>
+    <attr name="dst">address2_country</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_line2']">
+    <attr name="src">address2_line2</attr>
+    <attr name="dst">address2_line2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015totalrevenue_base']">
+    <attr name="src">vs360_2015totalrevenue_base</attr>
+    <attr name="dst">vs360_2015totalrevenue_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['accountid']">
+    <attr name="src">accountid</attr>
+    <attr name="dst">accountid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['slaid']">
+    <attr name="src">slaid</attr>
+    <attr name="dst">slaid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015materials']">
+    <attr name="src">vs360_2015materials</attr>
+    <attr name="dst">vs360_2015materials</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statuscode']">
+    <attr name="src">statuscode</attr>
+    <attr name="dst">statuscode</attr>
+    <attr name="type">Status</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015grossrevenue_base']">
+    <attr name="src">vs360_2015grossrevenue_base</attr>
+    <attr name="dst">vs360_2015grossrevenue_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['onholdtime']">
+    <attr name="src">onholdtime</attr>
+    <attr name="dst">onholdtime</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016materials']">
+    <attr name="src">vs360_2016materials</attr>
+    <attr name="dst">vs360_2016materials</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_freighttermscode']">
+    <attr name="src">address1_freighttermscode</attr>
+    <attr name="dst">address1_freighttermscode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['creditlimit']">
+    <attr name="src">creditlimit</attr>
+    <attr name="dst">creditlimit</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015geotechnical_base']">
+    <attr name="src">vs360_2015geotechnical_base</attr>
+    <attr name="dst">vs360_2015geotechnical_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015materials_base']">
+    <attr name="src">vs360_2015materials_base</attr>
+    <attr name="dst">vs360_2015materials_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['accountratingcode']">
+    <attr name="src">accountratingcode</attr>
+    <attr name="dst">accountratingcode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_utcoffset']">
+    <attr name="src">address1_utcoffset</attr>
+    <attr name="dst">address1_utcoffset</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['preferredappointmenttimecode']">
+    <attr name="src">preferredappointmenttimecode</attr>
+    <attr name="dst">preferredappointmenttimecode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['numberofemployees']">
+    <attr name="src">numberofemployees</attr>
+    <attr name="dst">numberofemployees</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_companynamenorm']">
+    <attr name="src">vs360_companynamenorm</attr>
+    <attr name="dst">vs360_companynamenorm</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_telephone1']">
+    <attr name="src">address1_telephone1</attr>
+    <attr name="dst">address1_telephone1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['accountclassificationcode']">
+    <attr name="src">accountclassificationcode</attr>
+    <attr name="dst">accountclassificationcode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_totalwins']">
+    <attr name="src">vs360_totalwins</attr>
+    <attr name="dst">vs360_totalwins</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015totalrevenue']">
+    <attr name="src">vs360_2015totalrevenue</attr>
+    <attr name="dst">vs360_2015totalrevenue</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['customertypecode']">
+    <attr name="src">customertypecode</attr>
+    <attr name="dst">customertypecode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['exchangerate']">
+    <attr name="src">exchangerate</attr>
+    <attr name="dst">exchangerate</attr>
+    <attr name="type">Decimal</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_county']">
+    <attr name="src">address2_county</attr>
+    <attr name="dst">address2_county</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['primarycontactid']">
+    <attr name="src">primarycontactid</attr>
+    <attr name="dst">primarycontactid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015environmental_base']">
+    <attr name="src">vs360_2015environmental_base</attr>
+    <attr name="dst">vs360_2015environmental_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_segmentid']">
+    <attr name="src">vs360_segmentid</attr>
+    <attr name="dst">vs360_segmentid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['telephone3']">
+    <attr name="src">telephone3</attr>
+    <attr name="dst">telephone3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['parentaccountid']">
+    <attr name="src">parentaccountid</attr>
+    <attr name="dst">parentaccountid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['preferredcontactmethodcode']">
+    <attr name="src">preferredcontactmethodcode</attr>
+    <attr name="dst">preferredcontactmethodcode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_primarycategoryid']">
+    <attr name="src">vs360_primarycategoryid</attr>
+    <attr name="dst">vs360_primarycategoryid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_grossrevenue_base']">
+    <attr name="src">vs360_grossrevenue_base</attr>
+    <attr name="dst">vs360_grossrevenue_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_latitude']">
+    <attr name="src">address2_latitude</attr>
+    <attr name="dst">address2_latitude</attr>
+    <attr name="type">Double</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdon']">
+    <attr name="src">createdon</attr>
+    <attr name="dst">overriddencreatedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['donotbulkemail']">
+    <attr name="src">donotbulkemail</attr>
+    <attr name="dst">donotbulkemail</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['donotfax']">
+    <attr name="src">donotfax</attr>
+    <attr name="dst">donotfax</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_addressblock']">
+    <attr name="src">vs360_addressblock</attr>
+    <attr name="dst">vs360_addressblock</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_overallclientsatisfaction']">
+    <attr name="src">vs360_overallclientsatisfaction</attr>
+    <attr name="dst">vs360_overallclientsatisfaction</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['marketcap']">
+    <attr name="src">marketcap</attr>
+    <attr name="dst">marketcap</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_composite']">
+    <attr name="src">address1_composite</attr>
+    <attr name="dst">address1_composite</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdonbehalfby']">
+    <attr name="src">createdonbehalfby</attr>
+    <attr name="dst">createdonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_freighttermscode']">
+    <attr name="src">address2_freighttermscode</attr>
+    <attr name="dst">address2_freighttermscode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningbusinessunit']">
+    <attr name="src">owningbusinessunit</attr>
+    <attr name="dst">owningbusinessunit</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015ofbl']">
+    <attr name="src">vs360_2015ofbl</attr>
+    <attr name="dst">vs360_2015ofbl</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['opendeals_state']">
+    <attr name="src">opendeals_state</attr>
+    <attr name="dst">opendeals_state</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_postalcode']">
+    <attr name="src">address2_postalcode</attr>
+    <attr name="dst">address2_postalcode</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015facilities']">
+    <attr name="src">vs360_2015facilities</attr>
+    <attr name="dst">vs360_2015facilities</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['lastusedincampaign']">
+    <attr name="src">lastusedincampaign</attr>
+    <attr name="dst">lastusedincampaign</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_nationalaccount']">
+    <attr name="src">vs360_nationalaccount</attr>
+    <attr name="dst">vs360_nationalaccount</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['utcconversiontimezonecode']">
+    <attr name="src">utcconversiontimezonecode</attr>
+    <attr name="dst">utcconversiontimezonecode</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['processid']">
+    <attr name="src">processid</attr>
+    <attr name="dst">processid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_customerstatus']">
+    <attr name="src">vs360_customerstatus</attr>
+    <attr name="dst">vs360_customerstatus</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['teamsfollowed']">
+    <attr name="src">teamsfollowed</attr>
+    <attr name="dst">teamsfollowed</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_line3']">
+    <attr name="src">address2_line3</attr>
+    <attr name="dst">address2_line3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['description']">
+    <attr name="src">description</attr>
+    <attr name="dst">description</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedby']">
+    <attr name="src">modifiedby</attr>
+    <attr name="dst">modifiedby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['timezoneruleversionnumber']">
+    <attr name="src">timezoneruleversionnumber</attr>
+    <attr name="dst">timezoneruleversionnumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_county']">
+    <attr name="src">address1_county</attr>
+    <attr name="dst">address1_county</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015facilities_base']">
+    <attr name="src">vs360_2015facilities_base</attr>
+    <attr name="dst">vs360_2015facilities_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016materials_base']">
+    <attr name="src">vs360_2016materials_base</attr>
+    <attr name="dst">vs360_2016materials_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedonbehalfby']">
+    <attr name="src">modifiedonbehalfby</attr>
+    <attr name="dst">modifiedonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015grossrevenue']">
+    <attr name="src">vs360_2015grossrevenue</attr>
+    <attr name="dst">vs360_2015grossrevenue</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['donotemail']">
+    <attr name="src">donotemail</attr>
+    <attr name="dst">donotemail</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['stageid']">
+    <attr name="src">stageid</attr>
+    <attr name="dst">stageid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['entityimageid']">
+    <attr name="src">entityimageid</attr>
+    <attr name="dst">entityimageid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_postofficebox']">
+    <attr name="src">address2_postofficebox</attr>
+    <attr name="dst">address2_postofficebox</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_telephone1']">
+    <attr name="src">address2_telephone1</attr>
+    <attr name="dst">address2_telephone1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_telephone2']">
+    <attr name="src">address2_telephone2</attr>
+    <attr name="dst">address2_telephone2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_telephone3']">
+    <attr name="src">address2_telephone3</attr>
+    <attr name="dst">address2_telephone3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_addressid']">
+    <attr name="src">address1_addressid</attr>
+    <attr name="dst">address1_addressid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['traversedpath']">
+    <attr name="src">traversedpath</attr>
+    <attr name="dst">traversedpath</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['creditlimit_base']">
+    <attr name="src">creditlimit_base</attr>
+    <attr name="dst">creditlimit_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016facilities_base']">
+    <attr name="src">vs360_2016facilities_base</attr>
+    <attr name="dst">vs360_2016facilities_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['yominame']">
+    <attr name="src">yominame</attr>
+    <attr name="dst">yominame</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_totallosses']">
+    <attr name="src">vs360_totallosses</attr>
+    <attr name="dst">vs360_totallosses</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owninguser']">
+    <attr name="src">owninguser</attr>
+    <attr name="dst">owninguser</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['industrycode']">
+    <attr name="src">industrycode</attr>
+    <attr name="dst">industrycode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_name']">
+    <attr name="src">address2_name</attr>
+    <attr name="dst">address2_name</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['openrevenue_state']">
+    <attr name="src">openrevenue_state</attr>
+    <attr name="dst">openrevenue_state</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_country']">
+    <attr name="src">address1_country</attr>
+    <attr name="dst">address1_country</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['primarysatoriid']">
+    <attr name="src">primarysatoriid</attr>
+    <attr name="dst">primarysatoriid</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['name']">
+    <attr name="src">name</attr>
+    <attr name="dst">name</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['aging90_base']">
+    <attr name="src">aging90_base</attr>
+    <attr name="dst">aging90_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['aging60']">
+    <attr name="src">aging60</attr>
+    <attr name="dst">aging60</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['businesstypecode']">
+    <attr name="src">businesstypecode</attr>
+    <attr name="dst">businesstypecode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['primarytwitterid']">
+    <attr name="src">primarytwitterid</attr>
+    <attr name="dst">primarytwitterid</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['aging30_base']">
+    <attr name="src">aging30_base</attr>
+    <attr name="dst">aging30_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_composite']">
+    <attr name="src">address2_composite</attr>
+    <attr name="dst">address2_composite</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['shippingmethodcode']">
+    <attr name="src">shippingmethodcode</attr>
+    <attr name="dst">shippingmethodcode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['participatesinworkflow']">
+    <attr name="src">participatesinworkflow</attr>
+    <attr name="dst">participatesinworkflow</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_avgtimelineperformance']">
+    <attr name="src">vs360_avgtimelineperformance</attr>
+    <attr name="dst">vs360_avgtimelineperformance</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningteam']">
+    <attr name="src">owningteam</attr>
+    <attr name="dst">owningteam</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_stateorprovince']">
+    <attr name="src">address1_stateorprovince</attr>
+    <attr name="dst">address1_stateorprovince</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['marketingonly']">
+    <attr name="src">marketingonly</attr>
+    <attr name="dst">marketingonly</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['slainvokedid']">
+    <attr name="src">slainvokedid</attr>
+    <attr name="dst">slainvokedid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['preferredequipmentid']">
+    <attr name="src">preferredequipmentid</attr>
+    <attr name="dst">preferredequipmentid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_line3']">
+    <attr name="src">address1_line3</attr>
+    <attr name="dst">address1_line3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['telephone2']">
+    <attr name="src">telephone2</attr>
+    <attr name="dst">telephone2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['revenue']">
+    <attr name="src">revenue</attr>
+    <attr name="dst">revenue</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['transactioncurrencyid']">
+    <attr name="src">transactioncurrencyid</attr>
+    <attr name="dst">transactioncurrencyid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_telephone2']">
+    <attr name="src">address1_telephone2</attr>
+    <attr name="dst">address1_telephone2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_telephone3']">
+    <attr name="src">address1_telephone3</attr>
+    <attr name="dst">address1_telephone3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_postofficebox']">
+    <attr name="src">address1_postofficebox</attr>
+    <attr name="dst">address1_postofficebox</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedbyexternalparty']">
+    <attr name="src">modifiedbyexternalparty</attr>
+    <attr name="dst">modifiedbyexternalparty</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['fax']">
+    <attr name="src">fax</attr>
+    <attr name="dst">fax</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['masterid']">
+    <attr name="src">masterid</attr>
+    <attr name="dst">masterid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['sic']">
+    <attr name="src">sic</attr>
+    <attr name="dst">sic</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ownerid']">
+    <attr name="src">ownerid</attr>
+    <attr name="dst">ownerid</attr>
+    <attr name="type">Owner</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_utcoffset']">
+    <attr name="src">address2_utcoffset</attr>
+    <attr name="dst">address2_utcoffset</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['accountnumber']">
+    <attr name="src">accountnumber</attr>
+    <attr name="dst">accountnumber</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['openrevenue']">
+    <attr name="src">openrevenue</attr>
+    <attr name="dst">openrevenue</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_fax']">
+    <attr name="src">address2_fax</attr>
+    <attr name="dst">address2_fax</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['revenue_base']">
+    <attr name="src">revenue_base</attr>
+    <attr name="dst">revenue_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['merged']">
+    <attr name="src">merged</attr>
+    <attr name="dst">merged</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['openrevenue_base']">
+    <attr name="src">openrevenue_base</attr>
+    <attr name="dst">openrevenue_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_longitude']">
+    <attr name="src">address2_longitude</attr>
+    <attr name="dst">address2_longitude</attr>
+    <attr name="type">Double</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['defaultpricelevelid']">
+    <attr name="src">defaultpricelevelid</attr>
+    <attr name="dst">defaultpricelevelid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016environmental']">
+    <attr name="src">vs360_2016environmental</attr>
+    <attr name="dst">vs360_2016environmental</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016ofbl']">
+    <attr name="src">vs360_2016ofbl</attr>
+    <attr name="dst">vs360_2016ofbl</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['donotphone']">
+    <attr name="src">donotphone</attr>
+    <attr name="dst">donotphone</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_primarycontactname']">
+    <attr name="src">address1_primarycontactname</attr>
+    <attr name="dst">address1_primarycontactname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statecode']">
+    <attr name="src">statecode</attr>
+    <attr name="dst">statecode</attr>
+    <attr name="type">State</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['lastonholdtime']">
+    <attr name="src">lastonholdtime</attr>
+    <attr name="dst">lastonholdtime</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_line2']">
+    <attr name="src">address1_line2</attr>
+    <attr name="dst">address1_line2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['donotsendmm']">
+    <attr name="src">donotsendmm</attr>
+    <attr name="dst">donotsendmm</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdby']">
+    <attr name="src">createdby</attr>
+    <attr name="dst">createdby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_totalbidss']">
+    <attr name="src">vs360_totalbidss</attr>
+    <attr name="dst">vs360_totalbidss</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016totalrevenue']">
+    <attr name="src">vs360_2016totalrevenue</attr>
+    <attr name="dst">vs360_2016totalrevenue</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_addresstypecode']">
+    <attr name="src">address2_addresstypecode</attr>
+    <attr name="dst">address2_addresstypecode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['openrevenue_date']">
+    <attr name="src">openrevenue_date</attr>
+    <attr name="dst">openrevenue_date</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdbyexternalparty']">
+    <attr name="src">createdbyexternalparty</attr>
+    <attr name="dst">createdbyexternalparty</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['marketcap_base']">
+    <attr name="src">marketcap_base</attr>
+    <attr name="dst">marketcap_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_accountstatus']">
+    <attr name="src">vs360_accountstatus</attr>
+    <attr name="dst">vs360_accountstatus</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_postalcode']">
+    <attr name="src">address1_postalcode</attr>
+    <attr name="dst">address1_postalcode</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['tickersymbol']">
+    <attr name="src">tickersymbol</attr>
+    <attr name="dst">tickersymbol</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['customersizecode']">
+    <attr name="src">customersizecode</attr>
+    <attr name="dst">customersizecode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_upszone']">
+    <attr name="src">address2_upszone</attr>
+    <attr name="dst">address2_upszone</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_avgbudgetperformance']">
+    <attr name="src">vs360_avgbudgetperformance</attr>
+    <attr name="dst">vs360_avgbudgetperformance</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_includecompanynameinblock']">
+    <attr name="src">vs360_includecompanynameinblock</attr>
+    <attr name="dst">vs360_includecompanynameinblock</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['stockexchange']">
+    <attr name="src">stockexchange</attr>
+    <attr name="dst">stockexchange</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['preferredserviceid']">
+    <attr name="src">preferredserviceid</attr>
+    <attr name="dst">preferredserviceid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_addressid']">
+    <attr name="src">address2_addressid</attr>
+    <attr name="dst">address2_addressid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015geotechnical']">
+    <attr name="src">vs360_2015geotechnical</attr>
+    <attr name="dst">vs360_2015geotechnical</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2016totalrevenue_base']">
+    <attr name="src">vs360_2016totalrevenue_base</attr>
+    <attr name="dst">vs360_2016totalrevenue_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_matter_count']">
+    <attr name="src">vs360_matter_count</attr>
+    <attr name="dst">vs360_matter_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_practicegroup_count']">
+    <attr name="src">vs360_practicegroup_count</attr>
+    <attr name="dst">vs360_practicegroup_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['importsequencenumber']">
+    <attr name="src">importsequencenumber</attr>
+    <attr name="dst">importsequencenumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ownershipcode']">
+    <attr name="src">ownershipcode</attr>
+    <attr name="dst">ownershipcode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_practicearea_count']">
+    <attr name="src">vs360_practicearea_count</attr>
+    <attr name="dst">vs360_practicearea_count</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_subcontractorspecialty']">
+    <attr name="src">vs360_subcontractorspecialty</attr>
+    <attr name="dst">vs360_subcontractorspecialty</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['versionnumber']">
+    <attr name="src">versionnumber</attr>
+    <attr name="dst">versionnumber</attr>
+    <attr name="type">BigInt</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['preferredsystemuserid']">
+    <attr name="src">preferredsystemuserid</attr>
+    <attr name="dst">preferredsystemuserid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['preferredappointmentdaycode']">
+    <attr name="src">preferredappointmentdaycode</attr>
+    <attr name="dst">preferredappointmentdaycode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_name']">
+    <attr name="src">address1_name</attr>
+    <attr name="dst">address1_name</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_fax']">
+    <attr name="src">address1_fax</attr>
+    <attr name="dst">address1_fax</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_latitude']">
+    <attr name="src">address1_latitude</attr>
+    <attr name="dst">address1_latitude</attr>
+    <attr name="type">Double</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_2015environmental']">
+    <attr name="src">vs360_2015environmental</attr>
+    <attr name="dst">vs360_2015environmental</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['followemail']">
+    <attr name="src">followemail</attr>
+    <attr name="dst">followemail</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_shippingmethodcode']">
+    <attr name="src">address2_shippingmethodcode</attr>
+    <attr name="dst">address2_shippingmethodcode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_line1']">
+    <attr name="src">address2_line1</attr>
+    <attr name="dst">address2_line1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address1_upszone']">
+    <attr name="src">address1_upszone</attr>
+    <attr name="dst">address1_upszone</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_subcontractorscore']">
+    <attr name="src">vs360_subcontractorscore</attr>
+    <attr name="dst">vs360_subcontractorscore</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['territorycode']">
+    <attr name="src">territorycode</attr>
+    <attr name="dst">territorycode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ftpsiteurl']">
+    <attr name="src">ftpsiteurl</attr>
+    <attr name="dst">ftpsiteurl</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_marketid']">
+    <attr name="src">vs360_marketid</attr>
+    <attr name="dst">vs360_marketid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['address2_primarycontactname']">
+    <attr name="src">address2_primarycontactname</attr>
+    <attr name="dst">address2_primarycontactname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['opendeals']">
+    <attr name="src">opendeals</attr>
+    <attr name="dst">opendeals</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+</script>

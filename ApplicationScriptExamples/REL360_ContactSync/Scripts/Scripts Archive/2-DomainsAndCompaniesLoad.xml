@@ -1,0 +1,186 @@
+<script>
+
+    <!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  ******************************* -->
+
+	<!-- INCLUDES -->
+	<include name="TimeStampAsText"/>
+
+	<!-- Prints log text and adds to external log file -->
+	<var LiveLog="new Object()"/>
+	<set var="LiveLog.UseLog">{true}</set> <!-- TRUE will send window log entries to text file.   FALSE will not create text file but still log to window -->
+	<set var="LiveLog.FileName">C:\Temp\Sync360 LiveLogs\DomainsAndCompaniesLoad_RunLog_{TimeStampAsText}.txt</set>
+
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Domains and Companies Load</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<set var="BlockInfo.LiveLog">{LiveLog}</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+	
+	<!-- Script Behavior Settings -->
+	<set var="UpdateCompanyNames">{false}</set> <!-- TRUE will update existing CRM company name from spreadsheet  FALSE will NOT update company names -->
+
+	<!-- Data sources and output files -->
+	<set var="CRM">crm</set>
+	<set var="CsvPath">C:\Temp\REL360DataSources\XXXXXXXXXXXXX.csv</set> <!-- Input File Name - Change as needed -->
+		
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	<!-- WARNING: You need to create the Excel CSV file with a ^ symbol as delimiter instead of a comma delimeter!!!  
+			This is because often, company names include a comma and some may use the pipe | symbol as well. -->	
+	<set var="csvData">{Csv.Read(CsvPath, Encoding.UTF8, '^')}</set>
+	
+	<log>{csvData.Count} source rows found</log>
+	<set var="rowNum">{0}</set>
+	
+	<for var="csvRow" in="csvData">
+		<sandbox>
+		
+        <set var="Domain">{csvRow['Domain'] ?? null}</set>
+        <set var="CrmCompanyName">{csvRow['CrmCompanyName'] ?? null}</set>
+        <set var="CrmCompanyID">{csvRow['CrmCompanyID'] ?? null}</set>
+		
+		<set var="LiveLog.Text">Source data:  Domain: {Domain}   Company: {CrmCompanyName}   CompanyID: {CrmCompanyID}</set>
+		<LiveLog LiveLog="LiveLog"/>
+		
+		<if condition="!Domain.isSet or Domain eq ''">
+			<set var="LiveLog.Text">Domain is missing in row.</set>
+			<LiveLog LiveLog="LiveLog"/>
+			<exception>Domain is missing in row.</exception>
+		</if>
+		
+		<if condition="!CrmCompanyName.isSet or CrmCompanyName eq ''">
+			<set var="LiveLog.Text">CRM Company Name is missing in row.</set>
+			<LiveLog LiveLog="LiveLog"/>
+			<exception>CRMCompanyName is missing in row.</exception>
+		</if>
+		
+		<set var="rowNum">{rowNum + 1}</set>
+		<set var="LiveLog.Text">Processing domain {rowNum} of {csvData.Count}:  {Domain} for company {CrmCompanyName}...</set>
+		<LiveLog LiveLog="LiveLog"/>
+		
+		<!--CREATE OR GET CRM DOMAIN  -->
+		<select from="crm" entity="vs360_companydomain" var="crmDomains" count="1">
+			<where>
+                <condition attr="vs360_name" op="eq">{Domain}</condition>
+            </where>
+            <attr name="vs360_companydomainid"/>
+        </select>
+		
+		<set var="CrmDomainId">{null}</set>
+		
+		<if condition="crmDomains.Count gt 0">
+            <then>
+				<set var="LiveLog.Text">    Domain found in CRM.</set>
+				<LiveLog LiveLog="LiveLog"/>
+				<set var="CrmDomainId">{crmDomains[0].vs360_companydomainid}</set>
+            </then>
+            <else>
+ 				<set var="LiveLog.Text">    Creating {Domain} in CRM...</set>
+				<LiveLog LiveLog="LiveLog"/>
+				<create in="crm" entity="vs360_companydomain" var="newDomainId">
+                    <attr name="vs360_name">{Domain}</attr>
+					<attr name="vs360_source">{360000001}</attr> <!-- REL360 Contact Sync -->
+                </create>
+				
+				<set var="CrmDomainId">{newDomainId}</set>
+            </else>
+        </if>
+		
+		<!--CREATE OR GET CRM COMPANY -->
+		<set var="CrmAccountId">{null}</set>
+		<if condition="CrmCompanyID.isSet and CrmCompanyID ne ''">
+			<then>
+				<!--IF CRM COMPANY ID IS SET - VALIDATE COMPANY NAME-->
+				<set var="LiveLog.Text">    Checking company id...</set>
+				<LiveLog LiveLog="LiveLog"/>
+				<select from="crm" entity="account" var="crmCompanies">
+					<where>
+						<condition attr="accountid" op="eq">{CrmCompanyID}</condition>
+					</where>
+					<attr name="accountid"/>
+					<attr name="name"/>
+				</select>
+				
+				<exception if="crmCompanies.Count eq 0">Company with Id {CrmCompanyID} was not found in CRM.</exception>
+				
+				<set var="CrmAccountId">{crmCompanies[0].accountid}</set>
+				
+				<if condition="crmCompanies[0].name ne CrmCompanyName" >
+					<if condition="UpdateCompanyNames eq true">
+						<then>
+							<set var="LiveLog.Text">        Updating Company Name "{crmCompanies[0].name}" to "{CrmCompanyName}"...</set>
+							<LiveLog LiveLog="LiveLog"/>
+							<update in="crm" entity="account">
+								<where>
+									<condition attr="accountid" op="eq">{CrmCompanyID}</condition>
+								</where>
+								<attr name="name">{CrmCompanyName}</attr>
+							</update>
+						</then>
+						<else>
+							<set var="LiveLog.Text">        Company names do not match but will NOT update:  "{crmCompanies[0].name}" to "{CrmCompanyName}"...</set>
+							<LiveLog LiveLog="LiveLog"/>
+						</else>
+					</if>
+                </if>
+				
+				
+			</then>
+			<else>
+			
+			
+				<set var="LiveLog.Text">    Searching for CRM account with name {CrmCompanyName}...</set>
+				<LiveLog LiveLog="LiveLog"/>
+				<log>    Searching for CRM account with name {CrmCompanyName}...</log>
+				<select from="crm" entity="account" var="crmCompanies" count="1">
+					<where>
+						<condition attr="name" op="eq">{CrmCompanyName}</condition>
+					</where>
+					<attr name="accountid"/>
+				</select>
+				
+				<if condition="crmCompanies.Count gt 0">
+					<then>
+						
+						<set var="LiveLog.Text">    CRM Account was found with id {crmCompanies[0].accountid}.</set>
+						<LiveLog LiveLog="LiveLog"/>
+						<set var="CrmAccountId">{crmCompanies[0].accountid}</set>
+						
+					</then>
+					<else>
+						
+						<set var="LiveLog.Text">    Creating CRM Account "{CrmCompanyName}"...</set>
+						<LiveLog LiveLog="LiveLog"/>
+						<create in="crm" entity="account" var="newAccountId">
+							<attr name="name">{CrmCompanyName}</attr>
+							<attr name="vs360_source">{360000001}</attr> <!-- REL360 Contact Sync -->
+						</create>
+						<set var="CrmAccountId">{newAccountId}</set>
+						
+					</else>
+				</if>
+			</else>
+		</if>
+		
+		
+		<!--LINKING ACCOUNT AND DOMAIN-->
+		<set var="LiveLog.Text">    Linking Company and Domain...</set>
+		<LiveLog LiveLog="LiveLog"/>
+		<set var="created">{@crm.AssociateEntities('vs360_companydomain', CrmDomainId, 'account', CrmAccountId, 'vs360_vs360_companydomain_account')}</set>
+		
+		<exception if="!created">Relationship was not created.</exception>
+		
+		</sandbox>
+    </for>
+	
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+</script>

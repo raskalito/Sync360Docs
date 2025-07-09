@@ -1,0 +1,36 @@
+﻿<!-- GenerateExecutionLog.xml -->
+<script>
+  <!-- Generate vs360_executionlog record with predefined values -->
+
+  <!-- 
+		vs360_executionstatus	int	==> Idle = 1; Executing = 2; Completed = 3
+    vs360_completionstatus	int	==> Completed = 1; Completed w/ Errors = 2; Failed = 3
+	-->
+
+  <create in="{CallObject.CrmServer}" entity="vs360_executionlog" var="logId">
+    <attr name="vs360_name">{CallObject.LogName}</attr>
+    <attr name="vs360_datajobid">vs360_datajob:{CallObject.JobId}</attr>
+    <attr name="vs360_start">{Utils.Now}</attr>
+    <attr name="vs360_executionstatus">{3}</attr>
+
+    <if condition="CallObject.LogDescription.isSet">
+      <attr name="vs360_description">{CallObject.LogDescription}</attr>
+    </if>
+    <if condition="CallObject.LogSource.isSet">
+      <attr name="vs360_source">{CallObject.LogSource}</attr>
+    </if>
+    <if condition="CallObject.LogInserted.isSet">
+      <attr name="vs360_inserted">{CallObject.LogInserted}</attr>
+    </if>
+    <if condition="CallObject.LogUpdated.isSet">
+      <attr name="vs360_updated">{CallObject.LogUpdated}</attr>
+    </if>
+    <if condition="CallObject.LogDeleted.isSet">
+      <attr name="vs360_deleted">{CallObject.LogDeleted}</attr>
+    </if>
+    <if condition="CallObject.LogCompStatus.isSet">
+      <attr name="vs360_completionstatus">{CallObject.LogCompStatus}</attr>
+    </if>
+  </create>
+  
+</script>

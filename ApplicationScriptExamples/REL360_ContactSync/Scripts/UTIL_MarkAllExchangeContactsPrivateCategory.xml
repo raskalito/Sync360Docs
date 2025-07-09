@@ -1,0 +1,137 @@
+<script>
+<!--	
+	**************************************************************************************************************************** 
+		This script will read through all employees listed in the referenced team and mark each contact 
+		in that account as PRIVATE.  This was created to prevent old outdated data from being pulled
+		into the system in REL360.  
+	**************************************************************************************************************************** 
+-->
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  ******************************* -->
+	
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Exchange Contacts Privatization</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+	
+	<!-- INCLUDES -->
+	<include name="TimeStampAsText"/>
+
+	<!-- Data sources and output files -->
+	<set var="CRM">crm</set>
+	<set var="Exchange">exchange</set>
+		
+	<!-- Prints log text and adds to external log file -->
+	<var LiveLog="new Object()"/>
+	<set var="LiveLog.UseLog">{true}</set> <!-- TRUE will send window log entries to text file.   FALSE will not create text file but still log to window -->
+	<set var="LiveLog.FileName">C:\Temp\Sync360 LiveLogs\ExchangeContactsPrivatization_RunLog_{TimeStampAsText}.txt</set>
+
+	<!-- Set target team for user mailboxes to process -->
+	<set var="TeamName">TeamName</set>
+	
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	<set var="LiveLog.Text">Loading employees for procesing...</set>
+	<LiveLog LiveLog="LiveLog"/>
+	<select from="crm" entity="vs360_employee" into="employees">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+		</where>
+		<join entity="systemuser" to="vs360_systemuserid" from="systemuserid">
+			<attr name="isdisabled" as="is_systemuser_disabled"/>
+		</join>
+		<join type="inner" entity="vs360_vs360_employee_team" to="vs360_employeeid" from="vs360_employeeid">
+			<join type="inner" entity="team" to="teamid" from="teamid" as="">
+				<where>
+					<condition attr="name" op="eq">{TeamName}</condition>
+				</where>
+			</join>
+		</join>
+		<attr name="vs360_employeeid"/>
+		<attr name="emailaddress"/>
+		<attr name="vs360_name"/>
+	</select>
+	<set var="LiveLog.Text">{employees.Count} employees found for processing.</set>
+	<LiveLog LiveLog="LiveLog"/>
+
+
+	<if condition="employees.Count gt 0">
+		<for var="employee" in="employees">
+			<sandbox verbose="true">
+				<set var="LiveLog.Text">Processing Employee: {employee.vs360_name} / {employee.emailaddress} (ID: {employee.vs360_employeeid})</set>
+				<LiveLog LiveLog="LiveLog"/>
+
+				<!-- Process exchange mailbox -->
+				<context for="exchange" user="{employee.emailaddress}">
+
+					
+					<!-- Get contacts from exchange -->
+					<select from="exchange" var="excontacts" entity="contact">
+						<where>
+							<or>
+								<condition attr="sensitivity" op="ne">{2}</condition>
+								<not>
+									<condition attr="sensitivity" op="ex"/>
+								</not>
+							</or>
+							<or>
+								<not>
+									<condition attr="crmid" op="ex"></condition>
+								</not>
+								<condition attr="crmid" op="eq"></condition>
+							</or>
+							<or>
+								<not>
+									<!-- <condition attr="crmLinkState" op="ex"></condition> -->
+									<condition attr="crmLinkState_vs360" op="ex"></condition>
+								</not>
+								<!-- <condition attr="crmLinkState" op="eq">{1}</condition> -->
+								<condition attr="crmLinkState_vs360" op="eq">{1}</condition>
+							</or>
+							<include name="AdditionalConditions" />
+						</where>
+						<attr name="Keywords" />
+						<attr name="EntryId"/>
+						<attr name="fileas" />
+					</select>
+
+					
+					<set var="LiveLog.Text">     Exchange contacts found: {excontacts.Count}</set>
+					<LiveLog LiveLog="LiveLog"/>
+
+					<!-- Process each exchange contact -->
+					<for var="excontact" in="excontacts">
+					
+						<set var="LiveLog.Text">          Processing contact: {excontact.fileas}</set>
+						<LiveLog LiveLog="LiveLog"/>
+
+						<sandbox>
+							<set var="exKeywords">{new List(excontact.Keywords ?? (new List()))}</set>
+							<if condition="!exKeywords.Contains('Private')">
+								<set var="exKeywords[]">Private</set>
+								<update in="exchange" entity="contact">
+									<where>
+										<condition attr="EntryId" op="eq">{excontact.EntryId}</condition>
+									</where>
+									<attr name="Keywords">{exKeywords.ToArray()}</attr>
+								</update>
+							</if>
+						</sandbox>
+					</for>
+				</context>
+                    
+            </sandbox>
+		</for>
+		        
+    </if>
+
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+</script>

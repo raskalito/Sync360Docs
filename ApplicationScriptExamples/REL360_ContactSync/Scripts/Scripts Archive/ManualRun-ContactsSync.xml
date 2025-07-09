@@ -1,0 +1,50 @@
+<script>
+    <!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--TEAM NAME-->
+	<set var="ProcessingTeamName">SyncEmployees</set>
+	
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+	
+	<set var="OverridenTeamName">{ProcessingTeamName}</set>
+	<include name="Ranges\SyncEmployeesContext.xml" />
+	
+	<log>{ObjectsForProcessing.Count} Employees found.</log>
+	
+	<for var="empl" in="ObjectsForProcessing">
+		<var Employee='["EmployeeId" : empl.Key]'/>
+        <include name="InitializeContext" />
+		
+		<sandbox>
+			<ExchangeToCrmProcessing Context="Context" />
+		</sandbox>
+
+		<if condition="Context.Settings.OneWaySync eq '1'">
+			<then>
+				<sandbox>
+					<SyncExistingContactsToCRM Context="Context" />
+				</sandbox>
+			</then>
+			<else>
+				<sandbox>
+					<CrmToExchangeProcessing Context="Context" />
+				</sandbox>
+
+				<sandbox>
+					<SyncExistingContacts Context="Context" />
+				</sandbox>
+				
+			</else>
+		</if>
+		
+		
+		<sandbox>
+			<CleanupContacts Context="Context"/>
+		</sandbox>
+    </for>
+	
+	<log>Finished.</log>
+</script>

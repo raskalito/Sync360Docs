@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set var="Settings">{new Object()}</set>
+  <set var="Settings.EntityName">vs360_opportunitycertification</set>
+  <set var="Settings.KeyField">vs360_opportunitycertificationid</set>
+  <set var="Settings.RelatedKeyField"></set>
+  <set var="Settings.TargetEntityName">{null}</set>
+  <set var="Settings.TargetEntityKeyField">{null}</set>
+  <set var="Settings.OtherEntityName"></set>
+  <set var="Settings.RelationshipName"></set>
+  <set var="Settings.PrimaryField">vs360_name</set>
+  <set var="Settings.ClosedStatusCodes">{new List()}</set>
+  <set var="Settings.OpenStateCode">{}</set>
+  <set var="Settings.OpenStatusCode">{}</set>
+  <set var="Settings.HasClosedState">{false}</set>
+  <include name="../SynchronizeEntity2" />
+</script>

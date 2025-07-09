@@ -1,0 +1,488 @@
+<script>
+	<!--              CONFIGURATION SECTION                   -->
+	<set var="ManualMode">{false}</set> <!--USE FOR DEVELOPMENT/MANUAL DEBUG-->
+	
+	<if condition="!Context.isSet">
+        <var Employee='["EmployeeId" : (Input.ObjectId ?? "3205a681-bbc0-ec11-983e-0022480a27f1")]'/>
+        <var Employee='["EmployeeId" : (Input.ObjectId ?? "d6f4805e-06aa-ec11-983f-0022480ace83")]'/> <!--att1-->
+		<include name="InitializeContext" />
+    </if>
+	<!--              CONFIGURATION END                       -->
+	
+	<exception if="!Context.isSet">Context parameter is required.</exception>
+	
+	<set var="Employee">{Context.Employee}</set>
+	<set var="Mapping">{Context.Mapping}</set>
+	<set var="Settings">{Context.Settings}</set>
+	<set var="PrivateFields">{Context.PrivateFields}</set>
+	
+
+	<log>Sync Existing Contacts to CRM for Employee {Employee.Email} ({Employee.Id}) started.</log>
+
+	<log if="!Settings.ContactSyncEnabled">Contacts Sync is Disabled in Settings.</log>
+	<log if="!Settings.DeployedApps.ContactSync">ContactSync is not active in DeployedApps setting.</log>
+	
+	<if condition="Settings.DeployedApps.Onboarding">
+		<log if="Settings.OnboardingRequestedSyncStop">Contacts Sync is Disabled by Onboarding.</log>
+		<log if="!Employee.IsRolloutCompleted">Employee is waiting for Onboarding.</log>
+	</if>
+	
+	<set var="IsRunAllowed">{
+		Settings.ContactSyncEnabled 
+		and (Settings.DeployedApps.Onboarding ? (Employee.IsRolloutCompleted and !Settings.OnboardingRequestedSyncStop) : true)  
+		and Settings.DeployedApps.ContactSync}</set>
+
+	<set var="IsRunAllowed" if="ManualMode">{true}</set>
+	<if condition="IsRunAllowed">
+
+		<set var="SHA256">{static "System.Security.Cryptography.SHA256"}</set>
+		<set var="instSHA256">{SHA256.Create()}</set>
+
+		<sandbox>
+			<set currentSyncDate="Utils.Now.ToUniversalTime()" />
+			<context for="crm" user="{Employee.UserId}">
+				<context for="exchange" user="{Employee.Email}">
+					<sandbox>
+						<!--RETRIEVE ALL MODIFIED CONTACTS SINCE LAST SYNC DATE-->
+						<select from="exchange" entity="contact" var="exchangeContacts">
+							<where>
+								<if condition="Settings.SyncMainFolderOnly eq false">
+									<condition attr="parententryid" op="ne">deleteditems</condition>
+									<condition attr="@FolderName" op="eq">root/allitems</condition>
+									<if condition="Settings.OutlookFolder.isSet and Settings.OutlookFolder ne ''">
+										<condition attr="parententryid" op="ne">{Settings.OutlookFolder}</condition>
+									</if>
+								</if>
+								<for var="outCategory" in="Settings.OptOutCategories">
+									<not>
+										<condition attr="Keywords" op="eq">{outCategory}</condition>
+									</not>
+								</for>
+								<or>
+									<condition attr="sensitivity" op="ne">{2}</condition>
+									<not>
+										<condition attr="sensitivity" op="ex"/>
+									</not>
+								</or>
+								<condition attr="crmid" op="ex"/>
+							
+								<condition attr="lastmodifieddate" op="ge">{Employee.LastSyncDate.ToString("yyyy-MM-ddTHH:mm:ssZ")}</condition>
+								
+								<or>
+									<condition attr="crmLinkState" op="eq">{2}</condition>
+									<condition attr="crmLinkState_vs360" op="eq">{2}</condition>
+								</or>
+							</where>
+							<for var="mapping" in="Mapping.ContactMapping">
+								<attr name="{mapping.Exchange}" unless="mapping.Multiline.isSet" />
+							</for>
+							<for var="mapping" in="Mapping.ContactMultiLineMapping">
+								<attr name="{mapping.Exchange}"/>
+							</for>
+							<attr name="Keywords"/>
+							<attr name="EntryId"/>
+							<attr name="crmid"/>
+							<attr name="exchangexml"/>
+							<attr name="hasattachments"/>
+             				<attr name="attachments"/>
+              				<attr name="email1displayname"/>
+							<attr name="email2address"/>
+							<attr name="email2displayname"/>
+							<attr name="email3address"/>
+							<attr name="email3displayname"/>
+							<attr name="crmLinkState"/>
+							<attr name="crmLinkState_vs360"/>
+						</select>
+
+						<log>Exchange modified contacts count {exchangeContacts.Length}</log>
+
+						
+						<for var="exContact" in="exchangeContacts">
+							<log>Processing {exContact.firstname ?? ''} {exContact.lastname ?? ''} ({exContact.email1address ?? ''})...</log>
+							
+							
+     						<set ValidationResult="new Object()" ValidationResult.isInvalid="false" />
+        				    <ProcessX500Emailaddress exContact="exContact" Output="ValidationResult"/>
+
+							
+							<log>LinkStates: crmLinkState - {exContact.crmLinkState ?? 'empty'}; crmLinkState_vs360 - {exContact.crmLinkState_vs360 ?? 'empty'}</log>
+
+							<if condition="exContact.crmLinkState.isSet and exContact.crmLinkState eq '2'
+													   and exContact.crmLinkState_vs360.isSet and exContact.crmLinkState_vs360 eq '2'">
+
+							  <log>        Setting crmLinkState to 0...</log>
+							  <update in="exchange" entity="contact">
+								<where>
+								  <condition attr="EntryId" op="eq">{exContact.EntryId}</condition>
+								</where>
+								<attr name="crmLinkState">{0}</attr>
+							  </update>
+							</if>
+
+							<if condition="exContact.crmLinkState.isSet 
+										   and exContact.crmLinkState eq '2'
+										   and (!exContact.crmLinkState_vs360.isSet or exContact.crmLinkState_vs360 eq '0')">
+
+								<log>Exchange contact was tracked by Server Side Sync.</log>
+							  
+								<select from="crm" entity="contact" var="crmContactsForMerge">
+									<where>
+										<condition attr="contactid" op="eq">{exContact.crmid}</condition>
+										<condition attr="statecode" op="eq">{0}</condition>
+									</where>
+									<!--this join is required for the approval process by employee-->
+									<join type="inner" entity="vs360_relationship" to="contactid" from="vs360_contactid">
+										<where>
+											<condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+										</where>
+									</join>
+									<attr name="contactid"/>
+									<attr name="parentcustomerid"/>
+									<attr name="fullname"/>
+									<attr name="modifiedon"/>
+									<attr name="vs360_addresstype"/>
+									<for var="p" in="Mapping.ContactMapping">
+										<attr name="{p.Crm}" />
+									</for>
+									<if condition="Settings.ImageSync">
+										<attr name="entityimage"/>
+									</if>
+								</select>
+								
+								<set var="crmContactForMerge">{crmContactsForMerge[0] ?? null}</set>
+								
+								
+								<if condition="!crmContactForMerge.isSet">
+									<log>Active contact with id {exContact.crmid} was not found in CRM.</log>
+									<continue />
+                                </if>
+								
+								<set var="ExecutionResults">{new Object()}</set>
+								<HandleServerSideSyncTracking
+									ExchangeContact="exContact"
+									CrmContact="crmContactForMerge"
+									Mapping="Mapping"
+									PrivateFields="PrivateFields"
+									Employee="Employee"
+									Settings="Settings"
+									Results="ExecutionResults" />
+
+								<if condition="Results.OriginalContact.isSet">
+									<log>Contact was merged with original.</log>
+									<set var="crmContactForMerge">{Results.OriginalContact}</set>
+								</if>
+
+								<if condition="Results.Failed.isSet and Results.Failed eq true">
+									<log>Error... Contact was not merged with original.</log>
+									<continue />
+								</if>
+							</if>
+							
+							
+							<var CallObject='new Object()' CallObject.Mapping="Mapping" CallObject.ExContact="exContact"/>
+							<call name="UnboxExchangeMultilineFields" CallObject="CallObject"/>
+							
+							<set var="actualPictureHash">{null}</set>
+							
+							<if condition="Settings.ImageSync">
+								<set var="actualPicture">{null}</set>
+								<if condition="exContact.hasattachments eq 'true'">
+									<set var="atts">{@exchange.GetAttachments(exContact.attachments)}</set>
+
+									<for var="at" in="atts">
+										<if condition="at.Name eq 'ContactPicture.jpg' and at.ContentType eq 'image/jpeg'">
+											<set var="actualPicture">{at.Content}</set>
+											<set var="actualPictureHash">{Utils.ByteArrayToBase64String(instSHA256.ComputeHash(actualPicture))}</set>
+											<log>Contact picture was found.</log>
+											<break />
+										</if>
+									</for>
+								</if>
+							</if>
+							
+							<set var="exchangeCategoriesString"></set>
+							<if condition="Settings.SyncContactCategories">
+								<if condition="exContact['Keywords'].isSet">
+									<set var="formattedCategories">{new List()}</set>
+									<for var="keyw" in="exContact['Keywords']">
+									  <set var="formattedCategories[]">"{keyw}"</set>
+									</for>
+
+									<set var="exchangeCategoriesString">{Utils.Join(formattedCategories, ",")}</set>
+								</if>
+							</if>
+							
+							<if condition="!exContact.exchangexml.isSet">
+								<log>exchangexml data is missing. Updating...</log>
+								
+								<set var="dataForExXml">{new Dictionary()}</set>
+								<for var="mapping" in="Mapping.ContactMapping">
+									<if condition="!mapping.Multiline.isSet">
+										<set if="mapping.ExchangeType ne 'Array'" var="dataForExXml[mapping.Exchange]">{exContact[mapping.Exchange] ?? null}</set>
+										<set if="mapping.ExchangeType eq 'Array'" var="dataForExXml[mapping.Exchange]">{Utils.Join(exContact[mapping.Exchange], ', ') ?? null}</set>
+									</if>
+								</for>
+								
+								<for var="mapping" in="Mapping.ContactMultiLineMapping">
+									<set var="dataForExXml[mapping.Exchange]">{exContact[mapping.Exchange]}</set>
+								</for>
+								<if condition="exchangeCategoriesString.isSet and exchangeCategoriesString ne ''">
+									<set var="dataForExXml['vs360_keywords']">{exchangeCategoriesString}</set>
+								</if>
+								<if condition="actualPictureHash.isSet">
+									<set var="dataForExXml['entityimage']">{actualPictureHash}</set>
+								</if>
+								
+								<update in="exchange" entity="contact">
+                                    <where>
+										<if condition="Settings.SyncMainFolderOnly eq false">
+											<condition attr="@FolderName" op="eq">root/allitems</condition>
+										</if>
+										<condition attr="EntryId" op="eq">{exContact['EntryId']}</condition>
+									</where>
+                                    <attr name="exchangexml">{Xml.ToXml(dataForExXml, "contact")}</attr>
+                                </update>
+								
+								<log>exchangexml was updated.</log>
+								
+								<continue />
+							</if>
+							
+							<set exRef="Xml.FromXml(exContact.exchangexml)"/>
+							
+							<var CallObject='new Object()' CallObject.Mapping="Mapping" CallObject.ExContact="exRef"/>
+							<call name="UnboxExchangeMultilineFields" CallObject="CallObject"/>
+							
+							<!--COMPARE FIELDS WITH exchangexml. exchangexml contains the state of the record at the time of last synchronization-->
+							<set modifiedFields="new List()" />
+							<for var="mapping" in="Mapping.ContactMapping">
+								<set refValue="exRef[mapping.Exchange] ?? ''"/>
+								
+								<set if="mapping.ExchangeType ne 'Array'" currentValue="exContact[mapping.Exchange] ?? ''"/>
+								<set if="mapping.ExchangeType eq 'Array'" currentValue="Utils.Join(exContact[mapping.Exchange], ', ') ?? ''"/>
+								
+								<if condition="refValue ne currentValue">
+									<set var="modifiedFields[]">{mapping.Exchange}</set>
+								</if>
+							</for>
+							
+							<if condition="Settings.ImageSync">
+								<set var="refPictureHash">{exRef['entityimage'] ?? null}</set>
+								<set var="refPictureHash" if="refPictureHash eq ''">{null}</set>
+
+								<if condition="actualPictureHash ne refPictureHash">
+									<set var="modifiedFields[]">entityimage</set>
+								</if>
+							</if>
+							
+							
+							<set var="crmCategoryChanges">{null}</set>
+							<if condition="Settings.SyncContactCategories">
+								<set var="refCategoriesString"></set>
+								<set var="refCategoriesString" if="exRef['vs360_keywords'].isSet">{exRef['vs360_keywords']}</set>
+
+								<if condition="exchangeCategoriesString ne refCategoriesString">
+									<set var="modifiedFields[]">vs360_keywords</set>
+									<set var="crmCategoryChanges">{exchangeCategoriesString}</set>
+								</if>
+							</if>
+							<log>Modified Fields detected: {modifiedFields.Count}</log>
+							
+							<if condition="modifiedFields.Count gt 0">
+							
+								<!--Translate data to crm format-->
+								<set var="newCrmData">{new Dictionary()}</set>
+								<for var="mapping" in="Mapping.ContactMapping">
+									<if condition="modifiedFields.Contains(mapping.Exchange) and exContact[mapping.Exchange].isSet">
+										<set var="value">{exContact[mapping.Exchange]}</set>
+										<set var="newCrmData[mapping.Crm]" if="mapping.Type eq 'String' and mapping.ExchangeType eq 'String'">{value.Replace("&#xD;&#xA;", "&#xA;").Replace("&#xA;", "&#xD;&#xA;").TrimEnd()}</set>
+										<set var="newCrmData[mapping.Crm]" if="mapping.Type eq 'String' and mapping.ExchangeType eq 'Array'">{Utils.Join(value, ', ')}</set>
+										<set var="newCrmData[mapping.Crm]" if="mapping.Type eq 'DateTime' and mapping.ExchangeType eq 'DateTime'">{Utils.StringToDate(value, "yyyy-MM-dd'T'HH:mm:ss'Z'")}</set>
+									</if>
+								</for>
+								<if condition="modifiedFields.Contains('entityimage')">
+									<set var="newCrmData['entityimage']">{actualPicture}</set>
+								</if>
+								
+								<!--ADDRESS TYPE UPDATE CHECK-->
+								<set var="addressModeChangeRequired">{false}</set>
+								<set var="resetAddressMode">{false}</set>
+								<for var="mapping" in="Mapping.ContactMapping">
+									<if condition="newCrmData.ContainsKey(mapping.Crm) and mapping.IsAddressModeHandler.isSet and mapping.IsAddressModeHandler eq 'yes'">
+										<set var="addressModeChangeRequired">{true}</set>
+										<break/>
+									</if>
+								</for>
+								
+								
+								<select from="crm" entity="contact" var="existingCrmContacts">
+									<where>
+										<condition attr="contactid" op="eq">{exContact.crmid}</condition>
+										<condition attr="statecode" op="eq">{0}</condition>
+									</where>
+									<!--this join is required for the approval process by employee-->
+									<join type="inner" entity="vs360_relationship" to="contactid" from="vs360_contactid">
+										<where>
+											<condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+										</where>
+									</join>
+									<attr name="contactid"/>
+									<if condition="addressModeChangeRequired">
+                                        <attr name="vs360_addresstype"/>
+                                    </if>
+									<for var="fieldName" in="newCrmData.Keys">
+										<attr name="{fieldName}" />
+									</for>
+								</select>
+								
+								
+								<if condition="existingCrmContacts.Count eq 0">
+                                    <log>Active CRM contact {exContact.crmid} was not found.</log>
+									<continue />
+                                </if>
+								
+								<set var="crmContact">{existingCrmContacts[0]}</set>
+								
+								
+								<if condition="crmCategoryChanges.isSet">
+								  <log>Updating contact Categories in Crm...</log>
+								  <update in="crm" entity="vs360_relationship">
+									<where>
+									  <condition attr="vs360_employeeid"	op="eq">{Employee.Id}</condition>
+									  <condition attr="vs360_contactid" 	op="eq">{exContact.crmid}</condition>
+									  <condition attr="statecode" 			op="eq">{0}</condition>
+									</where>
+									<attr name="vs360_keywords">{crmCategoryChanges}</attr>
+								  </update>
+								</if>
+								
+								
+								<if condition="addressModeChangeRequired">
+									<set var="resetAddressMode">{crmContact.vs360_addresstype eq 360000001 ?? false}</set>
+								</if>
+								
+								<set var="dataForUpdate">{new Dictionary()}</set>
+								
+								<for var="newDataKvP" in="newCrmData">
+                                    <set var="updatedFieldName">{newDataKvP.Key}</set>
+                                    <set var="updatedFieldValue">{newDataKvP.Value}</set>
+									
+									<set var="actualCrmValue">{crmContact[updatedFieldName]}</set>
+									
+									<if condition="actualCrmValue ne updatedFieldValue">
+                                        <set var="dataForUpdate[updatedFieldName]">{updatedFieldValue}</set>
+                                    </if>
+                                </for>
+								
+								
+								
+								<if condition="dataForUpdate.ContainsKey('emailaddress1')">
+									<if condition="dataForUpdate['emailaddress1'] eq null">
+										<then>
+											<set var="dataForUpdate['parentcustomerid']">{null}</set>
+											<set var="dataForUpdate['vs360_companyname']">{null}</set>
+										</then>
+										<else>
+											
+											<set var="refDomain">{Utils.Split(exRef['email1address'], '@')[1].ToLower() ?? null}</set>
+											<set var="changedDomain">{Utils.Split(dataForUpdate['emailaddress1'], '@')[1].ToLower() ?? null}</set>
+
+
+											<if condition="refDomain ne changedDomain">
+												<log>        Email domain was changed: '{refDomain}' to '{changedDomain}'. Performing Company search...</log>
+
+												<set var="CheckEmailDomainResults">{new Object()}</set>
+												<CheckEmailDomain 
+													Context="Context"
+													EmailAddress="dataForUpdate['emailaddress1']" 
+													CheckEmailDomainResults="CheckEmailDomainResults" />
+												
+												<if condition="CheckEmailDomainResults.Account.isSet">
+													<then>	
+														<set var="dataForUpdate['parentcustomerid']">account:{CheckEmailDomainResults.Account.Id}</set>
+														<set var="dataForUpdate['vs360_companyname']">{CheckEmailDomainResults.Account.Name}</set>
+													</then>
+													<else>
+														<set var="dataForUpdate['parentcustomerid']">{null}</set>
+														<set var="dataForUpdate['vs360_companyname']">{null}</set>
+													</else>
+												</if>
+											</if>
+											
+										</else>
+									</if>
+								</if>
+								
+								
+								<if condition="dataForUpdate.Count gt 0 or resetAddressMode">
+                                    
+									<update in="crm" entity="contact">
+										<where>
+											<condition attr="contactid" op="eq">{exContact.crmid}</condition>
+										</where>
+										<for var="crmChange" in="dataForUpdate">
+											<attr name="{crmChange.Key}">{crmChange.Value}</attr>
+										</for>
+										
+										<if condition="resetAddressMode">
+											<attr name="vs360_companyaddressidname">{null}</attr>
+											<attr name="vs360_companyaddressid">{null}</attr>
+											<attr name="vs360_addresstype">{360000000}</attr>
+										</if>
+										
+										<attr name="vs360_modifiedbyemployeeid">vs360_employee:{Employee.Id}</attr>
+									</update>
+								</if>
+								
+								
+								
+								<update in="exchange" entity="contact">
+									<where>
+										<if condition="Settings.SyncMainFolderOnly eq false">
+											<condition attr="@FolderName" op="eq">root/allitems</condition>
+										</if>
+										<condition attr="EntryId" op="eq">{exContact['EntryId']}</condition>
+									</where>
+									<set var="dataForExXml">{new Dictionary()}</set>
+									<for var="mapping" in="Mapping.ContactMapping">
+										<if condition="!mapping.Multiline.isSet">
+											<set if="mapping.ExchangeType ne 'Array'" var="dataForExXml[mapping.Exchange]">{exContact[mapping.Exchange] ?? null}</set>
+											<set if="mapping.ExchangeType eq 'Array'" var="dataForExXml[mapping.Exchange]">{Utils.Join(exContact[mapping.Exchange], ', ') ?? null}</set>
+										</if>
+									</for>
+									
+									<for var="mapping" in="Mapping.ContactMultiLineMapping">
+										<set var="dataForExXml[mapping.Exchange]">{exContact[mapping.Exchange]}</set>
+									</for>
+									<if condition="modifiedFields.Contains('vs360_keywords')">
+										<set var="dataForExXml['vs360_keywords']">{exchangeCategoriesString}</set>
+                                    </if>
+									<if condition="newCrmData.ContainsKey('entityimage')">
+										<set var="dataForExXml['entityimage']">{actualPictureHash}</set>
+									</if>
+
+									
+									<attr name="exchangexml">{Xml.ToXml(dataForExXml, "contact")}</attr>
+								</update>
+							</if>
+						</for>
+					</sandbox>
+				</context>
+			</context>
+
+			<log>Stamping the LastSyncTime {currentSyncDate}</log>
+			<update in="crm" entity="vs360_employee">
+				<where>
+					<condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+				</where>
+				<attr name="vs360_lastcontactssyncdate">{currentSyncDate}</attr>
+			</update>
+
+			<onerror var="ex">
+				<log if="Settings.ExtendedLog eq '0'">{logDetail}</log>
+				<log>Synchronization Failed: {ex}</log>
+				<!--<FailSynchronization SyncState="SyncState" Exception="ex"/>-->
+			</onerror>
+		</sandbox>
+	</if>
+</script>

@@ -1,0 +1,327 @@
+<script>
+	
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  *******************************   -->
+
+	<!-- Run Configuration attributes -->
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Pre-Onboarding Report</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+	<!-- SET SYSTEM REFERENCE VARIABLES -->
+	<include name="TimeStampAsText"/>
+	<set var="CompaniesByDomainFile">C:\Temp\Sync360Output\PreOnboardingReport-{TimeStampAsText}.csv</set>
+	
+	<!-- Processing Variables -->
+	<!--<set var="IncludeProhibitedDomains">{false}</set>-->
+			
+	<set var="CutOffDate">{Utils.Now.AddMonths(-120)}</set>
+	
+	<set var="SignatureDebugMode">{false}</set>
+	<set var="LogBody">{false}</set>
+	
+	<set var="PageSize">{500}</set>
+	<log>Exchange page size: {PageSize}</log>
+	
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	
+	<set Context="new Object()"
+		 Context.Settings="null"
+		 Context.NonCorpDomains="null"/>
+	
+	<GetSettings 		Context="Context" />
+	<GetEmailBlockList  Context="Context" />
+	<GetNonCorpDomains  Context="Context" />
+	
+	<set EmailEngine="typeof 'EmailParser.EmailProcessingFacade, EmailParser'"/>
+	<set EmailEngines="static EmailEngine"/>
+	
+	
+	<!-- Vars -->
+	<set var="UserMode">Employee</set> <!-- User or Employee or EmailList -->
+	<set var="minContactsCount">{5}</set>
+	
+	<set var="TeamId">FB8382C1-4458-EC11-844F-000C29D3AE31</set> <!-- Team Id -->
+	
+	<set var="DuplicatesDict">{new Dictionary()}</set>
+	
+	
+	<!-- Get all users from team -->
+	<if condition="UserMode eq 'User'">
+		<select from="crm" entity="teammembership" var="teammemberships">
+			<where>
+				<condition attr="teamid" op="eq">{TeamId}</condition>
+			</where>
+			<attr name="systemuserid"/>
+		</select>
+	</if>
+	
+	<!-- Get all employee from team -->
+	<if condition="UserMode eq 'Employee'">
+		<select from="crm" entity="vs360_vs360_employee_team" var="teammemberships">
+			<where>
+				<condition attr="teamid" op="eq">{TeamId}</condition>
+			</where>
+			<attr name="vs360_employeeid"/>
+		</select>
+	</if>
+	
+	<!-- Populate email list -->
+	<if condition="UserMode eq 'EmailList'">
+		<set var="teammemberships">{new List()}</set>
+		<set var="teammemberships[]">rrudenko@proserv4crm.com</set>
+		<set var="teammemberships[]">sgusev@proserv4crm.com</set>
+		<set var="teammemberships[]">jstuckey@proserv4crm.com</set>
+	</if>
+	
+	<set var="GroupedbyDomains">{new Dictionary()}</set>
+	
+	<for var="teammembership" in="teammemberships">
+		
+		<!-- Get user details from CRM -->
+		<if condition="UserMode eq 'User'">
+			<select from="crm" entity="systemuser" var="processingobjects">
+				<where>
+					<condition attr="systemuserid" op="eq">{teammembership.systemuserid}</condition>
+					<condition attr="isdisabled" op="eq">{false}</condition>
+				</where>
+				<attr name="systemuserid"/>
+				<attr name="fullname"/>
+				<attr name="internalemailaddress"/>
+			</select>
+		</if>
+		
+		<!-- Get employee details from CRM -->
+		<if condition="UserMode eq 'Employee'">
+			<select from="crm" entity="vs360_employee" var="processingobjects">
+				<where>
+					<condition attr="vs360_employeeid" op="eq">{teammembership.vs360_employeeid}</condition>
+				</where>
+				<attr name="vs360_employeeid"/>
+				<attr name="vs360_name"/>
+				<attr name="emailaddress"/>
+			</select>
+		</if>
+		
+		<!-- Get email from list -->
+		<if condition="UserMode eq 'EmailList'">
+			<set var="processingobjects">{new List()}</set>
+			<set var="processingobjects[]">{teammembership}</set>
+		</if>
+		
+		<if condition="processingobjects.Count gt 0">
+		
+			<set var="User">{new Object()}</set>
+			
+			<set if="UserMode eq 'User'"
+				User.Id="processingobjects[0].systemuserid"
+				User.Email="processingobjects[0].internalemailaddress"
+				User.Fullname="processingobjects[0].fullname"
+				User.Type="'User'"/>
+				
+			<set if="UserMode eq 'Employee'"
+				User.Id="processingobjects[0].vs360_employeeid"
+				User.Email="processingobjects[0].emailaddress"
+				User.Fullname="processingobjects[0].vs360_name"
+				User.Type="'Employee'"/>
+				
+			<set if="UserMode eq 'EmailList'"
+				User.Email="processingobjects[0]"
+				User.Type="'Email'"/>
+				
+			<var email="User.Email" />
+			<context for="exchange" user="{User.Email}">
+			
+			<sandbox verbose="true">
+				
+				<log>User email: {User.Email}</log>
+				
+				<set var="userSMTPs">{new List()}</set>
+				<set var="resolutions">{@exchange.ResolveNames(User.Email, 'ActiveDirectory', true)}</set>
+				<!--<log>{resolutions}</log>-->
+				<if condition="resolutions.isSet and resolutions.Count gt 0">
+					<for var="adr" in="resolutions[0].Contact.EmailAddresses">
+						<set var="tmpAdr">{adr.Value.ToLower()}</set>
+						<if condition="tmpAdr.StartsWith('smtp:')">
+							<set var="userSMTPs[]">{tmpAdr.Replace('smtp:', '')}</set>
+						</if>
+					</for>
+				</if>
+				
+				
+				<log>User's SMTP addresses: {userSMTPs}</log>
+				
+				<set var="PageLimit">{-1}</set>
+				<set var="Continue">{true}</set>
+				<set var="Page">{0}</set>
+				
+				<while condition="Continue">
+					
+                        
+                    
+					<select from="exchange" entity="message" var="emails" page="Page" count="PageSize">
+						<where>
+							<condition attr="received" op="gt">{CutOffDate.ToString("yyyy-MM-ddTHH:mm:ssZ")}</condition>
+							<for var="addr" in="userSMTPs">
+							  <condition attr="senderemailaddress" op="ne">{addr}</condition>
+							</for>
+							<condition attr="parententryid" op="ne">deleteditems</condition>
+							<condition attr="senderemailaddress" op="ex" />
+							<condition attr="@BodyResponseType" op="eq">Text</condition>
+							<condition attr="@FolderName" op="eq">root/allitems</condition>
+						</where>
+						<attr name="subject"/>
+						<attr name="from"/>
+						<attr name="uniquebody"/>
+					  <order by="received" desc="true"/>
+					</select>
+					
+					<if condition="emails.isSet">
+						<else>
+							<log>Error on select emails form exchange</log>
+						</else>
+						<then>
+							<log>Page number: {Page}. {emails.Count} records to process.</log>
+							
+							
+							<for var="email" in="emails">
+								<set var="skip">{!(email.from.isSet and email.from.Item.isSet and email.from.Item.EmailAddress.isSet)}</set>
+								<log if="!(email.from.isSet and email.from.Item.isSet and email.from.Item.EmailAddress.isSet)">Email does not contain 'from' field. Skipping...</log>
+
+								<if condition="email.from.isSet and email.from.Item.isSet and email.from.Item.EmailAddress.isSet">
+									<set var="CurrentEmailAddress">{email.from.Item.EmailAddress.ToLower()}</set>
+									<set var="emailDomain">{null}</set>
+									
+									<set var="emailParts">{Utils.Split(CurrentEmailAddress, '@')}</set>
+									<if condition="emailParts.Count eq 2">
+                                        <set var="emailDomain">@{emailParts[1]}</set>
+                                    </if>
+									
+									<if condition="!emailDomain.isSet">
+                                        <log>Email Domain was not recognized.</log>
+										<continue />
+                                    </if>
+								
+									
+									<!--NON CORP-->
+									<if condition="Context.NonCorpDomains.Contains(emailDomain.Replace('@', '').ToLower())">
+										<log>{emailDomain} is in Non Corp Domains List</log>
+										<continue />
+                                    </if>
+									
+									<log>Processing email from {CurrentEmailAddress}; (subject: '{email.subject}')</log>
+									<set var="ebody">{email.uniquebody}</set>
+
+									<set var="result" if="!SignatureDebugMode">{EmailEngines.Process(email.from.Item.Name, email.from.Item.EmailAddress, ebody)}</set>
+									<set var="result" if="SignatureDebugMode">{EmailEngines.ProcessDebug(email.from.Item.Name, email.from.Item.EmailAddress, ebody)}</set>
+
+									<set var="sign">{result.Signature}</set>
+
+									<if condition="LogBody">
+										<log>********************************************************************************************************************************************************</log>
+										<log>{ebody}</log>
+										<log>=====================SIGNATURE=====================</log>
+										<log>{sign}</log>
+										<log>********************************************************************************************************************************************************</log>
+									</if>
+
+									<if condition="sign.Email.isSet and sign.CompanyName.isSet and sign.NameMatch gt 0">
+										<then>
+											<log>	Main signature info: {sign.Email} from {sign.CompanyName}</log>
+										</then>
+										<else>
+											<log>	Email signature was not recognized.</log>
+										</else>
+									</if>
+									
+									
+									<set var="companyname"></set>
+									<set var="companyname" if="sign.CompanyName.isSet">{sign.CompanyName.ToLower().Trim().Replace("&#xD;", "").Replace("&#xA;", "")}</set>
+									<set var="companynameOrig" if="sign.CompanyName.isSet">{sign.CompanyName.Trim().Replace("&#xD;", "").Replace("&#xA;", "")}</set>
+
+
+									<if condition="!GroupedbyDomains[emailDomain].isSet">
+										<set var="GroupedbyDomains[emailDomain]">{new Dictionary()}</set>
+										<set var="GroupedbyDomains[emailDomain]['contacts']">{new Dictionary()}</set>
+										<set var="GroupedbyDomains[emailDomain]['companynamesOriginal']">{new List()}</set>
+										<set var="GroupedbyDomains[emailDomain]['companynamesUnique']">{new List()}</set>
+										<set var="GroupedbyDomains[emailDomain]['employees']">{new List()}</set>
+									</if>
+									<set var="GroupedbyDomains[emailDomain]['employees'][]" if="!GroupedbyDomains[emailDomain]['employees'].Contains(User.Email)">{User.Email}</set>
+									<if condition="companyname ne ''">
+										<set var="GroupedbyDomains[emailDomain]['companynamesOriginal'][]" if="!GroupedbyDomains[emailDomain]['companynamesOriginal'].Contains(companynameOrig)">{companynameOrig}</set>
+										<set var="GroupedbyDomains[emailDomain]['companynamesUnique'][]" if="!GroupedbyDomains[emailDomain]['companynamesUnique'].Contains(companyname)">{companyname}</set>
+									</if>
+									<if condition="!GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress].isSet">
+										<set var="GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress]">{new Dictionary()}</set>    
+										<set var="GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress]['employees']">{new List()}</set>    
+										<set var="GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress]['count']">{0}</set>    
+									</if>
+									<set var="GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress]['count']">{GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress]['count'] + 1}</set>
+									<set var="GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress]['employees'][]" if="!GroupedbyDomains[emailDomain]['contacts'][CurrentEmailAddress]['employees'].Contains(User.Email)">{User.Email}</set>
+
+								</if>
+							  
+							</for>
+							
+						</then>
+					</if>
+					
+					
+					
+					<set var="Page">{Page + 1}</set>
+					<set var="Continue" if="emails.Count lt PageSize">{false}</set>
+					<set var="Continue" if="PageLimit gt 0 and Page gt PageLimit">{false}</set>
+				</while>
+
+				
+				<onerror var="ex">
+					<log>Processing of {User.Email} failed. Error - {ex}</log>
+				</onerror>
+			
+			</sandbox>
+			</context>
+		</if>
+	</for>
+	
+	<!-- Start of Total Summary log -->
+	<log>Total Users processed: {teammemberships.Count}</log>
+	
+	<for var="domain" in="GroupedbyDomains.Keys">
+		<if condition="GroupedbyDomains[domain]['contacts'].Count ge minContactsCount">
+			<set var="contactsCount">{GroupedbyDomains[domain]['contacts'].Count}</set>
+			<set var="companiesCount">{GroupedbyDomains[domain]['companynamesUnique'].Count}</set>
+			<set var="employeesCount">{GroupedbyDomains[domain]['employees'].Count}</set>
+			<set var="companies"></set>
+			<for var="company" in="GroupedbyDomains[domain]['companynamesOriginal']">
+				<set var="companies">{companies}"{company}",</set>
+			</for>
+			<set var="companies" if="companies.Length gt 1">{companies.Substring(0,companies.Length-1)}</set>
+			<log>{domain}|{contactsCount}|{employeesCount}|{companiesCount}|{companies}</log>
+		</if>
+	</for>
+	<log>----------------------------------------------------------------</log>
+	<for var="domain" in="GroupedbyDomains.Keys">
+		<if condition="GroupedbyDomains[domain]['contacts'].Count ge minContactsCount">
+			<for var="email" in="GroupedbyDomains[domain]['contacts'].Keys">
+				<set var="totalEmployees">{GroupedbyDomains[domain]['contacts'][email]['employees'].Count}</set>
+				<set var="employees"></set>
+				<for var="employee" in="GroupedbyDomains[domain]['contacts'][email]['employees']">
+					<set var="employees">{employees}"{employee}",</set>
+				</for>
+				<set var="employees">{employees.Substring(0,employees.Length-1)}</set>
+				<log>{email}|{totalEmployees}|{employees}</log>
+			</for>
+		</if>
+	</for>
+	<!-- End of Total Summary log -->
+
+</script>

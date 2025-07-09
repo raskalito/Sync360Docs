@@ -1,0 +1,30 @@
+<script>
+	<!--Including class as type from standard .NET framework library -->
+	<set var="Regex">{typeof 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set> 
+	
+	<!--Intiating instance of Regex object with specified pattern - only numbers in this example -->
+	<set var="regex">{new Regex("\D")}</set>
+	
+	<!--Add text variable with phone number formatted for example -->
+	<set var="telephoneNumber">7 (812) 999-44-33</set>
+	
+	<!--Use instance of regex to remove all characters from phone number except digits -->
+	<set var="telephoneOnlyDigits">{regex.Replace(telephoneNumber,'')}</set>
+	
+	<!--Show the result -->
+	<log>{telephoneOnlyDigits}</log>
+	
+	<!--Intiating new instance of Regex object with another pattern - remove html tags in this example -->
+	<set var="rx"><![CDATA[<.*?>|&.*?;]]></set>
+	<set var="regex">{new Regex(rx)}</set>
+	
+	<!--Add text variable with sample html text -->
+	<set var="htmlText"><![CDATA[<html><body><div>Some Text</div></body></html>]]></set>
+	
+	<!--Use instance of regex to remove all html tags from htmltext -->
+	<set var="plainText">{regex.Replace(htmlText,'')}</set>
+	
+	<!--Show the result -->
+	<log>{plainText}</log>
+	
+</script>

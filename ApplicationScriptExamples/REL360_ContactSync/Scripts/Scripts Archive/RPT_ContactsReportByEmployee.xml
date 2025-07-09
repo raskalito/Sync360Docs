@@ -1,0 +1,368 @@
+<script>
+	<!-- Run Configuration attributes -->
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Contacts Report By Employee</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+	<set var="CRM">crm</set>
+	<set var="Exchange">exchangeOAuth</set>
+	<set var="IncludeProhibitedDomains">{false}</set>
+
+	<var settings='new Object()'/>
+	
+	<!-- Include -->
+	<GetSettings Settings="settings"/>
+	<include name="EmailBlocklist" />
+	<var Mapping='["ContactMapping" : new List(), "ContactMultiLineMapping" : new List() ]'/>
+	<ContactFieldsMapping Mapping="Mapping"/>
+	<include name="nonCorpDomainsList" />
+	
+	<!-- GDPR Settings -->
+	<set var="enableGDPR">{false}</set>
+		<if condition="enableGDPR">
+		<include name="CountryHelper" />
+		<set var="Regex">{typeof 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+		<set var="PhoneNumberUtil">{static 'PhoneNumbers.PhoneNumberUtil, libphonenumber_csharp_portable, Version=5.0.0.0, Culture=neutral'}</set>
+		<set var="phoneNumberUtil">{PhoneNumberUtil.GetInstance()}</set>
+		<set var="regex">{new Regex("\D")}</set>
+		<set var="regex2">{new Regex("[^a-zA-Z]+")}</set>
+		<set var="regex3">{new Regex("^\([0-9][0-9][0-9]\)")}</set>
+		<set var="regex4">{new Regex("^[0-9][0-9][0-9]-")}</set>
+	</if>
+	
+	<!-- Script Modes -->
+	<set var="mode">Team</set> <!-- Team or EmailList -->
+	<set var="ProcessMode">ListExcluded</set> <!-- Stat or ListExcluded or ListIncluded-->
+	
+	<!-- Vars -->
+	<set var="emailList">{new List()}</set>
+	<set var="teamId">6DC8F59E-182C-EB11-A813-000D3A8B69FB</set> <!-- Davis Sandbox Main Team -->
+	<set var="leftCurveBr">{'{'}</set>
+	<set var="rightCurveBr">}</set>
+	
+	<!-- Process Modes -->
+	<!-- Mode EmailList - Get user emails from list -->
+	<if condition="mode eq 'EmailList'">
+		<set var="emailList[]">angie.wallin@crtkl.com</set>
+	</if>
+	<!-- Mode Team - Get user emails from team members -->
+	<if condition="mode eq 'Team'">
+		<if condition="!teamId.isSet or (teamId.isSet and teamId eq '')">
+			<exception>TeamId is required</exception>
+		</if>
+		<sandbox>
+			<!-- Select employee ids from team -->
+			<select from="{CRM}" entity="vs360_vs360_employee_team" var="teammemberships">
+				<where>
+					<condition attr="teamid" op="eq">{teamId}</condition>
+				</where>
+				<join type="inner" entity="vs360_employee" to="vs360_employeeid" from="vs360_employeeid">
+                    <where>
+                        <condition attr="emailaddress" op="ex"></condition>
+                    </where>
+                    <attr name="vs360_name" as="vs360_name"/>
+                    <attr name="emailaddress" as="emailaddress"/>
+                </join>
+				<attr name="vs360_employeeid"/>
+			</select>
+			<if condition="teammemberships.Count eq 0">
+				<exception>No employees in CRM Team ({teamId})</exception>
+			</if>
+			<if condition="teammemberships.Count gt 0">
+				<for var="teammembership" in="teammemberships">
+					<set var="emailList[]">{teammembership.emailaddress}</set>
+				</for>
+			</if>
+		</sandbox>
+	</if>
+	<log>{emailList.Count} Mailboxes loaded for processing.</log>
+  <set var="HeaderText">UserEmail;</set>
+  <for var="mapping" in="Mapping.ContactMapping">
+    <set var="HeaderText" if="mapping.IncludeInReports">{HeaderText}{mapping.Exchange};</set>
+  </for>
+  <for var="mapping" in="Mapping.ContactMultiLineMapping">
+    <set var="HeaderText" if="mapping.IncludeInReports">{HeaderText}{mapping.Exchange};</set>
+  </for>
+  <!-- Main cycle - process user emails -->
+	<for var="internalemailaddress" in="emailList">
+	
+		<sandbox>
+		
+			<context for="{Exchange}" user="{internalemailaddress}">
+				<select from="{Exchange}" entity="contact" var="FullContacts">
+					<where>
+						<condition attr="@BodyResponseType" op="eq">Text</condition>
+					</where>
+					  <for var="mapping" in="Mapping.ContactMapping">
+						<attr name="{mapping.Exchange}" unless="mapping.Multiline.isSet" />
+					  </for>
+					  <for var="mapping" in="Mapping.ContactMultiLineMapping">
+						<attr name="{mapping.Exchange}"/>
+					  </for>
+					<attr name="sensitivity"/>
+					<attr name="Keywords"/>
+					<attr name="EntryId"/>
+					<attr name="body"/>
+				</select>
+			</context>
+			
+			<set var="FullContactsCount">{0}</set>
+			<set var="nolastname">{0}</set>
+			<set var="nofirstname">{0}</set>
+			<set var="nofirstnamenolastname">{0}</set>
+			<set var="fisrtlastnocont">{0}</set>
+			<set var="privates">{0}</set>
+			<set var="blocklistnum">{0}</set>
+			<set var="privatemail">{0}</set>
+			<set var="filteredbyoptin">{0}</set>
+			<set var="filteredbyoptout">{0}</set>
+			<set var="crmcontacts">{0}</set>
+			<set var="privatebody">{0}</set>
+			<set var="gdpr">{0}</set>
+			<log if="ProcessMode eq 'ListIncluded'">{HeaderText}</log>
+			<for var="c" in="FullContacts">
+				<if condition="Utils.ToLower(Utils.Split(c.email1address,'@')[1]).isSet">
+					<set var="domain">{Utils.ToLower(Utils.Split(c.email1address,'@')[1])}</set>
+				</if>
+				<if condition="domain.isSet and (IncludeProhibitedDomains eq true or (IncludeProhibitedDomains eq false and !nonCorpDomains.Contains(domain)))">
+					<set var="TextForReport">{internalemailaddress};</set>
+					<set var="isPrivate">{false}</set>
+					<set var="isPrivateBody">{false}</set>
+					<set var="isFilteredByOptIn">{false}</set>
+					<set var="isFilteredByOptOut">{false}</set>
+					<set var="isBlocklisted">{false}</set>
+					<set var="isInternalEmail">{false}</set>
+					<for var="mapping" in="Mapping.ContactMapping">
+					  <set var="c[mapping.Exchange]" if="mapping.ExchangeType eq 'String' and c[mapping.Exchange].isSet">{c[mapping.Exchange].Replace("&#xD;", "").Replace("&#xA;", "").Trim()}</set>
+					  <set var="TextForReport" if="mapping.IncludeInReports and c[mapping.Exchange].isSet">{TextForReport}{c[mapping.Exchange]};</set>
+					  <set var="TextForReport" if="mapping.IncludeInReports and !c[mapping.Exchange].isSet">{TextForReport};</set>
+					</for>
+					<for var="mapping" in="Mapping.ContactMultiLineMapping">
+					  <set var="c[mapping.Exchange]" if="c[mapping.Exchange].isSet">{c[mapping.Exchange].Replace("&#xD;", "").Replace("&#xA;", "").TrimEnd()}</set>
+					  <set var="TextForReport" if="mapping.IncludeInReports and c[mapping.Exchange].isSet">{TextForReport}{c[mapping.Exchange]};</set>
+					  <set var="TextForReport" if="mapping.IncludeInReports and !c[mapping.Exchange].isSet">{TextForReport};</set>
+					</for>
+
+					
+					<if condition="enableGDPR">
+						<!-- Country processing-->
+						<set var="usastatematch">{false}</set>
+						<set var="usaphonebracket">{false}</set>
+						<set var="usaphoneplus1">{false}</set>
+						<set var="rusphone">{false}</set>
+						<set var="ukphone">{false}</set>
+						<set var="jpphone">{false}</set>
+						<set var="statenorm">{null}</set>
+						<set var="statenorm" if="c.workaddressstate.isSet">{regex2.Replace(c.workaddressstate,'')}</set>
+						<set var="zipnorm">{null}</set>
+						<set var="zipnorm" if="c.workaddresspostalcode.isSet">{regex2.Replace(c.workaddresspostalcode,'')}</set>
+						<set var="citynorm">{null}</set>
+						<set var="citynorm" if="c.workaddresscity.isSet">{regex2.Replace(c.workaddresscity,'')}</set>
+						<set var="countrynorm">{null}</set>
+						<set var="countrynorm" if="c.workaddresscountry.isSet">{regex2.Replace(c.workaddresscountry,'')}</set>
+						<set var="usastatematch" if="c.workaddressstate.isSet and states.Contains(statenorm.ToUpper())">{true}</set>
+						<set var="usapostalcodematch">{false}</set>
+						<set var="postalcodenorm">{null}</set>
+						<set var="postalcodenorm" if="c.workaddresspostalcode.isSet">{regex.Replace(c.workaddresspostalcode,'')}</set>
+						<set var="usapostalcodematch" if="c.workaddresspostalcode.isSet and (postalcodenorm.Length eq 5 or postalcodenorm.Length eq 9)">{true}</set>
+						<set var="ProposedCountry"></set>
+						<!--libphonenumber parsing-->
+						<if condition="c.workphone.isSet and c.workphone ne ''">
+							<sandbox verbose="false">
+								<set var="possibleNumber">{PhoneNumberUtil.ExtractPossibleNumber(c.workphone)}</set>
+								<set var="normalizedPhone">{PhoneNumberUtil.Normalize(possibleNumber)}</set>
+								<set var="normalizedPhone" if="normalizedPhone.Length gt 10">+{normalizedPhone}</set>
+								<set var="normalizedPhone" if="normalizedPhone.Length eq 10">+1{normalizedPhone}</set>
+								<set var="phonenumberObj">{phoneNumberUtil.Parse(normalizedPhone,"")}</set>
+								<set var="regionCode">{phoneNumberUtil.GetRegionCodeForNumber(phonenumberObj)}</set>
+								<set var="ProposedCountry" if="regionCode.isSet and regionCode ne '' and phoneNumberUtil.IsValidNumberForRegion(phonenumberObj,regionCode)">{countryByCode[regionCode]}</set>
+								<onerror>
+									<!--<log>Cannot extract phone from phonenumber: {c.workphone}</log> -->
+								</onerror>
+							</sandbox>
+						</if>
+						<if condition="c.workphone.isSet and ProposedCountry eq ''">
+							<set var="usaphonebracket">{regex3.IsMatch(c.workphone)}</set>
+							<set var="usaphone2bracket">{regex4.IsMatch(c.workphone)}</set>
+							<set var="normphone">{regex.Replace(c.workphone,'')}</set>
+							<set var="ProposedCountry" if="usaphonebracket and Codes[normphone.Substring(0,3)].isSet ">{Codes[normphone.Substring(0,3)]}</set>
+							<set var="ProposedCountry" if="usaphonebracket and Codes[normphone.Substring(0,3)].isSet ">{Codes[normphone.Substring(0,3)]}</set>
+							<set var="ProposedCountry" if="usaphone2bracket and normphone.Length gt 7 and Codes[normphone.Substring(0,3)].isSet ">{Codes[normphone.Substring(0,3)]}</set>
+							<set var="usaphoneplus1" if="c.workphone.Length gt 2">{c.workphone.Substring(0,2) eq '+1'}</set>
+							<set var="ProposedCountry" if="usaphoneplus1 and Codes[normphone.Substring(1,3)].isSet ">{Codes[normphone.Substring(1,3)]}</set>
+						</if>
+						<set var="ProposedCountry" if="usastatematch and usapostalcodematch">United States of America</set>
+						<set var="ProposedCountry" if="citynorm.isSet and citynorm.ToUpper() eq 'ATLANTA' and statenorm.isSet and statenorm.ToUpper() eq 'GA'">United States of America</set>
+						<set var="ProposedCountry" if="citynorm.isSet and citynorm.ToUpper() eq 'CHICAGO' and statenorm.isSet and (statenorm.ToUpper() eq 'IL' or statenorm.ToUpper() eq 'ILL')">United States of America</set>
+						<set var="ProposedCountry" if="citynorm.isSet and citynorm.ToUpper() eq 'NEWYORK' and statenorm.isSet and statenorm.ToUpper() eq 'NY'">United States of America</set>
+						<set var="ProposedCountry" if="citynorm.isSet and citynorm.ToUpper() eq 'LOSANGELES' and statenorm.isSet and statenorm.ToUpper() eq 'CA'">United States of America</set>
+						<set var="ProposedCountry" if="citynorm.isSet and citynorm.ToUpper() eq 'LONDON'">United Kingdom</set>
+						<set var="ProposedCountry" if="citynorm.isSet and citynorm.ToUpper() eq 'AMSTERDAM'">Netherlands</set>
+						<set var="ProposedCountry" if="citynorm.isSet and citynorm.ToUpper() eq 'TORONTO'">Canada</set>
+						<set var="ProposedCountry" if="citynorm.isSet and (citynorm.ToUpper() eq 'NEWDELHI' or citynorm.ToUpper() eq 'MUMBHAI')">India</set>
+						<set var="ProposedCountry" if="(citynorm.isSet and citynorm.ToUpper() eq 'HONGKONG') or (zipnorm.isSet and zipnorm.ToUpper() eq 'CHINA')">China</set>
+						<set var="ProposedCountry" if="(statenorm.isSet and statenorm.ToUpper() eq 'FRANCE') or (zipnorm.isSet and zipnorm.ToUpper() eq 'FRANCE')">France</set>
+						<set var="ProposedCountry" if="(statenorm.isSet and statenorm.ToUpper() eq 'AUSTRALIA') or (zipnorm.isSet and zipnorm.ToUpper() eq 'AUSTRALIA')">Australia</set>
+						<set var="ProposedCountry" if="(statenorm.isSet and statenorm.ToUpper() eq 'CANADA') or (zipnorm.isSet and zipnorm.ToUpper() eq 'CANADA')">Canada</set>
+						<set var="ProposedCountry" if="(statenorm.isSet and statenorm.ToUpper() eq 'GERMANY') or (zipnorm.isSet and zipnorm.ToUpper() eq 'GERMANY')">Germany</set>
+						<set var="ProposedCountry" if="(statenorm.isSet and (statenorm.ToUpper() eq 'UNITEDSTATESOFAMERICA' or statenorm.ToUpper() eq 'USA' or statenorm.ToUpper() eq 'UNITEDSTATES')) or (zipnorm.isSet and (zipnorm.ToUpper() eq 'UNITEDSTATESOFAMERICA' or zipnorm.ToUpper() eq 'USA' or zipnorm.ToUpper() eq 'UNITEDSTATES'))">United States of America</set>
+					</if>
+					
+					<if condition="c.sensitivity eq '2'">
+						<!-- Process private by sensitivity value -->
+						<set var="isPrivate">{true}</set>
+						<set var="privates">{privates + 1}</set>
+						<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"PrivateContact";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+					</if>
+					
+					<if condition="!isPrivate">
+					
+						<!-- Process filtered by optin/optout categories -->
+						<set var="foundOptOutCategories">{null}</set>
+						<set var="contactCategories">{null}</set>
+						<if condition="c.Keywords.isSet and c.Keywords.Count gt 0">
+							<set var="contactCategories">{new List()}</set>
+							<for var="k" in="c.Keywords">
+								<set var="contactCategories[]">{k.ToLower()}</set>
+							</for>
+							<for var="outCategory" in="settings.OptOutCategories">
+								<if condition="contactCategories.Contains(outCategory.ToLower())">
+									<set var="isFilteredByOptOut">{true}</set>
+									<set var="foundOptOutCategories" if="foundOptOutCategories.isSet">{foundOptOutCategories + ', ' + outCategory}</set>
+									<set var="foundOptOutCategories" if="!foundOptOutCategories.isSet">{outCategory}</set>
+								</if>
+							</for>
+							<if condition="!isFilteredByOptOut">
+								<if condition="settings.OptInCategories.Count gt 0">
+									<set var="optinFound">{false}</set>
+									<for var="inCategory" in="settings.OptInCategories">
+										<if condition="contactCategories.Contains(inCategory.ToLower())">
+											<set var="optinFound">{true}</set>
+										</if>
+									</for>
+									<if condition="!optinFound">
+										<set var="isFilteredByOptIn">{true}</set>
+									</if>
+								</if>
+							</if>
+						</if>
+						<if condition="!contactCategories.isSet and settings.OptInCategories.Count gt 0">
+							<set var="isFilteredByOptIn">{true}</set>
+						</if>
+						<if condition="isFilteredByOptOut">
+							<set var="filteredbyoptout">{filteredbyoptout+1}</set>
+							<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"Filtered by Opt-Out: {foundOptOutCategories}";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+						</if>
+						<if condition="isFilteredByOptIn">
+							<set var="filteredbyoptin">{filteredbyoptin+1}</set>
+							<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"Filtered by no Opt-In";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+						</if>
+						
+						<if condition="!isFilteredByOptOut and !isFilteredByOptIn">
+						
+							<!-- Process private by body -->
+							<if condition="c.body.isSet">
+								<for var="bodyPrivateWord" in="settings.BodyPrivateWords">
+									<if condition="c.body.IndexOf(bodyPrivateWord) != -1">
+										<set var="isPrivateBody">{true}</set>
+									</if>
+								</for>
+							</if>
+							<if condition="isPrivateBody">
+								<set var="privatebody">{privatebody + 1}</set>
+								<set var="isPrivateBody">{true}</set>
+								<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"PrivateBody";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+							</if>
+							
+							<if condition="!isPrivateBody">
+							
+								<!-- Process filtered by Email BlockList -->
+								<if condition="c.email1address.isSet and c.email1address.Trim().Length gt 0">
+									<for var="b" in="blocklist">
+										<set var="emailuncap">{c.email1address.ToLower()}</set>
+										<if condition="emailuncap.Contains(b)">
+											<set var="isBlocklisted">{true}</set>
+										</if>
+									</for>
+									<if condition="isBlocklisted">
+										<set var="blocklistnum">{blocklistnum + 1}</set>
+										<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"BlockListed";"{c.firstname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+									</if>
+									<!-- Process internal email -->
+									<if condition="!isBlocklisted">
+										<if condition="c.email1address.ToLower().Contains('/o=')">
+											<set var="privatemail">{privatemail + 1}</set>
+											<set var="isInternalEmail">{true}</set>
+											<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"Private Email";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+										</if>
+									</if>
+								</if>
+								
+								<if condition="!isBlocklisted and !isInternalEmail">
+								
+									<!-- Process filtered by no First Name -->
+									<if condition="(!c.firstname.isSet or c.firstname eq '') and (c.lastname.isSet and c.lastname ne '')">
+										<set var="nofirstname">{nofirstname + 1}</set>
+										<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"NoFirstName";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+									</if>
+									<!-- Process filtered by no Last Name -->
+									<if condition="(c.firstname.isSet and c.firstname ne '') and (!c.lastname.isSet or c.lastname eq '')">
+										<set var="nolastname">{nolastname + 1}</set>
+										<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"NoLastName";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+									</if>
+									<!-- Process filtered by no First Name and no Last Name -->
+									<if condition="(!c.firstname.isSet or c.firstname eq '') and (!c.lastname.isSet or c.lastname eq '')">
+										<set var="nofirstnamenolastname">{nofirstnamenolastname + 1}</set>
+										<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"NoFirstName/NoLastName";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+									</if>
+									<!-- Process filtered by No Email / No Business phone / No Mobile phone -->
+									<if condition="c.firstname.isSet and c.firstname ne '' and c.lastname.isSet and c.lastname ne '' and (!c.email1address.isSet or c.email1address eq '') and (!c.workphone.isSet or c.workphone eq '') and (!c.mobilephone.isSet or c.mobilephone eq '')">
+										<set var="fisrtlastnocont">{fisrtlastnocont + 1}</set>
+										<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"NoEmail/NoBusiness/NoMobile";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}"</log>
+									</if>
+									<!-- Process filtered by GDPR -->
+									<if condition="c.firstname.isSet and c.firstname ne '' and c.lastname.isSet and c.lastname ne '' and ((c.mobilephone.isSet and c.mobilephone ne '') or (c.workphone.isSet and c.workphone ne '') or (c.email1address.isSet and c.email1address ne ''))">
+										<set var="crmcontacts">{crmcontacts + 1}</set>
+										<log if="ProcessMode eq 'ListIncluded'">{TextForReport}</log>
+										<if condition="enableGDPR">
+											<if condition="!countrynorm.isSet or (countrynorm.isSet and countrynorm ne 'USA' and countrynorm ne 'UNITEDSTATESOFAMERICA' and countrynorm ne 'UNITEDSTATES' and countrynorm ne 'CANADA')">
+												<if condition="ProposedCountry ne '' and ProposedCountry ne 'United States of America' and ProposedCountry ne 'Canada' ">
+													<set var="gdpr">{gdpr+1}</set>
+													<log  if="ProcessMode eq 'ListExcluded'">"{internalemailaddress}";"GDPR";"{c.firstname ?? ''}";"{c.lastname ?? ''}";"{c.title ?? ''}";"{c.companyname ?? ''}";"{c.email1address ?? ''}";"{c.workphone ?? ''}";"{c.mobilephone ?? ''}";"{c.Keywords ?? ''}";{c.workaddresscountry ?? ''};{ProposedCountry ?? ''}</log>
+												</if>
+											</if>
+										</if>
+									</if>
+									
+								</if>
+							
+							</if>
+							
+						
+						</if>
+						
+					</if>
+				</if>
+			</for>
+			
+			<if condition="enableGDPR">
+				<then>
+					<log  if="ProcessMode eq 'Stat'">"{internalemailaddress}";{FullContacts.Count};{privates};{filteredbyoptout};{filteredbyoptin};{privatebody};{blocklistnum};{nofirstnamenolastname};{nofirstname};{nolastname};{fisrtlastnocont};{privatemail};{crmcontacts};{gdpr}</log>
+				</then>
+				<else>
+					<log  if="ProcessMode eq 'Stat'">"{internalemailaddress}";{FullContacts.Count};{privates};{filteredbyoptout};{filteredbyoptin};{privatebody};{blocklistnum};{nofirstnamenolastname};{nofirstname};{nolastname};{fisrtlastnocont};{privatemail};{crmcontacts}</log>
+				</else>
+			</if>
+			<onerror>
+				<log>{internalemailaddress};Error</log>
+			</onerror>
+		
+		</sandbox>
+	
+	</for>
+
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+	
+</script>

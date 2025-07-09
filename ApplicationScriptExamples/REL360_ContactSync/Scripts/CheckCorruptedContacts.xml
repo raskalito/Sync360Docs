@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<script>
+
+  <set  Context="new Object()"
+		Context.Mapping="null"/>
+  <GetMapping 		Context="Context" />
+
+    
+
+      <context for="exchange" user="user@mail.com">
+
+
+        <select from="exchange" var="excontacts" entity="contact">
+          <where>
+    	  <and>
+		  <!-- 2001-01-01T00:00:00.000Z -->
+			<condition attr="lastmodifieddate" op="ge">2018-12-03T00:00:00.000Z</condition>
+			<condition attr="lastmodifieddate" op="le">2022-12-04T00:00:00.000Z</condition>
+			</and>
+
+          </where> 
+          <for var="mapping" in="Mapping.ContactMapping">
+            <attr name="{mapping.exchange}"/>
+          </for>
+
+          <for var="mapping" in="Mapping.ContactMultiLineMapping">
+            <attr name="{mapping.exchange}"/>
+          </for>
+
+          <attr name="EntryId"/>
+
+        </select>
+
+        <log>Total number of exchange contacts : {excontacts.Count}</log>
+
+		
+      
+      </context>
+
+
+</script>

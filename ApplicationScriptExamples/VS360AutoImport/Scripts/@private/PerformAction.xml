@@ -1,0 +1,406 @@
+<!-- Version 1.24.8.16 -->
+<script>
+  <!--Sub script to compare and process record -->
+  <script var="ProcessRecord">
+    <if condition="isFound">
+      <then>
+        <if condition="Configuration[entityName].Update">
+          <set var="Changes">{new Dictionary()}</set>
+          <for var="map" in="FieldsMapping">
+            <if condition="map.entity eq entityName">
+              <if condition="map.csv ne ''">
+				<then>
+					<if condition="map.type eq 'string'">
+					  <if condition="!curRecord[map.crm].isSet and row[map.csv].isSet and row[map.csv] ne ''">
+						<set var="Changes[map.crm]">{row[map.csv]}</set>
+					  </if>
+					  <if condition="curRecord[map.crm].isSet and ((row[map.csv].isSet and row[map.csv] ne '') or (map.addressfield.isSet and map.addressfield)) and map.alwaysupdate.isSet and map.alwaysupdate">
+						<set var="Changes[map.crm]" if="curRecord[map.crm] ne row[map.csv]">{row[map.csv]}</set>
+					  </if>
+					  <if condition="curRecord[map.crm].isSet and ((row[map.csv].isSet and row[map.csv] ne '') or (map.addressfield.isSet and map.addressfield)) and map.update.isSet and map.update and (row[Configuration[entityName].UpdateFlagRow].ToLower() eq 'yes' or row[Configuration[entityName].UpdateFlagRow] eq '1')">
+						<set var="Changes[map.crm]" if="curRecord[map.crm] ne row[map.csv]">{row[map.csv]}</set>
+					  </if>
+					</if>
+					<if condition="map.type eq 'bool'">
+					  <set var="curValue">{curRecord[map.crm].isSet and curRecord[map.crm]}</set>
+					  <set var="Changes[map.crm]" if="curValue and (row[map.csv].isSet and row[map.csv] ne '' and (row[map.csv] eq '0' or row[map.csv].ToLower() eq 'n' or row[map.csv].ToLower() eq 'no')) and map.alwaysupdate.isSet and map.alwaysupdate">{false}</set>
+					  <set var="Changes[map.crm]" if="!curValue and (row[map.csv].isSet and row[map.csv] ne '' and (row[map.csv] eq '1' or row[map.csv].ToLower() eq 'y' or row[map.csv].ToLower() eq 'yes')) and map.alwaysupdate.isSet and map.alwaysupdate">{true}</set>
+					</if>
+					<if condition="map.type eq 'choice'">
+					  <if condition="row[map.csv].isSet and row[map.csv] ne ''">
+						<set var="value">{@crm.GetOptionSetValueCode(entityName,map.crm,row[map.csv])}</set>
+						<if condition="value.isSet and value ne -1">
+						  <then>
+							<set var="Changes[map.crm]" if="!curRecord[map.crm].isSet">{value}</set>
+							<set var="Changes[map.crm]" if="curRecord[map.crm].isSet and (curRecord[map.crm].isSet and curRecord[map.crm] ne value) and map.alwaysupdate.isSet and map.alwaysupdate">{value}</set>
+						  </then>
+						  <else>
+							<set var="additionalLookups">{new List()}</set>
+							<set var="ex">For choice field "{map.crm}" value from file "{row[map.csv]}" not found. Check that it was correctly spelled</set>
+							<ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440001" entityName="entityName" DisplayNames="DisplayNames" ex="ex" additionalLookups="additionalLookups" />
+						  </else>
+						</if>
+					  </if>
+					</if>
+					<if condition="map.type eq 'eval'">
+					  <set var="value">{Utils.Eval(map.value) ?? null}</set>
+					  <if condition="!curRecord[map.crm].isSet and value.isSet">
+						<set var="Changes[map.crm]">{value}</set>
+					  </if>
+					  <if condition="curRecord[map.crm].isSet and value.isSet">
+						<set var="crmType">{curRecord[map.crm].GetType()}</set>
+						<if condition="crmType.ToString() eq 'Microsoft.Xrm.Sdk.EntityReference'">
+							<then>
+								<set var="compareValue">{curRecord[map.crm].Id.ToString()}</set>
+								<set var="evalValue">{value}</set>
+								<set var="evalValue" if="value.GetType().ToString() eq 'System.Guid'">{value.ToString()}</set>
+								<set var="evalValue" if="value.GetType().ToString() eq 'System.String' and value.Length gt 36">{value.Substring(value.Length-36, 36)}</set>
+								<if condition="compareValue ne evalValue and map.alwaysupdate.isSet and map.alwaysupdate">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+								<if condition="compareValue ne evalValue and map.update.isSet and map.update and (row[Configuration[entityName].UpdateFlagRow].ToLower() eq 'yes' or row[Configuration[entityName].UpdateFlagRow] eq '1')">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+                            </then>
+							<else>
+								<if condition="curRecord[map.crm] ne value and map.alwaysupdate.isSet and map.alwaysupdate">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+								<if condition="curRecord[map.crm] ne value and map.update.isSet and map.update and (row[Configuration[entityName].UpdateFlagRow].ToLower() eq 'yes' or row[Configuration[entityName].UpdateFlagRow] eq '1')">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+							</else>
+						</if>
+                      </if>
+					</if>
+				</then>
+				<else>
+					<if condition="map.type eq 'eval'">
+					  <set var="value">{Utils.Eval(map.value) ?? null}</set>
+					  <if condition="!curRecord[map.crm].isSet and value.isSet">
+						<set var="Changes[map.crm]">{value}</set>
+					  </if>
+					  <if condition="curRecord[map.crm].isSet and value.isSet">
+						<set var="crmType">{curRecord[map.crm].GetType()}</set>
+						<if condition="crmType.ToString() eq 'Microsoft.Xrm.Sdk.EntityReference'">
+							<then>
+								<set var="compareValue">{curRecord[map.crm].Id.ToString()}</set>
+								<set var="evalValue">{value}</set>
+								<set var="evalValue" if="value.GetType().ToString() eq 'System.Guid'">{value.ToString()}</set>
+								<set var="evalValue" if="value.GetType().ToString() eq 'System.String' and value.Length gt 36">{value.Substring(value.Length-36, 36)}</set>
+								<if condition="compareValue ne evalValue and map.alwaysupdate.isSet and map.alwaysupdate">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+								<if condition="compareValue ne evalValue and map.update.isSet and map.update and (row[Configuration[entityName].UpdateFlagRow].ToLower() eq 'yes' or row[Configuration[entityName].UpdateFlagRow] eq '1')">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+                            </then>
+							<else>
+								<if condition="curRecord[map.crm] ne value and map.alwaysupdate.isSet and map.alwaysupdate">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+								<if condition="curRecord[map.crm] ne value and map.update.isSet and map.update and (row[Configuration[entityName].UpdateFlagRow].ToLower() eq 'yes' or row[Configuration[entityName].UpdateFlagRow] eq '1')">
+									<set var="Changes[map.crm]">{value}</set>
+                                </if>
+							</else>
+						</if>
+                      </if>
+					</if>
+				</else>
+              </if>
+            </if>
+          </for>
+          <sandbox>
+            <if condition="Changes.Count gt 0">
+              <update in="crm" entity="{entityName}">
+                <where>
+                  <condition attr="{entityName+'id'}" op="eq">{curRecord[entityName+'id']}</condition>
+                </where>
+                <for var="field" in="Changes.Keys">
+                  <attr name="{field}">{Changes[field]}</attr>
+                </for>
+              </update>
+              <set var="additionalLookups">{new List()}</set>
+              <if condition="AdditionalLookupsFields[entityName].isSet">
+                <for var="adLookup" in="AdditionalLookupsFields[entityName]">
+                  <set var="tempId">{curRecord[entityName+'id']}</set>
+                  <set var="tempId" if="adLookup.entity ne entityName">{foundRecords[adLookup.entity][0]}</set>
+                  <set var="additionalLookups[]">
+                    <attr name="field">{adLookup.field}</attr>
+                    <attr name="id">{tempId}</attr>
+                  </set>
+                </for>
+              </if>
+              <set var="details">The following fields updated: {Changes}</set>
+              <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440001" entityName="entityName" DisplayNames="DisplayNames" additionalLookups="additionalLookups" details="details"/>
+            </if>
+            <onerror var="ex">
+              <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440001" entityName="entityName" DisplayNames="DisplayNames" ex="ex" additionalLookups="additionalLookups" />
+            </onerror>
+          </sandbox>
+        </if>
+      </then>
+      <else>
+        <if condition="Configuration[entityName].Create">
+          <if condition="entityName ne 'listmember'">
+            <sandbox verbose="true">
+
+              <set var="ValidForCreate">{true}</set>
+              <set var="ValidForCreate" if="!Validation.result">{false}</set>
+              <set var="missingFields"></set>
+              <for var="map" in="FieldsMapping">
+                <if condition="map.entity eq entityName">
+                  <if condition="map.csv ne '' and row[map.csv] eq '' and map.required">
+                    <set var="ValidForCreate">{false}</set>
+                    <set var="missingFields">{missingFields}{map.csv},</set>
+                  </if>
+                  <if condition="map.csv eq '' and map.required">
+                    <set var="chkVal">{null}</set>
+                    <set var="chkVal">{Utils.Eval(map.value) ?? null}</set>
+                    <if condition="!chkVal.isSet">
+                      <set var="ValidForCreate">{false}</set>
+                      <set var="missingFields">{missingFields}{map.crm},</set>
+                    </if>
+                  </if>
+
+                </if>
+              </for>
+              <set var="missingFields" if="missingFields.Length gt 0">{missingFields.Substring(0,missingFields.Length-1)}</set>
+
+              <if condition="ValidForCreate">
+                <then>
+                  <context for="crm" user="{CrmJob.ContextUser}">
+
+                    <create in="crm" entity="{entityName}" var="crmId">
+                      <for var="map" in="FieldsMapping">
+                        <if condition="map.entity eq entityName">
+                          <if condition="map.type eq 'string'">
+                            <attr name="{map.crm}" if="map.csv ne ''">{row[map.csv]}</attr>
+                          </if>
+                          <if condition="map.type eq 'bool'">
+                            <attr name="{map.crm}" if="map.csv ne ''">{row[map.csv] eq '1' or row[map.csv].ToLower() eq 'y' or row[map.csv].ToLower() eq 'yes'}</attr>
+                          </if>
+                          <if condition="map.type eq 'choice'">
+                            <if condition="row[map.csv].isSet and row[map.csv] ne ''">
+                              <set var="value">{@crm.GetOptionSetValueCode(entityName,map.crm,row[map.csv])}</set>
+                              <if condition="value.isSet">
+                                <then>
+                                  <attr name="{map.crm}">{value}</attr>
+                                </then>
+                                <else>
+                                  <set var="additionalLookups">{new List()}</set>
+                                  <set var="ex">For choice field "{map.crm}" value from file "{row[map.csv]}" not found. Check that it was correctly spelled</set>
+                                  <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440000" entityName="entityName" DisplayNames="DisplayNames" ex="ex" additionalLookups="additionalLookups" />
+                                </else>
+                              </if>
+                            </if>
+                          </if>
+                          <if condition="map.type eq 'eval'">
+                            <attr name="{map.crm}">{Utils.Eval(map.value) ?? null}</attr>
+                          </if>
+                        </if>
+                      </for>
+                    </create>
+                  </context>
+                  <set var="additionalLookups">{new List()}</set>
+                  <if condition="AdditionalLookupsFields[entityName].isSet">
+                    <for var="adLookup" in="AdditionalLookupsFields[entityName]">
+                      <set var="tempId">{crmId}</set>
+                      <set var="tempId" if="adLookup.entity ne entityName">{foundRecords[adLookup.entity][0]}</set>
+                      <set var="additionalLookups[]">
+                        <attr name="field">{adLookup.field}</attr>
+                        <attr name="id">{tempId}</attr>
+                      </set>
+                    </for>
+                  </if>
+                  <set var="details">Record created with following Id: {crmId}</set>
+                  <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440000" entityName="entityName" DisplayNames="DisplayNames" additionalLookups="additionalLookups" details="details" />
+                  <set var="foundRecords[entityName][]">{crmId}</set>
+                  <if condition="Configuration[entityName].Cache">
+                    <set var="ImportJob.CrmCache[entityName][search]">{crmId}</set>
+                  </if>
+                </then>
+                <else>
+                  <set var="additionalLookups">{new List()}</set>
+                  <set var="ex">Missing required fields: {missingFields}</set>
+                  <set var="ex" if="!Validation.result">{Validation.message}</set>
+                  <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440000" entityName="entityName" DisplayNames="DisplayNames" ex="ex" additionalLookups="additionalLookups" />
+                </else>
+              </if>
+
+              <onerror var="ex">
+                <set var="additionalLookups">{new List()}</set>
+                <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440000" entityName="entityName" DisplayNames="DisplayNames" ex="ex" additionalLookups="additionalLookups"  />
+              </onerror>
+            </sandbox>
+          </if>
+          <if condition="entityName eq 'listmember'">
+            <sandbox verbose="true">
+              <for var="map" in="FieldsMapping">
+                <if condition="map.entity eq entityName and map.csv eq ''">
+                  <set var="recordId">{Utils.Eval(map.value)}</set>
+                  <set>{@crm.AddListMember(listid, recordId)}</set>
+                </if>
+              </for>
+
+              <set var="additionalLookups">{new List()}</set>
+              <if condition="AdditionalLookupsFields[entityName].isSet">
+                <for var="adLookup" in="AdditionalLookupsFields[entityName]">
+                  <set var="tempId" if="adLookup.entity eq 'list'">{listid}</set>
+                  <set var="tempId" if="adLookup.entity ne 'list'">{recordId}</set>
+                  <set var="additionalLookups[]">
+                    <attr name="field">{adLookup.field}</attr>
+                    <attr name="id">{tempId}</attr>
+                  </set>
+                </for>
+              </if>
+              <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440003" entityName="entityName" DisplayNames="DisplayNames" additionalLookups="additionalLookups" />
+
+              <onerror var="ex">
+                <set var="additionalLookups">{new List()}</set>
+                <ActionLog CrmRow="CrmRow" CrmJob="CrmJob" Operation="857440003" entityName="entityName" DisplayNames="DisplayNames" ex="ex" additionalLookups="additionalLookups" />
+              </onerror>
+            </sandbox>
+          </if>
+        </if>
+      </else>
+    </if>
+  </script>
+  <!--End subscript -->
+
+  <set var="searches">{new List()}</set>
+  <include name="Configuration" />
+  <include name="Mapping" />
+  <set var="foundRecords[entityName]">{new List()}</set>
+  <if condition="Configuration[entityName].Cache">
+    <set var="ImportJob.CrmCache[entityName]" if="!ImportJob.CrmCache.ContainsKey(entityName)">{new Dictionary()}</set>
+  </if>
+
+  <set var="scriptName">{entityName+'Transform'}</set>
+  <if condition="scripts[scriptName].isSet">
+    <include name="{scripts[scriptName]}" />
+  </if>
+
+  <if condition="searches.Count gt 0">
+    <then>
+      <for var="search" in="searches">
+        <set var="Validation">
+          <attr name="result">{true}</attr>
+          <attr name="message"></attr>
+        </set>
+		<set var="scriptName">{entityName+'Validate'}</set>
+        <if condition="scripts[scriptName].isSet">
+          <include name="{scripts[scriptName]}" />
+        </if>
+        <set var="isFound">{false}</set>
+        <if condition="Validation.result">
+          <if condition="Configuration[entityName].Cache">
+            <if condition="ImportJob.CrmCache[entityName].ContainsKey(search)">
+              <set var="foundRecords[entityName][]">{ImportJob.CrmCache[entityName][search]}</set>
+              <if condition="Configuration[entityName].Update">
+                <select from="crm" entity="{entityName}" var="crmRecords">
+                  <where>
+                    <condition attr="{entityName + 'id'}" op="eq">{ImportJob.CrmCache[entityName][search]}</condition>
+                  </where>
+                  <for var="map" in="FieldsMapping">
+                    <if condition="map.entity eq entityName">
+                      <attr name="{map.crm}" />
+                    </if>
+                  </for>
+                  <attr name="{entityName + 'id'}"/>
+                </select>
+                <set var="curRecord">{crmRecords[0]}</set>
+              </if>
+              <continue />
+            </if>
+          </if>
+
+          <for var="i" from="1" to="Configuration[entityName].SearchRules" step="1">
+			<set var="executeSearch">{true}</set>
+		    <set var="scriptName">{entityName+'Validate'+i}</set>
+		    <if condition="scripts[scriptName].isSet">
+				<include name="{scripts[scriptName]}" />
+	        </if>
+            <continue if="isFound" />
+			<if condition="executeSearch">
+				<set var="scriptName">{entityName+i}</set>
+				<if condition="scripts[scriptName].isSet">
+					<select from="crm" entity="{entityName}" var="crmRecords">
+					  <where>
+						<include name="{scripts[scriptName]}" />
+					  </where>
+					  <for var="map" in="FieldsMapping">
+						<if condition="map.entity eq entityName">
+						  <attr name="{map.crm}" />
+						</if>
+					  </for>
+					  <attr name="{entityName + 'id'}"/>
+					</select>
+					<if condition="crmRecords.Count gt 0">
+					  <if condition="Configuration[entityName].Cache">
+						<set var="ImportJob.CrmCache[entityName][search]">{crmRecords[0][entityName + 'id']}</set>
+					  </if>
+					  <set var="foundRecords[entityName][]">{crmRecords[0][entityName + 'id']}</set>
+					  <set var="curRecord">{crmRecords[0]}</set>
+					  <set var="isFound" if="!Configuration[entityName].SearchFindAllRecords">{true}</set>
+					</if>
+				</if>
+			</if>
+          </for>
+        </if>
+        <include script="ProcessRecord" />
+      </for>
+    </then>
+    <else>
+		<set var="scriptName">{entityName+'Transform'}</set>
+		<if condition="!scripts[scriptName].isSet">
+
+			<set var="isFound">{false}</set>
+			<set var="Validation">
+			  <attr name="result">{true}</attr>
+			  <attr name="message"></attr>
+			</set>
+			<set var="scriptName">{entityName+'Validate'}</set>
+			<if condition="scripts[scriptName].isSet">
+			  <include name="{scripts[scriptName]}" />
+			</if>
+			<if condition="Validation.result">
+				<for var="i" from="1" to="Configuration[entityName].SearchRules" step="1">
+					<set var="executeSearch">{true}</set>
+					<set var="scriptName">{entityName+'Validate'+i}</set>
+					<if condition="scripts[scriptName].isSet">
+						<include name="{scripts[scriptName]}" />
+					</if>
+					<continue if="isFound" />
+					<if condition="executeSearch">
+						<set var="scriptName">{entityName+i}</set>
+						<if condition="scripts[scriptName].isSet">
+							<select from="crm" entity="{entityName}" var="crmRecords">
+								<where>
+									<include name="{scripts[scriptName]}" />
+								</where>
+								<for var="map" in="FieldsMapping">
+									<if condition="map.entity eq entityName and map.crm ne ''">
+										<attr name="{map.crm}" />
+									</if>
+								</for>
+								<attr name="{entityName + 'id'}"/>
+							</select>
+							<if condition="crmRecords.Count gt 0">
+								<if condition="Configuration[entityName].Cache">
+									<set var="ImportJob.CrmCache[entityName][search]">{crmRecords[0][entityName + 'id']}</set>
+								</if>
+								<set var="foundRecords[entityName][]">{crmRecords[0][entityName + 'id']}</set>
+								<set var="curRecord">{crmRecords[0]}</set>
+								<set var="isFound" if="!Configuration[entityName].SearchFindAllRecords">{true}</set>
+							</if>
+						</if>
+					</if>
+				</for>
+			</if>
+			<include script="ProcessRecord" />
+		</if>
+    </else>
+  </if>
+
+</script>

@@ -1,0 +1,56 @@
+<script>
+	<log>[Onboarding Requests Handler] Starting...</log>
+	
+	<exception if="!Params.isSet">Params is requred.</exception>
+	<exception if="!Params.Cache.isSet">Params.Cache is requred.</exception>
+	<exception if="!Params.Cache.Settings.isSet">Params.Cache.Settings is requred.</exception>
+	<exception if="!Params.Criteria.isSet">Params.Criteria is requred.</exception>
+	<exception if="!Params.Ranges.isSet">Params.Ranges is requred.</exception>
+	
+	<if condition="Params.Cache.Settings.OnboardingRequestedSyncStop">
+
+		<set var="TeamName">{null}</set>
+
+		<if condition="Params.Criteria.isSet">
+			<set var="TeamName">{Params.Criteria}</set>
+		</if>
+
+		<if condition="!TeamName.isSet">
+			<for var="empl" in="Params.Ranges">
+				<set var="TeamName">{empl.Value.TeamName}</set>
+				<break/>
+			</for>
+		</if>
+
+		<exception if="!TeamName.isSet">[Onboarding Requests Handler] TeamName was not found for employee.</exception>
+
+
+		<set var="settingsRequest">{new List()}</set>
+		<set var="settingName">{TeamName}-SyncIsWaitingForOnboarding</set>
+
+		<set var="settingsRequest[]">
+			<attr name="Name">{settingName}</attr>
+			<attr name="Type">bool</attr>
+			<attr name="Default">{false}</attr>
+		</set>
+
+
+		<set GetSettingParams="new Object()"
+		     GetSettingParams.Settings="settingsRequest"/>
+
+		<GetCustomSettings Params="GetSettingParams" />
+		<set var="SyncIsWaitingForOnboarding">{GetSettingParams.Results[settingName] ?? false}</set>
+
+
+
+		<if condition="!SyncIsWaitingForOnboarding">
+			<log>    [Onboarding Requests Handler] OnboardingRequestedSyncStop detected.</log>
+			<set SetSettingParams="new Object()"
+			     SetSettingParams.SettingName="settingName"
+			     SetSettingParams.SettingValue="'true'"/>
+			<SetSetting Params="SetSettingParams" />
+
+			<set var="Params.Cache.Settings.SyncIsWaitingForOnboarding">{true}</set>
+		</if>
+	</if>
+</script>

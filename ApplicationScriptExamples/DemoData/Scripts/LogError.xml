@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set var="EntityID">{CallSettings.EntityID}</set>
+  <set var="RelatedEntityID">{CallSettings.RelatedEntityID}</set>
+  <set var="Exception">{CallSettings.Exception}</set>
+  <set var="Message">{CallSettings.Message}</set>
+  <set var="Settings">{CallSettings.Settings}</set>
+  <set var="SessionID">{Settings.SessionID}</set>
+  <set var="EntityName">{Settings.EntityName}</set>
+  <set var="ErrMessage">{Exception.Message}</set>
+  <set var="ErrMessage" if="Exception.Detail.isSet and Exception.Detail.ToString() == 'Microsoft.Xrm.Sdk.OrganizationServiceFault'">{Exception.Detail.Message} (Error Code:{Exception.Detail.ErrorCode})</set>
+  <set var="ErrMessage" if="Exception.InnerException.isSet and Exception.InnerException.Detail.isSet and Exception.InnerException.Detail.ToString() == 'Microsoft.Xrm.Sdk.OrganizationServiceFault'">{Exception.InnerException.Detail.Message} (Error Code:{Exception.InnerException.Detail.ErrorCode})</set>
+  <create in="dbmigration" entity="Errors">
+    <attr name="EntityID">{EntityID}</attr>
+    <attr name="RelatedEntityID">{RelatedEntityID}</attr>
+    <attr name="EntityName">{EntityName}</attr>
+    <attr name="SessionID">{SessionID}</attr>
+    <attr name="DateTime">{Utils.Now.ToUniversalTime()}</attr>
+    <attr name="Message">{ErrMessage}</attr>
+    <attr name="FullMessage">{CallSettings.Message}</attr>
+  </create>
+</script>

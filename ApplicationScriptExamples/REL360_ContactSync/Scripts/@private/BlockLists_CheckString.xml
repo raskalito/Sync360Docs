@@ -1,0 +1,39 @@
+<script>
+	<exception if="!StringToCheck.isSet">StringToCheck is not defined.</exception>
+    <exception if="!RulesSet.isSet">RulesSet is not defined.</exception>
+    <exception if="!RulesSet.ExactMatch.isSet or !RulesSet.StartsWith.isSet or !RulesSet.EndsWith.isSet">RulesSet is not defined.</exception>
+    <exception if="!Result.isSet">Result argument is not defined.</exception>
+	
+	
+	<set var="itemToCheck">{StringToCheck.ToLower()}</set>
+	
+	<set Result.Blocked="false" 
+		 Result.BlockReason="''"/>
+	
+	
+	<if condition="RulesSet.ExactMatch.Contains(itemToCheck)">
+		<set var="Result.Blocked">{true}</set>
+		<set var="Result.BlockReason">Blocked by Exact Match check '{itemToCheck}'</set>
+	</if>
+	
+	<if condition="!Result.Blocked">
+		<for var="sw" in="RulesSet.StartsWith">
+			<if condition="itemToCheck.StartsWith(sw)">
+				<set var="Result.Blocked">{true}</set>
+				<set var="Result.BlockReason">Blocked by Starts With check '{sw}*'</set>
+				<break />
+			</if>
+		</for>
+    </if>
+	
+	<if condition="!Result.Blocked">
+		<for var="ew" in="RulesSet.EndsWith">
+			<if condition="itemToCheck.EndsWith(ew)">
+				<set var="Result.Blocked">{true}</set>
+				<set var="Result.BlockReason">Blocked by Ends With check '*{ew}'</set>
+				<break />
+			</if>
+		</for>
+	</if>
+	
+</script>

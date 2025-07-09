@@ -1,0 +1,171 @@
+<script>
+    <exception if="!Params.isSet">Params is requred.</exception>
+    <exception if="!Params.Range.isSet">Params.Range is requred.</exception>
+    <exception if="!Params.Teams.isSet">Params.Teams is requred.</exception>
+    <exception if="!Params.Settings.isSet">Params.Settings is requred.</exception>
+    <exception if="!Params.SyncNodesConfiguration.isSet">Params.SyncNodesConfiguration is requred.</exception>
+    <exception if="!Params.CurrentSyncNode.isSet">Params.CurrentSyncNode is requred.</exception>
+
+	<set var="EmployeesNeedsOnboarding">{false}</set>
+	
+	<for var="emplKVP" in="Params.Range">
+        <set var="empl">{emplKVP.Value}</set>
+		
+		<if condition="!empl.IsRolloutCompleted">
+			<set var="EmployeesNeedsOnboarding">{true}</set>
+			<break />
+		</if>
+    </for>
+	
+	
+	<if condition="!EmployeesNeedsOnboarding">
+        <set var="Params.CannotStartOnboardingReason">No Employees for processing.</set>
+    </if>
+	
+	<if condition="EmployeesNeedsOnboarding">
+		
+		<set var="CurrentNodeOnboardingRequestName">{Params.CurrentSyncNode}-NodeRequestedOnboardingOn</set>
+		<set var="CurrentNodeRequestedOnboarding">{false}</set>
+		
+		
+		
+		<set var="AllSyncTeams">{new Dictionary()}</set>
+		<set var="AllNodes">{new Dictionary()}</set>
+		<for var="nodeKvP" in="Params.SyncNodesConfiguration">
+			<set var="AllNodes[nodeKvP.Key]">{null}</set>
+            <for var="team" in="nodeKvP.Value">
+                <set var="AllSyncTeams[team]">{null}</set>
+            </for>
+        </for>
+		
+		
+		
+		<if condition="Params.Settings.OnboardingRequestedSyncStop or !Params.Settings.DeployedApps.ContactSync">
+			
+			<set var="NodesOnboardingRequests">{new Dictionary()}</set>
+			
+			<set var="settingsRequest">{new List()}</set>
+			
+			<for var="nodeName" in="AllNodes.Keys">
+                <set var="settingName">{nodeName}-NodeRequestedOnboardingOn</set>
+				
+				<set var="settingsRequest[]">
+					<attr name="Name">{settingName}</attr>
+					<attr name="Type">datetime</attr>
+				</set>
+            </for>
+			
+			<set GetSettingParams="new Object()"
+				 GetSettingParams.Settings="settingsRequest"/>
+					 
+			<GetCustomSettings Params="GetSettingParams" />
+			
+			<set var="NodesResponses">{GetSettingParams.Results}</set>
+			
+			<set var="activeOnboardingNodeName">{null}</set>
+			<set var="activeOnboardingNodeRequestTime">{null}</set>
+			
+			<for var="nodeResp" in="NodesResponses">
+				
+				<set var="nName">{nodeResp.Key}</set>
+				<set var="nTime">{nodeResp.Value ?? null}</set>
+				
+				<continue if="!nTime.isSet" />
+				
+				<if condition="!activeOnboardingNodeRequestTime.isSet or nTime lt activeOnboardingNodeRequestTime">
+                    <set var="activeOnboardingNodeName">{nName}</set>
+                    <set var="activeOnboardingNodeRequestTime">{nTime}</set>
+                </if>
+				
+				<if condition="nName eq CurrentNodeOnboardingRequestName">
+                    <set var="CurrentNodeRequestedOnboarding">{true}</set>
+                </if>
+            </for>
+			
+			<set var="CanContinueOnboardingChecks">{false}</set>
+			
+			<if condition="!CurrentNodeRequestedOnboarding">
+                <set SetSettingParams="new Object()"
+					 SetSettingParams.SettingName="Params.CurrentSyncNode + '-NodeRequestedOnboardingOn'"
+					 SetSettingParams.SettingValue="Utils.Now.ToUniversalTime().ToString('o')"/>
+				 
+				<SetSetting Params="SetSettingParams" />
+            </if>
+			
+			
+			<if condition="CurrentNodeRequestedOnboarding and CurrentNodeOnboardingRequestName ne activeOnboardingNodeName">
+                <set var="Params.CanStartOnboarding">{false}</set>
+				<set var="Params.CannotStartOnboardingReason">Waiting for another node to finish Onboarding.</set>
+            </if>
+			
+			<if condition="CurrentNodeRequestedOnboarding and CurrentNodeOnboardingRequestName eq activeOnboardingNodeName">
+				<set var="Params.CanStartOnboarding">{true}</set>
+                <set var="CanContinueOnboardingChecks">{true}</set>
+            </if>
+			
+			<if condition="CanContinueOnboardingChecks and Params.Settings.DeployedApps.ContactSync">
+                
+				<set var="InstancesResponses">{new Dictionary()}</set>
+			
+				<set var="settingsRequest">{new List()}</set>
+				<for var="teamName" in="AllSyncTeams.Keys">
+					<set var="settingName">{teamName}-SyncIsWaitingForOnboarding</set>
+					
+					<set var="settingsRequest[]">
+						<attr name="Name">{settingName}</attr>
+						<attr name="Type">bool</attr>
+						<attr name="Default">{false}</attr>
+					</set>
+					
+				</for>
+				
+				<set GetSettingParams="new Object()"
+					 GetSettingParams.Settings="settingsRequest"/>
+						 
+				<GetCustomSettings Params="GetSettingParams" />
+				
+				<set var="InstancesResponses">{GetSettingParams.Results}</set>
+				
+				<set var="SyncIsWaitingForOnboarding">{true}</set>
+				
+				<for var="resp" in="InstancesResponses">
+					<if condition="resp.Value eq false">
+						<set var="SyncIsWaitingForOnboarding">{false}</set>
+						<log>{resp.Key} did not stop yet.</log>
+					</if>
+				</for>
+				
+				<if condition="!SyncIsWaitingForOnboarding">
+					<then>
+						<set var="Params.CanStartOnboarding">{false}</set>
+						<set var="Params.CannotStartOnboardingReason">Synchronization did not stop yet.</set>
+					</then>
+					<else>
+						<set var="Params.CanStartOnboarding">{true}</set>
+					</else>
+				</if>
+			</if>
+        </if>
+		
+		<if condition="!Params.Settings.OnboardingRequestedSyncStop and Params.Settings.DeployedApps.ContactSync">
+            
+			<set SetSettingParams="new Object()"
+				 SetSettingParams.SettingName="'OnboardingRequestedSyncStop'"
+				 SetSettingParams.SettingValue="'true'"/>
+			
+			<SetSetting Params="SetSettingParams" />
+			
+			<set SetSettingParams="new Object()"
+				 SetSettingParams.SettingName="Params.CurrentSyncNode + '-NodeRequestedOnboardingOn'"
+				 SetSettingParams.SettingValue="Utils.Now.ToUniversalTime().ToString('o')"/>
+				 
+			<SetSetting Params="SetSettingParams" />
+			
+			<set var="Params.CanStartOnboarding">{false}</set>
+            <set var="Params.CannotStartOnboardingReason">Synchronization has been alerted to stop.</set>
+        </if>
+		
+		
+    </if>
+	
+</script>

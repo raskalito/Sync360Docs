@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<config>
+	<schedule>
+		<add queue="BatchQueue" name="ExchangeToCrmProcessing" task="ScriptBatchCachingScheduler" period="900">
+			<!--Criteria: script must return dictionary - Key: ObjectId; Value: payload object.-->
+			<param name="Criteria">SyncEmployeesContext</param>
+			<!--ScriptName: script that will be executed -->
+			<param name="ScriptName">ExchangeToCrmProcessing</param>
+			<!--script execution interval-->
+			<param name="Interval">300</param>
+			<!--CacheDefinitionScript: script that defines a dictionary with  -->
+			<param name="CacheLoaderScript">@private/CacheLoader</param>
+			<param name="CacheLoaderFrequency">5</param>
+			<param name="PostConfigurationAction">@private/HandleOnboardingRequests</param>
+		</add>
+		
+		<add queue="BatchQueue" name="CrmToExchangeProcessing" task="ScriptBatchCachingScheduler" period="900">
+			<!--Criteria: script must return dictionary - Key: ObjectId; Value: payload object.-->
+			<param name="Criteria">SyncEmployeesContext</param>
+			<!--ScriptName: script that will be executed -->
+			<param name="ScriptName">CrmToExchangeProcessing</param>
+			<!--script execution interval-->
+			<param name="Interval">300</param>
+			<!--CacheDefinitionScript: script that defines a dictionary with  -->
+			<param name="CacheLoaderScript">@private/CacheLoader</param>
+			<param name="CacheLoaderFrequency">5</param>
+			<param name="PostConfigurationAction">@private/HandleOnboardingRequests</param>
+		</add>
+		
+		<add queue="BatchQueue" name="SyncExistingContacts" task="ScriptBatchCachingScheduler" period="900">
+			<!--Criteria: script must return dictionary - Key: ObjectId; Value: payload object.-->
+			<param name="Criteria">SyncEmployeesContext</param>
+			<!--ScriptName: script that will be executed -->
+			<param name="ScriptName">SyncExistingContacts</param>
+			<!--script execution interval-->
+			<param name="Interval">300</param>
+			<!--CacheDefinitionScript: script that defines a dictionary with  -->
+			<param name="CacheLoaderScript">@private/CacheLoader</param>
+			<param name="CacheLoaderFrequency">5</param>
+			<param name="PostConfigurationAction">@private/HandleOnboardingRequests</param>
+		</add>
+		
+		<add queue="BatchQueue" name="CleanupContacts" task="ScriptBatchCachingScheduler" period="900">
+			<!--Criteria: script must return dictionary - Key: ObjectId; Value: payload object.-->
+			<param name="Criteria">SyncEmployeesContext</param>
+			<!--ScriptName: script that will be executed -->
+			<param name="ScriptName">CleanupContacts</param>
+			<!--script execution interval-->
+			<param name="Interval">1800</param>
+			<!--CacheDefinitionScript: script that defines a dictionary with  -->
+			<param name="CacheLoaderScript">@private/CacheLoader</param>
+			<param name="CacheLoaderFrequency">5</param>
+			<param name="PostConfigurationAction">@private/HandleOnboardingRequests</param>
+		</add>
+	</schedule>
+</config>

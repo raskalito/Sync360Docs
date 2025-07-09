@@ -1,0 +1,290 @@
+<script>
+	<set var="FieldsMapping">{new List()}</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">FirstName</attr>
+		<attr name="crm">firstname</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">MiddleName</attr>
+		<attr name="crm">middlename</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">LastName</attr>
+		<attr name="crm">lastname</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">Suffix</attr>
+		<attr name="crm">suffix</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">CompanyLegaEntityName</attr>
+		<attr name="crm">name</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">account</attr>
+		<attr name="required">{true}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">CompanyDBAName</attr>
+		<attr name="crm">accountnumber</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">account</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{true}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">JobTitle</attr>
+		<attr name="crm">jobtitle</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">Streetaddressline1Work</attr>
+		<attr name="crm">address1_line1</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{true}</attr>
+		<attr name="addressfield">{true}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">Streetaddressline2Work</attr>
+		<attr name="crm">address1_line2</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{true}</attr>
+		<attr name="addressfield">{true}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">CityWork</attr>
+		<attr name="crm">address1_city</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{true}</attr>
+		<attr name="addressfield">{true}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">StateWork</attr>
+		<attr name="crm">address1_stateorprovince</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{true}</attr>
+		<attr name="addressfield">{true}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">ZipPostalCodeWork</attr>
+		<attr name="crm">address1_postalcode</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{true}</attr>
+		<attr name="addressfield">{true}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">EmailWork</attr>
+		<attr name="crm">emailaddress1</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{true}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">EmailPersonal</attr>
+		<attr name="crm">emailaddress2</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">FaxNumber</attr>
+		<attr name="crm">fax</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">BusinessPhone</attr>
+		<attr name="crm">telephone1</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{true}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">MobilePhone</attr>
+		<attr name="crm">mobilephone</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv">Spouse/Partner Name</attr>
+		<attr name="crm">spousesname</attr>
+		<attr name="type">string</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{false}</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">createdfromcode</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">list</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">2</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">type</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">list</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">false</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">listname</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">list</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">search</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">parentcustomerid</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">contact</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">'account:'+foundRecords['account'][0]</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">vs360_contactid</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">vs360_relationship</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">'contact:'+foundRecords['contact'][0]</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">vs360_employeeid</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">vs360_relationship</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">'vs360_employee:'+ GlobalCache['vs360_employee'][search.ToLower()]</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">vs360_name</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">vs360_relationship</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">crmContact.fullname ?? '' + 'is connected to' + search</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">entityid</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">listmember</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">foundRecords['contact'][0]</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">vs360_contactid</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">vs360_marketingconnection</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">'contact:'+foundRecords['contact'][0]</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">vs360_employeeid</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">vs360_marketingconnection</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">'vs360_employee:'+ GlobalCache['vs360_employee'][search.ToLower()]</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">vs360_listid</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">vs360_marketingconnection</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">'list:'+listid</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+	<set var="FieldsMapping[]">
+		<attr name="csv"></attr>
+		<attr name="crm">vs360_name</attr>
+		<attr name="type">eval</attr>
+		<attr name="entity">vs360_marketingconnection</attr>
+		<attr name="required">{true}</attr>
+		<attr name="value">search + ' placed ' + row["LastName"] + ' ' + row["FirstName"] + 'on marketing list'</attr>
+		<attr name="update">{false}</attr>
+		<attr name="alwaysupdate">{false}</attr>
+	</set>
+</script>

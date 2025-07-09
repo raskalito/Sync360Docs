@@ -1,0 +1,303 @@
+<script>
+	<exception if="!ExchangeContact.isSet">ExchangeContact param is required.</exception>
+	<exception if="!CrmContact.isSet">CrmContact param is required.</exception>
+	<exception if="!Settings.isSet">Settings param is required.</exception>
+	<exception if="!Mapping.isSet">Mapping param is required.</exception>
+	<exception if="!Employee.isSet">Employee param is required.</exception>
+	<exception if="!PrivateFields.isSet">PrivateFields param is required.</exception>
+	<exception if="!Results.isSet">Results param is required.</exception>
+	
+	<sandbox verbose="true">
+        
+	<context for="crm" user="{Employee.UserId}">
+	<context for="exchange" user="{Employee.Email}">
+	
+		<log>[SSHandling] - deduplication process started...</log>
+		<var CallObject='new Object()'/>
+		<set var="CallObject.ValueToHandle">{ExchangeContact.mobilephone}</set>
+		<call name="GetNumericOnlyValue" GetNumericOnlyValueParameter="CallObject"/>
+		
+		
+		<set var="digitsOnlyMobilePhone">{CallObject.ResultValue}</set>
+		<var CallObject='new Object()'/>
+		<set var="CallObject.ValueToHandle">{ExchangeContact.workphone}</set>
+		<call name="GetNumericOnlyValue" GetNumericOnlyValueParameter="CallObject"/>
+		<set var="digitsOnlyBusinessPhone">{CallObject.ResultValue}</set>
+		
+		
+		<!-- Search for existing contact in CRM -->
+		<set var="lastnameAndEmailIsSet">{ExchangeContact.lastname.isSet and ExchangeContact.lastname.Length gt 0 and ExchangeContact.email1address.isSet and ExchangeContact.email1address.Length gt 0}</set>
+		<set var="mobilephoneIsSet">{ExchangeContact.lastname.isSet and ExchangeContact.lastname.Length gt 0 and digitsOnlyMobilePhone.isSet}</set>
+		<set var="businessphoneIsSet">{ExchangeContact.firstname.isSet and ExchangeContact.firstname.Length gt 0 and ExchangeContact.lastname.isSet and ExchangeContact.lastname.Length gt 0 and digitsOnlyBusinessPhone.isSet}</set>
+		
+		
+		<set var="crmOriginalContact">{null}</set>
+		
+		
+		<if condition="lastnameAndEmailIsSet or mobilephoneIsSet or businessphoneIsSet">
+			<!--serching for oldest existing active crm contact by using the "3 deduplication rules"-->
+			<select from="crm" entity="contact" var="crmOrigContacts">
+				<where>
+					<condition attr="contactid" op="ne">{CrmContact.contactid}</condition>
+					<condition attr="statecode" op="eq">{0}</condition>
+					<condition attr="lastname" op="eq">{ExchangeContact.lastname}</condition>
+					<or>
+						<condition attr="emailaddress1" op="eq" if="lastnameAndEmailIsSet">{ExchangeContact.email1address}</condition>
+						<condition attr="vs360_mobilephonenums" op="eq" if="mobilephoneIsSet">{digitsOnlyMobilePhone}</condition>
+						<if condition="businessphoneIsSet">
+							<and>
+								<condition attr="firstname" op="eq">{ExchangeContact.firstname}</condition>
+								<condition attr="vs360_telephone1nums" op="eq">{digitsOnlyBusinessPhone}</condition>
+							</and>
+						</if>
+					</or>
+				</where>
+				<attr name="emailaddress1"/>
+				<attr name="contactid"/>
+				<attr name="lastname"/>
+				<attr name="firstname"/>
+				<attr name="vs360_mobilephonenums"/>
+				<attr name="vs360_telephone1nums"/>
+				<order by="createdon" desc="false"/>
+			</select>
+			
+			<if condition="crmOrigContacts.Count gt 0">
+			
+				<set var="crmOriginalContact">{null}</set>
+				<if condition="lastnameAndEmailIsSet">
+					<for var="dupContact" in="crmOrigContacts">
+						<if condition="(dupContact.emailaddress1.ToLower() eq excontact.email1address.ToLower()) ?? false">
+							<set var="crmOriginalContact">{dupContact}</set>
+							<break/>
+						</if>
+					</for>
+				</if>
+				
+				<if condition="mobilephoneIsSet and !crmOriginalContact.isSet">
+					<for var="dupContact" in="crmOrigContacts">
+						<if condition="(dupContact.vs360_mobilephonenums eq digitsOnlyMobilePhone) ?? false">
+							<set var="crmOriginalContact">{dupContact}</set>
+							<break/>
+						</if>
+					</for>
+				</if>
+				
+				<if condition="businessphoneIsSet and !crmOriginalContact.isSet">
+					<for var="dupContact" in="crmOrigContacts">
+						<if condition="(dupContact.vs360_telephone1nums eq digitsOnlyBusinessPhone
+															and dupContact.firstname.ToLower() eq excontact.firstname.ToLower()) ?? false">
+							<set var="crmOriginalContact">{dupContact}</set>
+							<break/>
+						</if>
+					</for>
+				</if>
+				
+				<set var="crmOriginalContact" if="!crmOriginalContact.isSet">{crmOrigContacts[0]}</set>
+			</if>
+		</if>
+		
+		<!--IF DUPLICATE FOUND-->
+		<if condition="crmOriginalContact.isSet">
+			
+			<log>Original contact was found in CRM ({crmOriginalContact.contactid}). Performing merge...</log>
+			
+			<select from="crm" entity="contact" var="existingCrmContacts">
+				<where>
+					<condition attr="contactid" op="eq">{crmOriginalContact.contactid}</condition>
+				</where>
+				<attr name="contactid" />
+				<attr name="parentcustomerid" />
+				<for var="mapping" in="Mapping.ContactMapping">
+					<if condition="!mapping.Multiline.isSet">
+						<attr name="{mapping.Crm}" />
+					</if>
+				</for>
+				<for var="mapping" in="Mapping.ContactMultiLineMapping">
+					<for var="multiLineMapping" in="mapping.Crm">
+						<attr name="{multiLineMapping}" />
+					</for>
+				</for>
+			</select>
+			
+			<set var="crmOriginalContact">{existingCrmContacts[0]}</set>
+			
+			
+			<set var="fieldsToUpdate">{new List()}</set>
+			
+			<for var="mapping" in="Mapping.ContactMapping">
+				<if condition="!mapping.Multiline.isSet">
+					<set var="fieldsToUpdate[]" if="CrmContact[mapping.Crm].isSet and !crmOriginalContact[mapping.Crm].isSet">{mapping.Crm}</set>
+				</if>
+			</for>
+			<for var="mapping" in="Mapping.ContactMultiLineMapping">
+				<for var="multiLineMapping" in="mapping.Crm">
+					<set var="fieldsToUpdate[]" if="CrmContact[multiLineMapping].isSet and !crmOriginalContact[multiLineMapping].isSet">{multiLineMapping}</set>
+				</for>
+			</for>
+			
+			<!--set fieldsToUpdate null if there no fields to update-->
+			<set var="fieldsToUpdate">{fieldsToUpdate.Count eq 0 ? null : fieldsToUpdate}</set>
+			
+			<log>        {fieldsToUpdate.Count} fields will be merged with winner: {fieldsToUpdate}</log>
+			
+			<set>{@crm.Merge('contact', crmOriginalContact.contactid, CrmContact.contactid, fieldsToUpdate)}</set>
+			
+			
+			<log>        Contacts was merged.</log>
+			
+			
+			<log>        Reassigning links...</log>
+			
+			<update in="exchange" entity="contact">
+				<where>
+					<condition attr="EntryId" op="eq">{ExchangeContact.EntryId}</condition>
+				</where>
+				<attr name="crmLinkState_vs360">{2}</attr>
+				<attr name="crmLinkState">{0}</attr>
+				<attr name="crmid">{crmOriginalContact.contactid.ToString()}</attr>
+			</update>
+			
+			<set var="ExchangeContact.crmid">{crmOriginalContact.contactid.ToString()}</set>
+			
+			<log>        Checking relationship...</log>
+			
+			<select from="crm" entity="vs360_relationship" var="existingRelationships">
+				<where>
+					<condition attr="statecode" op="eq">{0}</condition>
+					<condition attr="vs360_contactid" op="eq">{crmOriginalContact.contactid}</condition>
+					<condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+				</where>
+				<attr name="vs360_relationshipid" />
+				<attr name="vs360_syncwithoutlook" />
+                <attr name="vs360_deletedinoutlook" />
+			</select>
+			
+			<if condition="existingRelationships.Count gt 0">
+				<then>
+					<log>        Relationship was found..</log>
+					<set var="rel">{existingRelationships[0]}</set>
+					<if condition="!rel.vs360_syncwithoutlook or rel.vs360_deletedinoutlook ne 0">
+					
+						<log>        Activating relationship sync...</log>
+						<update in="crm" entity="vs360_relationship">
+							<where>
+								<condition attr="vs360_relationshipid" op="eq">{rel.vs360_relationshipid}</condition>
+							</where>
+							<attr name="vs360_syncwithoutlook">{true}</attr>
+							<attr name="vs360_deletedinoutlook">{0}</attr>
+						</update>
+                    </if>
+				</then>
+				<else>
+					<log>        Relationship was not found. Creating...</log>
+					
+					<create in="crm" entity="vs360_relationship" var="newId">
+						<attr name="vs360_contactid">contact:{crmOriginalContact.contactid}</attr>
+						<attr name="vs360_employeeid">vs360_employee:{Employee.Id}</attr>
+						<attr name="vs360_syncwithoutlook">{true}</attr>
+						<attr name="vs360_deletedinoutlook">{0}</attr>
+						<attr name="vs360_source">{360000001}</attr> <!--REL360 Contact Sync-->
+                    </create>
+				</else>
+			</if>
+			
+			
+			
+			<log>        Retrieving new original contact...</log>
+			<select from="crm" entity="contact" var="crmContacts">
+				<where>
+					<condition attr="contactid" op="eq">{crmOriginalContact.contactid}</condition>
+				</where>
+				<!--this join is required for the approval process by employee-->
+				<join type="inner" entity="vs360_relationship" to="contactid" from="vs360_contactid">
+					<where>
+						<condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+					</where>
+				</join>
+				<attr name="contactid"/>
+				<attr name="parentcustomerid"/>
+				<attr name="fullname"/>
+				<attr name="modifiedon"/>
+				<attr name="vs360_addresstype"/>
+				<for var="p" in="Mapping.ContactMapping">
+					<attr name="{p.Crm}" />
+				</for>
+				<attr name="entityimage"/>
+			</select>
+			
+			
+			<if condition="Employee.UserId eq '' and PrivateFields.Count gt 0">
+				<log>        ... with Private Fields</log>
+				<select from="crm" entity="vs360_relationship" var="rels">
+					<where>
+						<condition attr="vs360_contactid" op="eq">{crmOriginalContact.contactid}</condition>
+						<condition attr="vs360_employeeid" op="eq">{Employee.Id}</condition>
+						<condition attr="statecode" op="eq">{0}</condition>
+					</where>
+					<for var="pair" in="PrivateFields">
+						<attr name="{pair.PrivateField}" />
+					</for>
+				</select>
+
+				<if condition="rels.Count gt 0">
+					<set var="relationship">{rels[0]}</set>
+					<for var="pair" in="PrivateFields">
+						<if condition="relationship[pair.PrivateField].isSet">
+							<set var="crmOriginalContact[pair.ContactField]">{relationship[pair.PrivateField]}</set>
+						</if>
+					</for>
+				</if>
+			</if>
+			
+			<log>        contact data: {crmOriginalContact}</log>
+			
+			
+			
+			<set var="Results.OriginalContact">{crmOriginalContact}</set>
+		</if>
+		
+		
+		<!--IF DUPLICATE NOT FOUND-->
+		<if condition="!crmOriginalContact.isSet">
+			<log>Duplicate contact was NOT found in CRM. Updating Link States...</log>
+			
+			
+			<update in="exchange" entity="contact">
+				<where>
+					<condition attr="EntryId" op="eq">{ExchangeContact.EntryId}</condition>
+				</where>
+				<attr name="crmLinkState_vs360">{2}</attr>
+				<attr name="crmLinkState">{0}</attr>
+			</update>
+			
+			
+			<select from="crm" entity="contact" var="sourceCheckContacts">
+				<where>
+					<condition attr="contactid" op="eq">{CrmContact.contactid}</condition>
+				</where>
+				<attr name="vs360_source"/>
+			</select>
+			
+			<if condition="!sourceCheckContacts[0].vs360_source.isSet or sourceCheckContacts[0].vs360_source eq 360000000">
+			
+				<log>    Updating source field...</log>
+                <update in="crm" entity="contact">
+					<where>
+						<condition attr="contactid" op="eq">{CrmContact.contactid}</condition>
+					</where>
+					<attr name="vs360_source">{360000001}</attr><!-- REL360 Contact Sync -->
+					<attr name="vs360_modifiedbyemployeeid">vs360_employee:{Employee.Id}</attr>
+				</update>
+            </if>
+			
+			
+		</if>
+		
+	</context>
+	</context>
+		
+		<onerror var="ex">
+            <set var="Results.Failed">{true}</set>
+        </onerror>
+	</sandbox>
+</script>

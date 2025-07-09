@@ -1,0 +1,511 @@
+<script>
+	<!-- 
+	***************************************************************************************************
+		Script Name: IMP_DomainsLoad.xml
+		Description: Script uses the Excel report from the Domains Analysis Report and creates domains
+						and associates them to companies as defined in report.
+						
+	WARNING: 
+	WARNING: You need to create the Excel CSV domains load source file with a ^ symbol as delimiter instead of a comma delimeter!!!  
+	WARNING: This is because often, company names include a comma and some may use the pipe | symbol as well. 	
+	WARNING:
+	
+	===============================================================================================
+		Date		Developer			Details
+	===============================================================================================
+		2023.12.13	Glen Wolinsky		
+		2024.04.22	Glen Wolinsky		Fixed problems reported By Ann M. Tested for new companies,
+										existing companies by ID, and existing companies by name.
+		...............................................................................................
+	***************************************************************************************************
+	-->
+
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  ******************************* -->
+
+	<!-- INCLUDES -->
+	<include name="TimeStampAsText"/>
+
+	<!-- Prints log text and adds to external log file -->
+	<var LiveLog="new Object()"/>
+	<set var="LiveLog.UseLog">{true}</set>	<!-- TRUE will send window log entries to text file.   FALSE will not create text file but still log to window -->
+	<set var="LiveLog.FileName">C:\Temp\Sync360 LiveLogs\DomainsAndCompaniesLoad_RunLog_{TimeStampAsText}.txt</set>
+
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Domains and Companies Load</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<set var="BlockInfo.LiveLog">{LiveLog}</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+	<!-- Script Behavior Settings -->
+	<set var="UpdateCompanyNames">{false}</set>	<!-- TRUE will update existing CRM company name from spreadsheet  FALSE will NOT update company names -->
+
+	<!-- Data sources and output files -->
+	<set var="CRM">crm</set>
+
+	<!-- Data Files In/Out -->
+	<set var="CsvSourcePath">C:\Temp\REL360DataSources\XXXXXXXXXXXXXXX.csv</set>
+	<set var="csvExceptions">{new List()}</set>
+	<set var="DomainsLoadExceptionsReport">C:\Temp\REL360Output\DomainsLoadExceptionsReport-{TimeStampAsText}.csv</set>
+
+	<!-- Schema name for SOURCE entity relationship with the Company record. DEFAULT is usually: vs360_vs360_source_account -->
+	<set var="UseSourceData">{false}</set>
+	<set var="SrcRelationshipName">vs360_vs360_source_account</set>
+
+	<!-- Schema name for Legacy ID field on the Company record. DEFAULT is usually: vs360_legacyid -->
+	<set var="UseLegacyID">{false}</set>
+	<set var="LegacyIDFieldName">vs360_legacyid</set>
+
+
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	<set var="Regex">{typeof 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+	<set var="regexString">{new Regex("[^0-9a-zA-Z]+")}</set>
+
+	<set var="objSettings">{new Object()}</set>
+	<call name="@private/GetSettings" Context="objSettings"></call>
+	<set var="settings">{objSettings.Settings}</set>
+
+	<!-- Domains Load Input Data -->
+	<set var="csvData">{Csv.Read(CsvSourcePath, Encoding.UTF8, '^')}</set>
+	<log>{csvData.Count} domain source rows found.</log>
+
+	<set var="rowNum">{0}</set>
+	<for var="csvRow" in="csvData">
+		<sandbox>
+			<set var="rowNum">{rowNum + 1}</set>
+			<set var="LiveLog.Text">Processing record {rowNum} of {csvData.Count}...</set>
+			<LiveLog LiveLog="LiveLog"/>
+
+			<!-- New Domain Object to process -->
+			<set var="newDom">{new Object()}</set>
+			<set var="newDom.Domain">{csvRow['Domain'].Length > 0 ? csvRow['Domain'] : null}</set>
+			<set var="newDom.CrmCompanyName">{csvRow['CrmCompanyName'].Length > 0 ? csvRow['CrmCompanyName'] : null}</set>
+			<set var="newDom.CrmCompanyID">{csvRow['CrmCompanyID'].Length > 0 ? csvRow['CrmCompanyID'] : null}</set>
+			<set var="newDom.CrmCompanyLegacyID">{null}</set>
+			<set var="newDom.CrmCompanyLegacyID" if="UseLegacyID">{csvRow['CrmCompanyLegacyID'].Length > 0 ? csvRow['CrmCompanyLegacyID'] : null}</set>
+			<set var="newDom.targetCompanyID">{null}</set>
+			<set var="newDom.targetCompanyIsMerged">{false}</set>
+			<set var="newDom.targetCompanyIsActive">{false}</set>
+
+			<!-- Initialize ProcMode & CRM Domain ID -->
+			<set var="ProcMode">{null}</set>
+			<set var="CrmDomainId">{null}</set>
+
+			<!-- START: Validate source record from data file -->
+			<if condition="!newDom.Domain.isSet or newDom.Domain eq ''">
+				<set var="LiveLog.Text">   INVALID DATA: Domain name missing in source data record.</set>
+				<LiveLog LiveLog="LiveLog"/>
+
+				<set var="csvExRow">{new Dictionary()}</set>
+				<set var="csvExRow['Domain']">{newDom.Domain}</set>
+				<set var="csvExRow['CrmCompanyName']">{newDom.CrmCompanyName}</set>
+				<set var="csvExRow['CrmCompanyID']">{newDom.CrmCompanyID}</set>
+				<set var="csvExRow['CrmCompanyLegacyID']">{newDom.CrmCompanyLegacyID}</set>
+				<set var="csvExRow['targetCompanyID']">{newDom.targetCompanyID}</set>
+				<set var="csvExRow['ExceptionDetails']">{LiveLog.Text.Trim()}</set>
+				<set var="csvExceptions[]">{csvExRow}</set>
+				<continue/>
+			</if>
+
+			<if condition="!newDom.CrmCompanyName.isSet or newDom.CrmCompanyName eq ''">
+				<set var="LiveLog.Text">   INVALID DATA: Domain {newDom.Domain} NOT processed: CRM Company Name is missing in row.</set>
+				<LiveLog LiveLog="LiveLog"/>
+
+				<set var="csvExRow">{new Dictionary()}</set>
+				<set var="csvExRow['Domain']">{newDom.Domain}</set>
+				<set var="csvExRow['CrmCompanyName']">{newDom.CrmCompanyName}</set>
+				<set var="csvExRow['CrmCompanyID']">{newDom.CrmCompanyID}</set>
+				<set var="csvExRow['CrmCompanyLegacyID']">{newDom.CrmCompanyLegacyID}</set>
+				<set var="csvExRow['targetCompanyID']">{newDom.targetCompanyID}</set>
+				<set var="csvExRow['ExceptionDetails']">{LiveLog.Text.Trim()}</set>
+				<set var="csvExceptions[]">{csvExRow}</set>
+				<continue/>
+			</if>
+			<!-- END: Validate source record from data file -->
+
+			<set var="LiveLog.Text">  Processing Domain: {newDom.Domain} for Company: {newDom.CrmCompanyID}:{newDom.CrmCompanyName}...</set>
+			<LiveLog LiveLog="LiveLog"/>
+
+			<!-- START: Get/Check Domain in CRM -->
+			<select from="{CRM}" entity="vs360_companydomain" var="CRMDomains" count="1">
+				<where>
+					<condition attr="vs360_name" op="eq">{newDom.Domain}</condition>
+				</where>
+				<join type="outer" entity="vs360_vs360_companydomain_account" to="vs360_companydomainid" from="vs360_companydomainid" as="PrefDoms">
+					<attr name="accountid" as="PrefCompanyidMTM"/>
+				</join>
+				<attr name="vs360_companydomainid"/>
+				<attr name="vs360_companyid" as="PrefCompanyidOTM"/>
+			</select>
+
+			<if condition="CRMDomains.Count gt 0">
+				<if condition="CRMDomains[0].isSet and (CRMDomains[0].PrefCompanyidOTM.isSet or CRMDomains[0].PrefCompanidMTM.isSet)">
+					<set var="LiveLog.Text">    Domain: {newDom.Domain} is already set as a Preferred Domain.  Domain will NOT be processed.</set>
+					<LiveLog LiveLog="LiveLog"/>
+					<set var="csvExRow">{new Dictionary()}</set>
+					<set var="csvExRow['Domain']">{newDom.Domain}</set>
+					<set var="csvExRow['CrmCompanyName']">{newDom.CrmCompanyName}</set>
+					<set var="csvExRow['CrmCompanyID']">{newDom.CrmCompanyID}</set>
+					<set var="csvExRow['CrmCompanyLegacyID']">{newDom.CrmCompanyLegacyID}</set>
+					<set var="csvExRow['targetCompanyID']">{newDom.targetCompanyID}</set>
+					<set var="csvExRow['ExceptionDetails']">{LiveLog.Text.Trim()}</set>
+					<set var="csvExceptions[]">{csvExRow}</set>
+					<continue/>
+				</if>
+
+				<set var="LiveLog.Text">    Potential Domain {newDom.Domain} found in CRM.</set>
+				<LiveLog LiveLog="LiveLog"/>
+				<set var="CrmDomainId">{CRMDomains[0].vs360_companydomainid}</set>
+			</if>
+			<!-- END: Get/Check Domain in CRM -->
+
+			<!-- **************************************************** -->
+			<!--           START: Set Process Mode                    -->
+			<!-- **************************************************** -->
+			<!-- Process Modes -->
+			<!-- New:        No company ID in source record or legacyid, company name provided, and company name not found in CRM. Creates new company for Domain. -->
+			<!-- Existing:   The ACTIVE company ID was found in after  -->
+			<!-- NameMatch:  Company ID not located in system or source but name match found. Domain will use this company. -->
+			<!-- None:       No other process modes could be set.  Do not process Domain. -->
+
+
+			<set var="LiveLog.Text">    Determining process mode for domain {newDom.Domain}...</set>
+			<LiveLog LiveLog="LiveLog"/>
+
+			<!-- MODE CHECK [NEW]: Does CSV record have company ID? -->
+			<if condition="!newDom.CrmCompanyID.isSet">
+				<set var="ProcMode">new</set>
+				<set var="newDom.targetCompanyID">{null}</set>
+			</if>
+
+			<!-- START MODE CHECK [EXISTING by LegacyID]: Does CSV record have an existing company ID? -->
+			<if condition="!ProcMode.isSet and UseLegacyID and newDom.CrmCompanyLegacyID.isSet and newDom.CrmCompanyLegacyID ne ''">
+				<!-- First, find company record by Legacy ID -->
+				<select from="{CRM}" entity="account" var="LegacyCompanies">
+					<where>
+						<condition attr="{LegacyIDFieldName}" op="eq">{newDom.CrmCompanyLegacyID}</condition>
+					</where>
+					<attr name="accountid" />
+				</select>
+
+
+
+				<if condition="LegacyCompanies.isSet and LegacyCompanies.Count gt 0 and LegacyCompanies[0].accountid.isSet">
+					<set var="Params">{new Object()}</set>
+					<set var="Params.CompanyID">{LegacyCompanies[0].accountid}</set>
+
+					<FindCompanyMergeWinner Params="Params"/>
+
+					<if condition="Params.WinnerID.isSet and Params.IsWinnerActive">
+						<set var="newDom.targetCompanyID">{Params.WinnerID}</set>
+						<set var="newDom.targetCompanyIsMerged">{Params.IsMerged}</set>
+						<set var="newDom.targetCompanyIsActive">{Params.IsWinnerActive}</set>
+						<set var="LiveLog.Text">       Using Existing Company in CRM... {Utils.NewLine}</set>
+						<set var="LiveLog.Text">{LiveLog.Text}    {Params.ResultMessage}</set>
+						<LiveLog LiveLog="LiveLog"/>
+						<set var="ProcMode">existing</set>
+					</if>
+				</if>
+			</if>
+			<!-- END MODE CHECK [EXISTING by LegacyID] -->
+
+			<!-- START: Mode Check: EXISTING/Source - Does CSV record have an existing company ID? -->
+			<if condition="!ProcMode.isSet and UseSourceData and !newDom.targetCompanyID.isSet and newDom.CrmCompanyLegacyID.isSet">
+				<set var="Params">{new Object()}</set>
+				<set var="Params.SourceCompanyID">{newDom.CrmCompanyID}</set>
+				<set var="Params.SourceName">{newDom.CRMCompanyName}</set>
+				<set var="Params.SourceRelationshipName">{SrcRelationshipName}</set>
+
+				<FindCompanyInSource Params="Params"/>
+
+				<if condition="Params.FoundCompanyID.isSet and Params.FoundCompanyID ne ''">
+					<then>
+						<FindCompanyMergeWinner Params="Params"/>
+
+						<if condition="Params.WinnerID.isSet and Params.IsWinnerActive">
+							<set var="newDom.targetCompanyID">{Params.WinnerID}</set>
+							<set var="newDom.targetCompanyIsMerged">{Params.IsMerged}</set>
+							<set var="newDom.targetCompanyIsActive">{Params.IsWinnerActive}</set>
+							<set var="LiveLog.Text">       Using Existing Company in CRM... {Utils.NewLine}</set>
+							<set var="LiveLog.Text">{LiveLog.Text}    {Params.ResultMessage}</set>
+							<LiveLog LiveLog="LiveLog"/>
+							<set var="ProcMode">existing</set>
+						</if>
+					</then>
+					<else>
+
+					</else>
+				</if>
+
+				<if condition="Params.WinnerID.isSet">
+					<set var="newDom.targetCompanyID">{Params.FoundCompany.ID}</set>
+					<set var="LiveLog.Text">       Using Existing Company in CRM found from source (newDom.CrmCompanyName ){Utils.NewLine}</set>
+					<set var="LiveLog.Text">{LiveLog.Text}    {Params.ResultMessage}</set>
+					<LiveLog LiveLog="LiveLog"/>
+					<set var="ProcMode">existing</set>
+				</if>
+
+			</if>
+			<!-- END: Mode Check: EXISTING/Source -->
+
+
+
+
+			<!-- START MODE CHECK [EXISTING by CompanyID]: Company found by accountid? -->
+			<if condition="!ProcMode.isSet and newDom.CrmCompanyID.isSet and newDom.CrmCompanyID ne ''">
+				<set var="Params">{new Object()}</set>
+				<set var="Params.CompanyID">{newDom.CrmCompanyID}</set>
+
+				<FindCompanyMergeWinner Params="Params"/>
+
+				<if condition="Params.WinnerID.isSet and Params.IsWinnerActive">
+					<set var="newDom.targetCompanyID">{Params.WinnerID}</set>
+					<set var="newDom.targetCompanyIsMerged">{Params.IsMerged}</set>
+					<set var="newDom.targetCompanyIsActive">{Params.IsWinnerActive}</set>
+					<set var="LiveLog.Text">       Using Existing Company in CRM... {Utils.NewLine}</set>
+					<set var="LiveLog.Text">{LiveLog.Text}    {Params.ResultMessage}</set>
+					<LiveLog LiveLog="LiveLog"/>
+					<set var="ProcMode">existing</set>
+				</if>
+
+				<!-- Check for Company ID in Source records -->
+				<if condition="!newDom.targetCompanyID.isSet">
+
+				</if>
+			</if>
+			<!-- END MODE CHECK [EXISTING by CompanyID] -->
+
+			<!-- Check for EXACT Company name match -->
+			<!-- If newDom.targetCompanyID still not determined, look for an EXACT company name match. -->
+			<if condition="(!ProcMode.isSet or ProcMode='new') and !newDom.targetCompanyID.isSet">
+				<set var="CRMCompanies">{new List()}</set>
+				<set var="accountId"></set>
+
+				<!-- Check for company name match on company name without normalization -->
+				<if condition="newDom.CrmCompanyName.isSet and newDom.CrmCompanyName ne ''">
+					<select from="{CRM}" entity="account" var="CRMCompanies">
+						<where>
+							<condition attr="name" op="eq">{newDom.CrmCompanyName}</condition>
+							<condition attr="statecode" op="eq">{0}</condition>
+						</where>
+						<attr name="accountid" />
+						<attr name="name"/>
+						<attr name="statecode"/>
+					</select>
+
+					<!-- if Company not found, then normalize name and search again -->
+					<if condition="CRMCompanies.Count eq 0 and settings.CompanyTrimConditions.Count gt 0">
+						<set var="namenorm">{newDom.CrmCompanyName}</set>
+						<set var="params">
+							<attr name="String">{namenorm}</attr>
+						</set>
+
+						<NormalizeString params="params"/>
+						<set var="namenorm">{params.String}</set>
+						<set var="namenorm">{regexString.Replace(namenorm,'').ToLower().Trim()}</set>
+						<for var="trimCon" in="settings.CompanyTrimConditions">
+							<set var="trimCon">{trimCon.ToLower()}</set>
+							<set var="namenorm" if="namenorm.StartsWith(trimCon)">{namenorm.Substring(trimCon.Length, namenorm.Length - trimCon.Length).Trim()}</set>
+							<set var="namenorm" if="namenorm.EndsWith(trimCon)">{namenorm.Substring(0, namenorm.Length - trimCon.Length).Trim()}</set>
+						</for>
+						<select from="{CRM}" entity="account" var="CRMCompanies">
+							<where>
+								<condition attr="vs360_companynamenorm" op="eq">{namenorm}</condition>
+								<condition attr="statecode" op="eq">{0}</condition>
+							</where>
+							<attr name="accountid" />
+							<attr name="name"/>
+							<attr name="statecode"/>
+						</select>
+					</if>
+				</if>
+
+				<!-- if Company Name match found, then use that company record id for newDom.targetCompanyID -->
+				<if condition="CRMCompanies.Count > 0 and CRMCompanies[0].accountid.id.isSet">
+					<set var="ProcMode">namematch</set>
+					<set var="newDom.targetCompanyID">{CRMCompanies[0].accountid.id}</set>
+				</if>
+			</if>
+			<!-- **************************************************** -->
+			<!--             END: Set Process Mode                    -->
+			<!-- **************************************************** -->
+
+			<set var="LiveLog.Text">  Mode: {ProcMode}</set>
+			<LiveLog LiveLog="LiveLog"/>
+
+			<!-- START: Create Domain if needed -->
+			<if condition="!CrmDomainId.isSet">
+				<set var="LiveLog.Text">    Creating {newDom.Domain} in CRM...</set>
+				<LiveLog LiveLog="LiveLog"/>
+				<create in="{CRM}" entity="vs360_companydomain" var="newDomainId">
+					<attr name="vs360_name">{newDom.Domain}</attr>
+					<attr name="vs360_source">{360000001}</attr>
+					<!-- REL360 Contact Sync -->
+				</create>
+
+				<set var="CrmDomainId">{newDomainId}</set>
+			</if>
+
+			<if condition="!CrmDomainId.isSet">
+				<set var="LiveLog.Text">  Domain '{newDom.Domain}' not found or created.</set>
+				<LiveLog LiveLog="LiveLog"/>
+				<set var="csvExRow">{new Dictionary()}</set>
+				<set var="csvExRow['Domain']">{newDom.Domain}</set>
+				<set var="csvExRow['CrmCompanyName']">{newDom.CrmCompanyName}</set>
+				<set var="csvExRow['CrmCompanyID']">{newDom.CrmCompanyID}</set>
+				<set var="csvExRow['CrmCompanyLegacyID']">{newDom.CrmCompanyLegacyID}</set>
+				<set var="csvExRow['targetCompanyID']">{newDom.targetCompanyID}</set>
+				<set var="csvExRow['ExceptionDetails']">{LiveLog.Text.Trim()}</set>
+				<set var="csvExceptions[]">{csvExRow}</set>
+				<continue/>
+			</if>
+			<!-- END: Create Domain -->
+
+			<!--CREATE OR GET CRM COMPANY -->
+			<set var="CrmAccountId">{null}</set>
+			<if condition="newDom.targetCompanyID.isSet">
+				<then>
+					<!--IF CRM COMPANY ID IS SET - VALIDATE COMPANY NAME-->
+					<set var="LiveLog.Text">    Checking company id...</set>
+					<LiveLog LiveLog="LiveLog"/>
+					<select from="{CRM}" entity="account" var="CRMCompanies">
+						<where>
+							<condition attr="accountid" op="eq">{newDom.targetCompanyID}</condition>
+						</where>
+						<attr name="accountid"/>
+						<attr name="name"/>
+						<attr name="statecode"/>
+					</select>
+
+					<exception if="CRMCompanies.Count eq 0">   Company with ID {newDom.targetCompanyID} was not found in CRM.</exception>
+
+					<set var="CrmAccountId">{CRMCompanies[0].accountid}</set>
+
+					<if condition="CRMCompanies[0].name ne newDom.CrmCompanyName" >
+						<if condition="UpdateCompanyNames eq true and !newDom.targetCompanyIsMerged">
+							<then>
+								<set var="LiveLog.Text">        Updating Company Name "{CRMCompanies[0].name}" to "{newDom.CrmCompanyName}"...</set>
+								<LiveLog LiveLog="LiveLog"/>
+								<update in="{CRM}" entity="account">
+									<where>
+										<condition attr="accountid" op="eq">{newDom.CrmCompanyID}</condition>
+									</where>
+									<attr name="name">{newDom.CrmCompanyName}</attr>
+								</update>
+							</then>
+							<else>
+								<set var="LiveLog.Text">        Company names do not match but will NOT update:  "{CRMCompanies[0].name}" to "{newDom.CrmCompanyName}"...</set>
+								<LiveLog LiveLog="LiveLog"/>
+							</else>
+						</if>
+					</if>
+
+
+				</then>
+				<else>
+					<set var="LiveLog.Text">    Searching for CRM account with name {newDom.CrmCompanyName}...</set>
+					<LiveLog LiveLog="LiveLog"/>
+					<select from="{CRM}" entity="account" var="CRMCompanies" count="1">
+						<where>
+							<condition attr="name" op="eq">{newDom.CrmCompanyName}</condition>
+						</where>
+						<attr name="accountid"/>
+					</select>
+
+					<if condition="CRMCompanies.Count gt 0">
+						<then>
+
+							<set var="LiveLog.Text">    CRM Account was found with id {CRMCompanies[0].accountid}.</set>
+							<LiveLog LiveLog="LiveLog"/>
+							<set var="CrmAccountId">{CRMCompanies[0].accountid}</set>
+
+						</then>
+						<else>
+							<set var="LiveLog.Text">    Creating CRM Account "{newDom.CrmCompanyName}"...</set>
+							<LiveLog LiveLog="LiveLog"/>
+							<create in="{CRM}" entity="account" var="newAccountId">
+								<attr name="name">{newDom.CrmCompanyName}</attr>
+								<attr name="vs360_source">{360000001}</attr>
+								<!-- REL360 Contact Sync -->
+							</create>
+							<set var="CrmAccountId">{newAccountId}</set>
+
+						</else>
+					</if>
+				</else>
+			</if>
+
+			<!--LINKING ACCOUNT AND DOMAIN-->
+			<if condition="CrmAccountId.isSet">
+				<then>
+					<set var="LiveLog.Text">    Linking Company and Domain...</set>
+					<LiveLog LiveLog="LiveLog"/>
+
+					<set var="created">{@crm.AssociateEntities('vs360_companydomain', CrmDomainId, 'account', CrmAccountId, 'vs360_vs360_companydomain_account')}</set>
+					<update in="{CRM}" entity="vs360_companydomain">
+						<where>
+							<condition attr="vs360_name" op="eq">{newDom.Domain}</condition>
+						</where>
+						<attr name="vs360_companyid">{CrmAccountId}</attr>
+					</update>
+
+					<if condition="!created">
+						<set var="LiveLog.Text">    Relationship between domain and company was NOT CREATED.</set>
+						<LiveLog LiveLog="LiveLog"/>
+						<set var="csvExRow">{new Dictionary()}</set>
+						<set var="csvExRow['Domain']">{newDom.Domain}</set>
+						<set var="csvExRow['CrmCompanyName']">{newDom.CrmCompanyName}</set>
+						<set var="csvExRow['CrmCompanyID']">{newDom.CrmCompanyID}</set>
+						<set var="csvExRow['CrmCompanyLegacyID']">{newDom.CrmCompanyLegacyID}</set>
+						<set var="csvExRow['targetCompanyID']">{newDom.targetCompanyID}</set>
+						<set var="csvExRow['ExceptionDetails']">{LiveLog.Text.Trim()}</set>
+						<set var="csvExceptions[]">{csvExRow}</set>
+						<continue/>
+					</if>
+				</then>
+				<else>
+					<set var="LiveLog.Text">    Company not found or created for domain {newDom.Domain} for unknown reason.</set>
+					<LiveLog LiveLog="LiveLog"/>
+					<set var="csvExRow">{new Dictionary()}</set>
+					<set var="csvExRow['Domain']">{newDom.Domain}</set>
+					<set var="csvExRow['CrmCompanyName']">{newDom.CrmCompanyName}</set>
+					<set var="csvExRow['CrmCompanyID']">{newDom.CrmCompanyID}</set>
+					<set var="csvExRow['CrmCompanyLegacyID']">{newDom.CrmCompanyLegacyID}</set>
+					<set var="csvExRow['targetCompanyID']">{newDom.targetCompanyID}</set>
+					<set var="csvExRow['ExceptionDetails']">{LiveLog.Text.Trim()}</set>
+					<set var="csvExceptions[]">{csvExRow}</set>
+					<continue/>
+				</else>
+			</if>
+
+		</sandbox>
+	</for>
+
+	<!-- Create Exceptions Spreadsheet -->
+	<if condition="csvExceptions.Count gt 0">
+		<then>
+			<set var="result">{Csv.Write(csvExceptions, DomainsLoadExceptionsReport, Encoding.UTF8, ',', '"')}</set>
+			<set var="LiveLog.Text">{Utils.NewLine}*************************************************************************************************************************{Utils.NewLine}</set>
+			<set var="LiveLog.Text">{LiveLog.Text}Exceptions were detected! Report Created:  {DomainsLoadExceptionsReport}{Utils.NewLine}</set>
+			<set var="LiveLog.Text">{LiveLog.Text}*************************************************************************************************************************</set>
+		</then>
+		<else>
+			<set var="LiveLog.Text">{Utils.NewLine}***************************************************************************{Utils.NewLine}</set>
+			<set var="LiveLog.Text">{LiveLog.Text}  SUCCESS! NO exceptions detected.{Utils.NewLine}</set>
+			<set var="LiveLog.Text">{LiveLog.Text}***************************************************************************</set>
+		</else>
+	</if>
+	<LiveLog LiveLog="LiveLog"/>
+
+
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+</script>

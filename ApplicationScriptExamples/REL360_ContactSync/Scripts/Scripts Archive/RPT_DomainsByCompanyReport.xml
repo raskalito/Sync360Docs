@@ -1,0 +1,142 @@
+<script>
+
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  *******************************   -->
+
+	<!-- Run Configuration attributes -->
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Domains By Company Report</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+
+	<!-- SET SYSTEM REFERENCE VARIABLES -->
+	<set var="CRM">crm</set>
+	<set var="Exchange">notset</set>
+	<include name="TimeStampAsText"/>
+	<set var="DomainsByCompanyFile">C:\Temp\Sync360Output\DomainsByCompany-{TimeStampAsText}.csv</set>
+
+	<!-- Processing Variables -->
+	<set var="IncludeProhibitedDomains">{false}</set>
+	<set CompanyList="new List()"/>
+	<set ContactDct="new Dictionary()"/>
+	
+	<!-- Load Prohibited Domains List -->
+	<include name="nonCorpDomainsList" />
+
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	<!-- Load Companies -->
+	<log>Reading Company/Contact Data...</log>
+	<select from="{CRM}" entity="account" var="companies">
+		<join type="leftouter" entity="contact" to="accountid" from="parentcustomerid" as="ContactAssoc">
+			<attr name="emailaddress1" as="ContactEmail"/>
+			<where>
+				<condition attr="emailaddress1" op="ex"/>
+			</where>
+		</join>
+		<attr name="accountid"/>
+		<attr name="name"/>
+		<attr name="address1_city"/>
+		<attr name="address1_stateorprovince"/>
+		<attr name="websiteurl"/>
+		<attr name="accountnumber"/>
+		<order by="name" desc="false"/>
+    </select>
+	
+	<if condition="companies.Count lt 1">
+        <then>
+            <log>	NO COMPANIES FOUND!</log>
+        </then>
+        <else>
+            <log>	{companies.Count} company/contact combinations found for processing.</log>
+		</else>
+    </if> -->
+	
+	<!-- Process Companies -->
+	<if condition="companies.Count gt 0">
+		<set>{FileUtils.WriteToFile(DomainsByCompanyFile, "CompanyID,CompanyName,AccountNumber,City,State,Domain,CRMContactsCount,OpportunitiesCount,LeadsCount,ProjectsCount", false)}</set>
+		<var currentComp="new Object()"/>
+		<set var="currentComp.ID">{null}</set>
+		<set var="oppsCount">{0}</set>
+		<set var="leadsCount">{0}</set>
+		<set var="jobsCount">{0}</set>
+		<set CompDomDct="new Dictionary()"/>
+
+		<for var="cmp" in="companies">
+		
+			<!-- Check for Change in Company to reset domain counters -->
+			<if condition="cmp.accountid ne currentComp.ID">
+				<!-- List Domains for Last Company processed -->
+				<for var="dom" in="CompDomDct">
+					<if condition="IncludeProhibitedDomains eq true or (IncludeProhibitedDomains eq false and !nonCorpDomains.Contains(dom.Key))">
+						<set var="dataLine">{currentComp.ID},{currentComp.Name.Replace(",","")},{currentComp.AcctNum},{currentComp.City},{currentComp.State},{dom.Key},{dom.Value},{oppsCount ?? 0},{leadsCount ?? 0},{jobsCount ?? 0}</set>
+						<set>{FileUtils.WriteToFile(DomainsByCompanyFile, dataLine, true)}</set>
+						<log>   {dataLine}</log>
+					</if>
+				</for>
+				
+				<var currentComp="new Object()"/>
+				<set var="currentComp.ID">{cmp.accountid}</set>
+				<set var="currentComp.Name">{cmp.name}</set>
+				<set var="currentComp.AcctNum">{cmp.accountnumber ?? ""}</set>
+				<set var="currentComp.City">{cmp.address1_city}</set>
+				<set var="currentComp.State">{cmp.address1_stateorprovince}</set>
+				<set CompDomDct="new Dictionary()"/>
+				<log>Processing Company {cmp.name}...</log>
+				
+				<!-- *********************  START: GET COMPANY INFO ***************************** -->
+				<!-- Get Opportunities Count for this company -->
+				<select from="{CRM}" entity="opportunity" var="opps">
+					<where>
+						<condition attr="accountid" op="eq">{cmp.accountid}</condition>
+					</where>
+				</select>
+				<set var="oppsCount">{opps.Count}</set>
+				
+				<!-- Get Leads Count for this company -->
+				<select from="{CRM}" entity="vs360_joblead" var="leads">
+					<where>
+						<condition attr="vs360_accountid" op="eq">{cmp.accountid}</condition>
+					</where>
+				</select>
+				<set var="leadsCount">{leads.Count}</set>
+				
+				<!-- Get Jobs Count for this company -->
+				<select from="{CRM}" entity="vs360_job" var="jobs">
+					<where>
+						<condition attr="vs360_accountid" op="eq">{cmp.accountid}</condition>
+					</where>
+				</select>
+				<set var="jobsCount">{jobs.Count}</set>
+				<!-- *********************  END: GET COMPANY INFO ***************************** -->
+
+			</if>
+ 
+			<if condition="cmp.ContactEmail.isSet">
+				<set var="keyValue">{Utils.Split(cmp.ContactEmail,'@')[1] ?? null}</set>
+				<set var="count">{0}</set>
+				<if condition="keyValue.isSet">
+					<if condition="CompDomDct[keyValue].isSet">
+						<then>
+							<set var="count">{CompDomDct[keyValue] + 1}</set>
+						</then>
+						<else>
+							<set var="count">{1}</set>
+						</else>
+					</if>
+					<set var="CompDomDct[keyValue]">{count}</set>
+				</if>
+			</if>
+        </for>
+	</if>
+	
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+	
+</script>

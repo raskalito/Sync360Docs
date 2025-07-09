@@ -1,0 +1,78 @@
+<script>
+	<!--Input parameters
+		RequestObj - Object
+		RequestObj.Type - Text, type of request POST, GET, PUT
+		RequestObj.Url - endpoint to call
+		RequestObj.Headers - dictionary with headers for request
+		RequestObj.Payload - body of request for POST and PUT.
+		RequestObj.WrapResponse - boolean, in case web service returns array JSON without top property, which prevents serialization to dictionary
+		
+		Output paramters
+		RequestObj.Result - dictionary with response data.
+		RequestObj.Error - an error in case request failed.	
+		
+	-->
+	
+	<!--Add streamreader type to be able to read web errors -->
+	<set var="StreamReader">{typeof 'System.IO.StreamReader'}</set>
+	<!--Add webexception type to handle web execptions -->
+	<set var="WebException">{typeof 'System.Net.WebException, System.Net.Requests, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'}</set>
+	<!-- Variables to wrap json response -->
+	<set var="startJson">{'{"list":'}</set>
+	<set var="endJson">}</set>
+	
+	<!--Based on request type, perform different requests. -->
+	<if condition="RequestObj.Type eq 'POST'">
+		<!--doing operation in sandbox to handle errors -->
+		<sandbox>
+			<log>Executing web request {RequestObj.Type} - {RequestObj.Url} - {RequestObj.Payload}</log>
+			<!--execute request  -->
+			<set var="Response">{Http.Post(RequestObj.Url, RequestObj.Payload, RequestObj.Headers)}</set>
+			<!--if needed wrap response  -->
+			<set var="Response" if="RequestObj.WrapResponse.isSet and RequestObj.WrapResponse">{startJson}{Response}{endJson}</set>
+			<!--convert JSON to dictionary  -->
+			<set var="Result">{Json.GetDictionary(Response)}</set>
+			<!--add result to output property  -->
+			<set var="RequestObj.Result">{Result}</set>
+			<onerror of="typeof WebException" var="ex">
+				<!-- read error via stremreader class -->
+				<set var="Responsetext">{new StreamReader(ex.Response.GetResponseStream()).ReadToEnd()}</set>
+				<!-- convert json error into dictionary -->
+				<set var="ErrorResponse">{Json.GetDictionary(Responsetext)}</set>
+				<!-- add error to ouput property -->
+				<set var="RequestObj.Error">{ErrorResponse}</set>
+				<log>Error occured executing web request: {RequestObj.Error}</log>
+			</onerror>
+		</sandbox>
+    </if>
+	
+	<if condition="RequestObj.Type eq 'GET'">
+		<sandbox>
+			<log>Executing web request {RequestObj.Type} - {RequestObj.Url}</log>
+			<set var="Response">{Http.Get(RequestObj.Url, RequestObj.Headers)}</set>
+			<set var="Result">{Json.GetDictionary(Response)}</set>
+			<set var="RequestObj.Result">{Result}</set>
+            <onerror of="typeof WebException" var="ex">
+				<set var="Responsetext">{new StreamReader(ex.Response.GetResponseStream()).ReadToEnd()}</set>
+				<set var="ErrorResponse">{Json.GetDictionary(Responsetext)}</set>
+				<set var="RequestObj.Error">{ErrorResponse}</set>
+				<log>Error occured executing web request: {RequestObj.Error}</log>
+			</onerror>
+        </sandbox>
+	</if>
+	
+	<if condition="RequestObj.Type eq 'PUT'">
+		<sandbox>
+			<log>Executing web request {RequestObj.Type} - {RequestObj.Url} - {RequestObj.Payload}</log>
+			<set var="Response">{Http.Put(RequestObj.Url, RequestObj.Payload, RequestObj.Headers)}</set>
+			<set var="Result">{Json.GetDictionary(Response)}</set>
+			<set var="RequestObj.Result">{Result}</set>
+            <onerror of="typeof WebException" var="ex">
+				<set var="Responsetext">{new StreamReader(ex.Response.GetResponseStream()).ReadToEnd()}</set>
+				<set var="ErrorResponse">{Json.GetDictionary(Responsetext)}</set>
+				<set var="RequestObj.Error">{ErrorResponse}</set>
+				<log>Error occured executing web request: {RequestObj.Error}</log>
+			</onerror>
+        </sandbox>
+	</if>
+</script>

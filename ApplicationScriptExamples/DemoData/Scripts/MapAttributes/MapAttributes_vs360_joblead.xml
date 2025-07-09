@@ -1,0 +1,890 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<script>
+  <set Settings.AttributesMappingVersion="'1.0.0.0'" />
+  <set Settings.AttributesMapping="new Dictionary()" />
+  <!--<set var="Settings.AttributesMapping['name']">-->
+  <!--<attr name="src">name</attr>-->
+  <!--<attr name="dst">name</attr>-->
+  <!--<attr name="type">string</attr>-->
+  <!--</set>-->
+  <set var="Settings.AttributesMapping['vs360_contracttype']">
+    <attr name="src">vs360_contracttype</attr>
+    <attr name="dst">vs360_contracttype</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owninguser']">
+    <attr name="src">owninguser</attr>
+    <attr name="dst">owninguser</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['importsequencenumber']">
+    <attr name="src">importsequencenumber</attr>
+    <attr name="dst">importsequencenumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_responsibilitycode']">
+    <attr name="src">vs360_responsibilitycode</attr>
+    <attr name="dst">vs360_responsibilitycode</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_squarefootage']">
+    <attr name="src">vs360_squarefootage</attr>
+    <attr name="dst">vs360_squarefootage</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_jmtcontractvalue']">
+    <attr name="src">vs360_jmtcontractvalue</attr>
+    <attr name="dst">vs360_jmtcontractvalue</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_leadtype']">
+    <attr name="src">vs360_leadtype</attr>
+    <attr name="dst">vs360_leadtype</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_leedcertification']">
+    <attr name="src">vs360_leedcertification</attr>
+    <attr name="dst">vs360_leedcertification</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_sourceurl']">
+    <attr name="src">vs360_sourceurl</attr>
+    <attr name="dst">vs360_sourceurl</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_value']">
+    <attr name="src">vs360_value</attr>
+    <attr name="dst">vs360_value</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['transactioncurrencyid']">
+    <attr name="src">transactioncurrencyid</attr>
+    <attr name="dst">transactioncurrencyid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_contactid']">
+    <attr name="src">vs360_contactid</attr>
+    <attr name="dst">vs360_contactid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_primaryserviceid']">
+    <attr name="src">vs360_primaryserviceid</attr>
+    <attr name="dst">vs360_primaryserviceid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_clientreferencenumber']">
+    <attr name="src">vs360_clientreferencenumber</attr>
+    <attr name="dst">vs360_clientreferencenumber</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_proposalcentersitelink']">
+    <attr name="src">vs360_proposalcentersitelink</attr>
+    <attr name="dst">vs360_proposalcentersitelink</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_location_line3']">
+    <attr name="src">vs360_location_line3</attr>
+    <attr name="dst">vs360_location_line3</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_sourceid']">
+    <attr name="src">vs360_sourceid</attr>
+    <attr name="dst">vs360_sourceid</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_officeid']">
+    <attr name="src">vs360_officeid</attr>
+    <attr name="dst">vs360_officeid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_primaryreviewerid']">
+    <attr name="src">vs360_primaryreviewerid</attr>
+    <attr name="dst">vs360_primaryreviewerid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_round1submissiontype']">
+    <attr name="src">vs360_round1submissiontype</attr>
+    <attr name="dst">vs360_round1submissiontype</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_marketid']">
+    <attr name="src">vs360_marketid</attr>
+    <attr name="dst">vs360_marketid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_additionalround1submissions']">
+    <attr name="src">vs360_additionalround1submissions</attr>
+    <attr name="dst">vs360_additionalround1submissions</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_adtrackertargetlistcreatedon']">
+    <attr name="src">vs360_adtrackertargetlistcreatedon</attr>
+    <attr name="dst">vs360_adtrackertargetlistcreatedon</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statuscode']">
+    <attr name="src">statuscode</attr>
+    <attr name="dst">statuscode</attr>
+    <attr name="type">Status</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_levelsaboveground']">
+    <attr name="src">vs360_levelsaboveground</attr>
+    <attr name="dst">vs360_levelsaboveground</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_jobleadid']">
+    <attr name="src">vs360_jobleadid</attr>
+    <attr name="dst">vs360_jobleadid</attr>
+    <attr name="type">Uniqueidentifier</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningteam']">
+    <attr name="src">owningteam</attr>
+    <attr name="dst">owningteam</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_location_county']">
+    <attr name="src">vs360_location_county</attr>
+    <attr name="dst">vs360_location_county</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_prebidmtgdate']">
+    <attr name="src">vs360_prebidmtgdate</attr>
+    <attr name="dst">vs360_prebidmtgdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_noofexpectedcontracts']">
+    <attr name="src">vs360_noofexpectedcontracts</attr>
+    <attr name="dst">vs360_noofexpectedcontracts</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_preproposalmeetingtype']">
+    <attr name="src">vs360_preproposalmeetingtype</attr>
+    <attr name="dst">vs360_preproposalmeetingtype</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_prebidmtguserid']">
+    <attr name="src">vs360_prebidmtguserid</attr>
+    <attr name="dst">vs360_prebidmtguserid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_office365groupcreatedon']">
+    <attr name="src">vs360_office365groupcreatedon</attr>
+    <attr name="dst">vs360_office365groupcreatedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['exchangerate']">
+    <attr name="src">exchangerate</attr>
+    <attr name="dst">exchangerate</attr>
+    <attr name="type">Decimal</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_adtrackertargetlistmodifiedon']">
+    <attr name="src">vs360_adtrackertargetlistmodifiedon</attr>
+    <attr name="dst">vs360_adtrackertargetlistmodifiedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedonbehalfby']">
+    <attr name="src">modifiedonbehalfby</attr>
+    <attr name="dst">modifiedonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['versionnumber']">
+    <attr name="src">versionnumber</attr>
+    <attr name="dst">versionnumber</attr>
+    <attr name="type">BigInt</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_location_city']">
+    <attr name="src">vs360_location_city</attr>
+    <attr name="dst">vs360_location_city</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_gtascheduleproject']">
+    <attr name="src">vs360_gtascheduleproject</attr>
+    <attr name="dst">vs360_gtascheduleproject</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_adtrackeradditionallinks']">
+    <attr name="src">vs360_adtrackeradditionallinks</attr>
+    <attr name="dst">vs360_adtrackeradditionallinks</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_scope']">
+    <attr name="src">vs360_scope</attr>
+    <attr name="dst">vs360_scope</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['owningbusinessunit']">
+    <attr name="src">owningbusinessunit</attr>
+    <attr name="dst">owningbusinessunit</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_primaryclientid']">
+    <attr name="src">vs360_primaryclientid</attr>
+    <attr name="dst">vs360_primaryclientid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_location_postalcode']">
+    <attr name="src">vs360_location_postalcode</attr>
+    <attr name="dst">vs360_location_postalcode</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_accountid']">
+    <attr name="src">vs360_accountid</attr>
+    <attr name="dst">vs360_accountid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_projectcreatedon']">
+    <attr name="src">vs360_projectcreatedon</attr>
+    <attr name="dst">vs360_projectcreatedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_location_stateorprovince']">
+    <attr name="src">vs360_location_stateorprovince</attr>
+    <attr name="dst">vs360_location_stateorprovince</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_adtrackerstatus']">
+    <attr name="src">vs360_adtrackerstatus</attr>
+    <attr name="dst">vs360_adtrackerstatus</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdon']">
+    <attr name="src">createdon</attr>
+    <attr name="dst">overriddencreatedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_contractvaluecapacity']">
+    <attr name="src">vs360_contractvaluecapacity</attr>
+    <attr name="dst">vs360_contractvaluecapacity</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_prebidmtgrequired']">
+    <attr name="src">vs360_prebidmtgrequired</attr>
+    <attr name="dst">vs360_prebidmtgrequired</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_proposalcenternumber']">
+    <attr name="src">vs360_proposalcenternumber</attr>
+    <attr name="dst">vs360_proposalcenternumber</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['ownerid']">
+    <attr name="src">ownerid</attr>
+    <attr name="dst">ownerid</attr>
+    <attr name="type">Owner</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_sitevisitdate']">
+    <attr name="src">vs360_sitevisitdate</attr>
+    <attr name="dst">vs360_sitevisitdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_projectnumber']">
+    <attr name="src">vs360_projectnumber</attr>
+    <attr name="dst">vs360_projectnumber</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_shortname']">
+    <attr name="src">vs360_shortname</attr>
+    <attr name="dst">vs360_shortname</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_round1submissionduedate']">
+    <attr name="src">vs360_round1submissionduedate</attr>
+    <attr name="dst">vs360_round1submissionduedate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_jmtcontractvalue_base']">
+    <attr name="src">vs360_jmtcontractvalue_base</attr>
+    <attr name="dst">vs360_jmtcontractvalue_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_externalmarketsegmentid']">
+    <attr name="src">vs360_externalmarketsegmentid</attr>
+    <attr name="dst">vs360_externalmarketsegmentid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_countryid']">
+    <attr name="src">vs360_countryid</attr>
+    <attr name="dst">vs360_countryid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_externalowner']">
+    <attr name="src">vs360_externalowner</attr>
+    <attr name="dst">vs360_externalowner</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_subconsultantexpected_base']">
+    <attr name="src">vs360_subconsultantexpected_base</attr>
+    <attr name="dst">vs360_subconsultantexpected_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['utcconversiontimezonecode']">
+    <attr name="src">utcconversiontimezonecode</attr>
+    <attr name="dst">utcconversiontimezonecode</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_segmentid']">
+    <attr name="src">vs360_segmentid</attr>
+    <attr name="dst">vs360_segmentid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_totalexpectedfee_base']">
+    <attr name="src">vs360_totalexpectedfee_base</attr>
+    <attr name="dst">vs360_totalexpectedfee_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_greenbldgcertification']">
+    <attr name="src">vs360_greenbldgcertification</attr>
+    <attr name="dst">vs360_greenbldgcertification</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_biddate']">
+    <attr name="src">vs360_biddate</attr>
+    <attr name="dst">vs360_biddate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_totalexpectedfee']">
+    <attr name="src">vs360_totalexpectedfee</attr>
+    <attr name="dst">vs360_totalexpectedfee</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_value_base']">
+    <attr name="src">vs360_value_base</attr>
+    <attr name="dst">vs360_value_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['statecode']">
+    <attr name="src">statecode</attr>
+    <attr name="dst">statecode</attr>
+    <attr name="type">State</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{true}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_marketingcoordinator']">
+    <attr name="src">vs360_marketingcoordinator</attr>
+    <attr name="dst">vs360_marketingcoordinator</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_contractvaluecapacity_base']">
+    <attr name="src">vs360_contractvaluecapacity_base</attr>
+    <attr name="dst">vs360_contractvaluecapacity_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_anticipatedaddate']">
+    <attr name="src">vs360_anticipatedaddate</attr>
+    <attr name="dst">vs360_anticipatedaddate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_legalentity']">
+    <attr name="src">vs360_legalentity</attr>
+    <attr name="dst">vs360_legalentity</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedby']">
+    <attr name="src">modifiedby</attr>
+    <attr name="dst">modifiedby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['modifiedon']">
+    <attr name="src">modifiedon</attr>
+    <attr name="dst">modifiedon</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_constructioncost']">
+    <attr name="src">vs360_constructioncost</attr>
+    <attr name="dst">vs360_constructioncost</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_location_line2']">
+    <attr name="src">vs360_location_line2</attr>
+    <attr name="dst">vs360_location_line2</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_adtrackertargetlistmodifiedby']">
+    <attr name="src">vs360_adtrackertargetlistmodifiedby</attr>
+    <attr name="dst">vs360_adtrackertargetlistmodifiedby</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_stateid']">
+    <attr name="src">vs360_stateid</attr>
+    <attr name="dst">vs360_stateid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_durationofcontract']">
+    <attr name="src">vs360_durationofcontract</attr>
+    <attr name="dst">vs360_durationofcontract</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_marketingreviewer']">
+    <attr name="src">vs360_marketingreviewer</attr>
+    <attr name="dst">vs360_marketingreviewer</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_adtrackerlink']">
+    <attr name="src">vs360_adtrackerlink</attr>
+    <attr name="dst">vs360_adtrackerlink</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_procurementmethod']">
+    <attr name="src">vs360_procurementmethod</attr>
+    <attr name="dst">vs360_procurementmethod</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_numberofbuildings']">
+    <attr name="src">vs360_numberofbuildings</attr>
+    <attr name="dst">vs360_numberofbuildings</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_location_line1']">
+    <attr name="src">vs360_location_line1</attr>
+    <attr name="dst">vs360_location_line1</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_selectionmethod']">
+    <attr name="src">vs360_selectionmethod</attr>
+    <attr name="dst">vs360_selectionmethod</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_name']">
+    <attr name="src">vs360_name</attr>
+    <attr name="dst">vs360_name</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_pptaproject']">
+    <attr name="src">vs360_pptaproject</attr>
+    <attr name="dst">vs360_pptaproject</attr>
+    <attr name="type">Boolean</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_estimatedfinishdate']">
+    <attr name="src">vs360_estimatedfinishdate</attr>
+    <attr name="dst">vs360_estimatedfinishdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_externalstageid']">
+    <attr name="src">vs360_externalstageid</attr>
+    <attr name="dst">vs360_externalstageid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_externalworktypeid']">
+    <attr name="src">vs360_externalworktypeid</attr>
+    <attr name="dst">vs360_externalworktypeid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_relatedtargets']">
+    <attr name="src">vs360_relatedtargets</attr>
+    <attr name="dst">vs360_relatedtargets</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_preproposalmeetingdate']">
+    <attr name="src">vs360_preproposalmeetingdate</attr>
+    <attr name="dst">vs360_preproposalmeetingdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_round1notes']">
+    <attr name="src">vs360_round1notes</attr>
+    <attr name="dst">vs360_round1notes</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_qualifying']">
+    <attr name="src">vs360_qualifying</attr>
+    <attr name="dst">vs360_qualifying</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_levelsbelowground']">
+    <attr name="src">vs360_levelsbelowground</attr>
+    <attr name="dst">vs360_levelsbelowground</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdby']">
+    <attr name="src">createdby</attr>
+    <attr name="dst">createdby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_sitevisittype']">
+    <attr name="src">vs360_sitevisittype</attr>
+    <attr name="dst">vs360_sitevisittype</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_projectstageid']">
+    <attr name="src">vs360_projectstageid</attr>
+    <attr name="dst">vs360_projectstageid</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_strengthindicator']">
+    <attr name="src">vs360_strengthindicator</attr>
+    <attr name="dst">vs360_strengthindicator</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_constructioncost_base']">
+    <attr name="src">vs360_constructioncost_base</attr>
+    <attr name="dst">vs360_constructioncost_base</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_adtrackertargetlistcreatedby']">
+    <attr name="src">vs360_adtrackertargetlistcreatedby</attr>
+    <attr name="dst">vs360_adtrackertargetlistcreatedby</attr>
+    <attr name="type">String</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_ownertype']">
+    <attr name="src">vs360_ownertype</attr>
+    <attr name="dst">vs360_ownertype</attr>
+    <attr name="type">Picklist</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_questionsduedate']">
+    <attr name="src">vs360_questionsduedate</attr>
+    <attr name="dst">vs360_questionsduedate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['createdonbehalfby']">
+    <attr name="src">createdonbehalfby</attr>
+    <attr name="dst">createdonbehalfby</attr>
+    <attr name="type">Lookup</attr>
+    <attr name="validForCreate">{false}</attr>
+    <attr name="validForUpdate">{false}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_subconsultantexpected']">
+    <attr name="src">vs360_subconsultantexpected</attr>
+    <attr name="dst">vs360_subconsultantexpected</attr>
+    <attr name="type">Money</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['timezoneruleversionnumber']">
+    <attr name="src">timezoneruleversionnumber</attr>
+    <attr name="dst">timezoneruleversionnumber</attr>
+    <attr name="type">Integer</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_description']">
+    <attr name="src">vs360_description</attr>
+    <attr name="dst">vs360_description</attr>
+    <attr name="type">Memo</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+  <set var="Settings.AttributesMapping['vs360_estimatedstartdate']">
+    <attr name="src">vs360_estimatedstartdate</attr>
+    <attr name="dst">vs360_estimatedstartdate</attr>
+    <attr name="type">DateTime</attr>
+    <attr name="validForCreate">{true}</attr>
+    <attr name="validForUpdate">{true}</attr>
+    <attr name="required">{false}</attr>
+  </set>
+</script>

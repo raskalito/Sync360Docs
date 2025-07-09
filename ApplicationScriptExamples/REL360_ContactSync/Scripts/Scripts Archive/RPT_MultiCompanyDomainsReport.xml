@@ -1,0 +1,245 @@
+<script>
+	<!--  ******************************* -->
+	<!--   SCRIPT CONFIGURATION SECTION   -->
+	<!--  ******************************* -->
+	<!--   Examine/evaluate carefully     -->
+	<!--   prior to running script.       -->
+	<!--  *******************************   -->
+
+	<!-- Run Configuration attributes -->
+	<var BlockInfo="new Object()"/>
+	<set var="BlockInfo.Title">Multi-Company Domain Report</set>
+	<set var="BlockInfo.Mode">Start</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+	
+	<set var="ListNONCrossCompanyDomains">{false}</set>
+	<set var="IncludeProhibitedDomains">{false}</set>
+	<set var="ExcludeInactiveContacts">{false}</set>  
+	<set var="teamId">6DC8F59E-182C-EB11-A813-000D3A8B69FB</set> <!-- Client's Main Team -->
+	<set var="mode">Team</set> <!-- Team or EmailList (Exchange) [List is below in code at beginning of Exchange processing] -->
+	
+
+	<!-- Data sources and output files -->
+	<set var="CRM">crm</set>
+	<set var="Exchange">exchangeOAuth</set>
+	<include name="TimeStampAsText"/>
+	<set var="MultiCompanyDomainsReportFile">C:\Temp\Sync360Output\MultiCompanyDomainsReport-{TimeStampAsText}.csv</set>  <!-- Output file path & name -->
+	
+	<!-- Prints log text and adds to external log file -->
+	<var LiveLog="new Object()"/>
+	<set var="LiveLog.UseLog">{true}</set>
+	<set var="LiveLog.FileName">C:\Sync360Output\MultiCompanyDomainsReportLog-{TimeStampAsText}.csv</set>
+	
+	
+	<!-- Data Variables -->
+	<set DomainCompanyContactCounts="new Dictionary()"/>
+	<set DomainCompanyCounts="new Dictionary()"/>
+	<set ExchangeDomainCounts="new Dictionary()"/>
+	<set var="emailList">{new List()}</set>
+	
+	<!--  *********************************** -->
+	<!--   END SCRIPT CONFIGURATION SECTION   -->
+	<!--  *********************************** -->
+
+	<log>     Output File:  MultiCompanyExchangeDetailReportFile</log>
+
+	<!-- INCLUDES -->
+	<include name="CompanyDictionary" />
+	<include name="nonCorpDomainsList" />
+
+	<!-- Load Companies -->
+	<log>Reading Company/Contact Data...</log>
+	<select from="{CRM}" entity="account" var="CompContacts" >
+		<join type="inner" entity="contact" to="accountid" from="parentcustomerid" as="ContactAssoc">
+			<attr name="emailaddress1" as="ContactEmail"/>
+			<where>
+				<condition attr="emailaddress1" op="ex"/>
+				<!--<condition attr="emailaddress1" op="co">rtkl.com</condition>-->
+				<if condition="ExcludeInactiveContacts eq true">
+                    <condition attr="statecode" op="eq">{0}</condition>
+                </if>
+			</where>
+		</join>
+		<attr name="accountid"/>
+		<attr name="name"/>
+		<attr name="address1_city"/>
+		<attr name="address1_stateorprovince"/>
+		<attr name="websiteurl"/>
+		<order by="accountid" desc="false"/>
+    </select>
+
+	<!-- Add Domain to each record -->
+	<for var="cmp" in="CompContacts">
+		<if condition="cmp.ContactEmail.isSet">
+			<set var="domain">{Utils.ToLower(Utils.Split(cmp.ContactEmail,'@')[1])}</set>
+			<if condition="domain.isSet">
+				<set var="cmp['EmailDomain']">{domain}</set>
+			</if>
+		</if>
+	</for>
+	
+	<if condition="CompContacts.Count lt 1">
+        <then>
+            <log>	NO COMPANIES FOUND!</log>
+        </then>
+        <else>
+            <log>	{CompContacts.Count} company/contact combinations found for processing.</log>
+		</else>
+    </if>
+	
+	<if condition="CompContacts.Count gt 0">
+		<!-- Create Domain-Company Dictionary and tally CRM Contacts -->
+		<for var="CompCon" in="CompContacts">
+			<if condition="IncludeProhibitedDomains eq true or (IncludeProhibitedDomains eq false and !nonCorpDomains.Contains(Utils.ToLower(CompCon.EmailDomain)))">
+				<set var="dcKey">{CompCon.EmailDomain}||{CompCon.accountid}</set>
+				
+				<if condition="DomainCompanyContactCounts[dcKey].isSet">
+					<then>
+						<set var="DomainCompanyContactCounts[dcKey]">{DomainCompanyContactCounts[dcKey] + 1}</set>
+					</then>
+					<else>
+						<set var="DomainCompanyContactCounts[dcKey]">{1}</set>
+					</else>
+				</if>
+				
+			</if>
+		</for>
+				
+		<!-- Create Domain Dictionary and tally Companies -->
+		<for var="DomComp" in="DomainCompanyContactCounts">
+			<set var="dKey">{Utils.Split(DomComp.Key,'||')[0]}</set>
+			
+			<if condition="DomainCompanyCounts[dKey].isSet">
+				<then>
+					<set var="DomainCompanyCounts[dKey]">{DomainCompanyCounts[dKey] + 1}</set>
+				</then>
+				<else>
+					<set var="DomainCompanyCounts[dKey]">{1}</set>
+				</else>
+			</if>
+		</for>
+			
+						
+		<!-- ********************************** -->
+		<!-- Process Domains for Exchange Users -->
+		<!-- ********************************** -->
+		<!-- Process Modes -->
+		<!-- Mode EmailList - Get user emails from this list -->
+		<if condition="mode eq 'EmailList'">
+			<set var="emailList[]">user.name@clientdomain.com</set>
+		</if>
+		
+		<!-- Mode Team - Get user emails from team members -->
+		<if condition="mode eq 'Team'">
+			<if condition="!teamId.isSet or (teamId.isSet and teamId eq '')">
+				<exception>TeamId is required</exception>
+			</if>
+			<sandbox>
+				<!-- Select employee ids from team -->
+				<select from="{CRM}" entity="vs360_vs360_employee_team" var="teammemberships"  > <!--count="10"-->
+					<where>
+						<condition attr="teamid" op="eq">{teamId}</condition>
+					</where>
+					<join type="inner" entity="vs360_employee" to="vs360_employeeid" from="vs360_employeeid">
+						<where>
+							<condition attr="emailaddress" op="ex"></condition>
+						</where>
+						<attr name="vs360_name" as="vs360_name"/>
+						<attr name="emailaddress" as="emailaddress"/>
+					</join>
+					<attr name="vs360_employeeid"/>
+				</select>
+				<if condition="teammemberships.Count eq 0">
+					<exception>No employees in CRM Team ({teamId})</exception>
+				</if>
+				<if condition="teammemberships.Count gt 0">
+					<for var="teammembership" in="teammemberships">
+						<set var="emailList[]">{Utils.ToLower(teammembership.emailaddress)}</set>
+					</for>
+				</if>
+			</sandbox>
+		</if>
+		<log>{emailList.Count} Mailboxes loaded for processing.</log>
+		
+		<!-- Process each emailbox in list -->
+		<for var="emailbox" in="emailList">
+			<sandbox>
+				<log>Processing mailbox: {emailbox}</log>
+				<context for="{Exchange}" user="{emailbox}">
+					<select from="{Exchange}" entity="contact" var="UserContacts">
+						<where>
+							<condition attr="@BodyResponseType" op="eq">Text</condition>
+						</where>
+						<attr name="firstname"/>
+						<attr name="lastname"/>
+						<attr name="email1address"/>
+						<attr name="email2address"/>
+						<attr name="email3address"/>
+					</select>
+				</context>
+				<log>   Processing {UserContacts.Count} for mailbox {emailbox}</log>
+				<for var="cnt" in="UserContacts">
+					<set CntDomDict="new Dictionary()"/>
+				
+					<!-- Check Email Address 1 -->
+					<if condition="Utils.ToLower(Utils.Split(cnt.email1address,'@')[1]).isSet">
+						<set var="CntDomDict[Utils.ToLower(Utils.Split(cnt.email1address,'@')[1])]">{1}</set>
+					</if>
+
+					<!-- Check Email Address 2 -->
+					<if condition="Utils.ToLower(Utils.Split(cnt.email2address,'@')[1]).isSet">
+						<set var="CntDomDict[Utils.ToLower(Utils.Split(cnt.email2address,'@')[1])]">{1}</set>
+					</if>
+
+					<!-- Check Email Address 3 -->
+					<if condition="Utils.ToLower(Utils.Split(cnt.email3address,'@')[1]).isSet">
+						<set var="CntDomDict[Utils.ToLower(Utils.Split(cnt.email3address,'@')[1])]">{1}</set>
+					</if>
+					
+					<for var="d" in="CntDomDict">
+						<if condition="DomainCompanyCounts[d.Key].isSet">
+							<log>            Adding contact {cnt.firstname} {cnt.lastname} to count of {d.key}</log>
+							<if condition="ExchangeDomainCounts[d.Key].isSet">
+								<then>
+									<set var="ExchangeDomainCounts[d.Key]">{ExchangeDomainCounts[d.Key] + 1}</set>
+								</then>
+								<else>
+									<set var="ExchangeDomainCounts[d.Key]">{1}</set>
+								</else>
+							</if>
+						</if>
+					</for>
+					
+				</for>
+
+			</sandbox>
+		
+		</for>
+
+		<!-- Write to Excel File -->
+		<set>{FileUtils.WriteToFile(MultiCompanyDomainsReportFile,"Domain,CRMDomainCompanyCount,ExchangeContactsCount,CompanyID,CompanyName,CRMContactsCount", false)}</set>
+
+		<for var="compDom" in="DomainCompanyContactCounts">	
+			<sandbox verbose="true">
+				<set var="Domain">{Utils.Split(compDom.Key, "||")[0]}</set>
+				<set var="CompanyID">{Utils.Split(compDom.Key, "||")[1]}</set>
+				<set var="CRMCount">{compDom.Value ?? 0}</set>
+				<set var="CompanyName">{CompanyDictionary[CompanyID]}</set>
+				<set var="DomainCount">{DomainCompanyCounts[Domain] ?? 0}</set>
+				<set var="ExchangeCount">{ExchangeDomainCounts[Domain] ?? 0}</set>
+			
+				<if condition="ListNONCrossCompanyDomains eq true or (ListNONCrossCompanyDomains eq false and DomainCount gt 1)">
+					<set var="dataLine">{Domain},{DomainCount},{ExchangeCount},{CompanyID},{CompanyName.Replace(",","")},{CRMCount}</set>
+					<set>{FileUtils.WriteToFile(MultiCompanyDomainsReportFile, dataLine, true)}</set>
+
+					<log>   {dataLine}</log>
+				</if>
+			</sandbox>
+		</for>
+
+	</if>
+	
+	<set var="BlockInfo.Mode">End</set>
+	<DisplayStartEndBlock BlockInfo="BlockInfo"/>
+	
+</script>

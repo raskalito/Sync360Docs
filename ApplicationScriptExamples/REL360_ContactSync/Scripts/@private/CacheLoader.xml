@@ -1,0 +1,313 @@
+<script>
+	<exception if="!CacheContainer.isSet">CacheContainer is missing.</exception>
+	
+	<log>[CacheLoader] Started</log>
+	
+	
+	<include name="CacheKeys" />
+	
+	<set var="ConcurrentDictionary">{typeof 'System.Collections.Concurrent.ConcurrentDictionary`2[System.String,System.Object]'}</set>
+	
+	<!--SETTINGS PROCESSING-->
+	<set var="SettingsCacheKey">Settings</set>
+	<set var="SettingsContainer">{new Object()}</set>
+	
+	<call name="@private/GetSettings" Context="SettingsContainer"></call>
+	<if condition="CacheContainer.ContainsKey(SettingsCacheKey)">
+		<then>
+			<call name="@private/UpdateGlobalSettings" GlobalSettings="CacheContainer[SettingsCacheKey]" NewSettings="SettingsContainer.Settings"/>
+			<log>Settings was updated.</log>
+		</then>
+		<else>
+			<set var="CacheContainer[SettingsCacheKey]">{SettingsContainer.Settings}</set>
+			<log>Settings was set.</log>
+		</else>
+	</if>
+	<!--SETTINGS PROCESSING-->
+	
+	
+	<!--DOMAINS BLOCK LIST-->
+	
+	<if condition="!CacheContainer.ContainsKey(DomainsCacheKey)">
+		<then>
+			
+			<set var="domainsBlockStorage">{new ConcurrentDictionary()}</set>
+			
+			<call name="@private/GetDomainsBlockList" Collection="domainsBlockStorage"></call>
+			
+			<set var="CacheContainer[DomainsCacheKey]">{domainsBlockStorage}</set>
+			<log>[CacheLoader] Domains Block List - {domainsBlockStorage.Count} items loaded.</log>
+		</then>
+		<else>
+			
+			<log>[CacheLoader] Domains Block List - Checking domains...</log>
+			
+			<set var="actualBlockList">{new Dictionary()}</set>
+			<call name="@private/GetDomainsBlockList" Collection="actualBlockList"></call>
+			
+			<log>[CacheLoader] Domains Block List - {actualBlockList.Count} domains found in Dynamics...</log>
+			
+			<set var="cachedBlockList">{CacheContainer[DomainsCacheKey]}</set>
+			
+			<set added="new Dictionary()" existed="new Dictionary()" deleted="new Dictionary()"/>
+			
+			<for var="item" in="actualBlockList.Keys">
+				<set var="domainName">{item.ToLower()}</set>
+				
+				<if condition="cachedBlockList.ContainsKey(domainName)">
+                    <then>
+						<set var="existed[domainName]">{null}</set>
+					</then>
+					<else>
+						<set var="added[domainName]">{null}</set>
+					</else>
+                </if>
+			</for>
+			
+			<for var="cachedItem" in="cachedBlockList.Keys">
+                <if condition="!actualBlockList.ContainsKey(cachedItem)">
+                    <set var="deleted[cachedItem]">{null}</set>
+                </if>
+            </for>
+			
+			
+			<if condition="deleted.Count gt 0">
+                <set var="tryRemoveMethod">{ConcurrentDictionary.GetMethod("TryRemove")}</set>
+				
+				<log>[CacheLoader] Domains Block List - items to remove: {Utils.Join(deleted.Keys, ', ')}</log>
+				
+				<for var="deletedDomain" in="deleted.Keys">
+					<set var="tryRemoveMethodArgs">{[deletedDomain, null]}</set>
+					<set var="res">{tryRemoveMethod.Invoke(cachedBlockList, tryRemoveMethodArgs)}</set>
+					
+					<!--<set>{cachedBlockList.TryRemove(deletedDomain)}</set>-->
+				</for>
+            </if>
+			
+			<if condition="added.Count gt 0">
+                <log>[CacheLoader] Domains Block List - items to add: {Utils.Join(added.Keys, ', ')}</log>
+				
+				<for var="addedDomain" in="added.Keys">
+					<set var="cachedBlockList[addedDomain]">{null}</set>
+				</for>
+            </if>
+		
+		</else>
+	</if>
+	
+	<!--DOMAINS BLOCK LIST-->
+	
+	
+	<!--EMAIL NAMES BLICK LIST-->
+	
+	<if condition="!CacheContainer.ContainsKey(EmailNamesCacheKey)">
+		<then>
+			
+			<set var="EmailNamesBlockStorage">{new ConcurrentDictionary()}</set>
+			
+			<call name="@private/GetEmailNamesBlockList" Collection="EmailNamesBlockStorage"></call>
+			
+			<set var="CacheContainer[EmailNamesCacheKey]">{EmailNamesBlockStorage}</set>
+			<log>[CacheLoader] Email Names Block List - {EmailNamesBlockStorage.Count} items loaded.</log>
+		</then>
+		<else>
+			
+			<log>[CacheLoader] Email Names Block List - Checking Email Names...</log>
+			
+			<set var="actualBlockList">{new Dictionary()}</set>
+			<call name="@private/GetEmailNamesBlockList" Collection="actualBlockList"></call>
+			
+			<log>[CacheLoader] Email Names Block List - {actualBlockList.Count} Email Names found in Dynamics...</log>
+			
+			<set var="cachedBlockList">{CacheContainer[EmailNamesCacheKey]}</set>
+			
+			<set added="new Dictionary()" existed="new Dictionary()" deleted="new Dictionary()"/>
+			
+			<for var="item" in="actualBlockList.Keys">
+				<set var="emailName">{item.ToLower()}</set>
+				
+				<if condition="cachedBlockList.ContainsKey(emailName)">
+                    <then>
+						<set var="existed[emailName]">{null}</set>
+					</then>
+					<else>
+						<set var="added[emailName]">{null}</set>
+					</else>
+                </if>
+			</for>
+			
+			<for var="cachedItem" in="cachedBlockList.Keys">
+                <if condition="!actualBlockList.ContainsKey(cachedItem)">
+                    <set var="deleted[cachedItem]">{null}</set>
+                </if>
+            </for>
+			
+			
+			<if condition="deleted.Count gt 0">
+                <set var="tryRemoveMethod">{ConcurrentDictionary.GetMethod("TryRemove")}</set>
+				
+				<log>[CacheLoader] Email Names Block List - items to remove: {Utils.Join(deleted.Keys, ', ')}</log>
+				
+				<for var="deletedDomain" in="deleted.Keys">
+					<set var="tryRemoveMethodArgs">{[deletedDomain, null]}</set>
+					<set var="res">{tryRemoveMethod.Invoke(cachedBlockList, tryRemoveMethodArgs)}</set>
+					
+					<!--<set>{cachedBlockList.TryRemove(deletedDomain)}</set>-->
+				</for>
+            </if>
+			
+			<if condition="added.Count gt 0">
+                <log>[CacheLoader] Email Names Block List - items to add: {Utils.Join(added.Keys, ', ')}</log>
+				
+				<for var="addedDomain" in="added.Keys">
+					<set var="cachedBlockList[addedDomain]">{null}</set>
+				</for>
+            </if>
+		
+		</else>
+	</if>
+	<!--EMAIL NAMES BLICK LIST-->
+	
+	
+	
+	
+	<!--JOB TITLES BLOCK LIST-->
+	
+	<if condition="!CacheContainer.ContainsKey(JobTitlesCacheKey)">
+		<then>
+			
+			<set var="JobTitlesBlockStorage">{new ConcurrentDictionary()}</set>
+			
+			<call name="@private/GetJobTitlesBlockList" Collection="JobTitlesBlockStorage"></call>
+			
+			<set var="CacheContainer[JobTitlesCacheKey]">{JobTitlesBlockStorage}</set>
+			<log>[CacheLoader] Job Title Block List - {JobTitlesBlockStorage.Count} items loaded.</log>
+		</then>
+		<else>
+			
+			<log>[CacheLoader] Job Title Block List - Checking Email Names...</log>
+			
+			<set var="actualBlockList">{new Dictionary()}</set>
+			<call name="@private/GetJobTitlesBlockList" Collection="actualBlockList"></call>
+			
+			<log>[CacheLoader] Job Title Block List - {actualBlockList.Count} Email Names found in Dynamics...</log>
+			
+			<set var="cachedBlockList">{CacheContainer[JobTitlesCacheKey]}</set>
+			
+			<set added="new Dictionary()" existed="new Dictionary()" deleted="new Dictionary()"/>
+			
+			<for var="item" in="actualBlockList.Keys">
+				<set var="emailName">{item.ToLower()}</set>
+				
+				<if condition="cachedBlockList.ContainsKey(emailName)">
+                    <then>
+						<set var="existed[emailName]">{null}</set>
+					</then>
+					<else>
+						<set var="added[emailName]">{null}</set>
+					</else>
+                </if>
+			</for>
+			
+			<for var="cachedItem" in="cachedBlockList.Keys">
+                <if condition="!actualBlockList.ContainsKey(cachedItem)">
+                    <set var="deleted[cachedItem]">{null}</set>
+                </if>
+            </for>
+			
+			
+			<if condition="deleted.Count gt 0">
+                <set var="tryRemoveMethod">{ConcurrentDictionary.GetMethod("TryRemove")}</set>
+				
+				<log>[CacheLoader] Job Title Block List - items to remove: {Utils.Join(deleted.Keys, ', ')}</log>
+				
+				<for var="deletedDomain" in="deleted.Keys">
+					<set var="tryRemoveMethodArgs">{[deletedDomain, null]}</set>
+					<set var="res">{tryRemoveMethod.Invoke(cachedBlockList, tryRemoveMethodArgs)}</set>
+				</for>
+            </if>
+			
+			<if condition="added.Count gt 0">
+                <log>[CacheLoader] Job Title Block List - items to add: {Utils.Join(added.Keys, ', ')}</log>
+				
+				<for var="addedDomain" in="added.Keys">
+					<set var="cachedBlockList[addedDomain]">{null}</set>
+				</for>
+            </if>
+		
+		</else>
+	</if>
+	<!--JOB TITLES BLOCK LIST END-->
+	
+	
+	
+	
+	
+	<!--EMAIL ADDRESSES BLOCK LIST-->
+	
+	<if condition="!CacheContainer.ContainsKey(EmailAddressCacheKey)">
+		<then>
+			
+			<set var="EmailAddressesBlockStorage">{new ConcurrentDictionary()}</set>
+			
+			<call name="@private/GetEmailAddressesBlockList" Collection="EmailAddressesBlockStorage"></call>
+			
+			<set var="CacheContainer[EmailAddressCacheKey]">{EmailAddressesBlockStorage}</set>
+			<log>[CacheLoader] Email Address Block List - {EmailAddressesBlockStorage.Count} items loaded.</log>
+		</then>
+		<else>
+			
+			<log>[CacheLoader] Email Address Block List - Checking Email Names...</log>
+			
+			<set var="actualBlockList">{new Dictionary()}</set>
+			<call name="@private/GetEmailAddressesBlockList" Collection="actualBlockList"></call>
+			
+			<log>[CacheLoader] Email Address Block List - {actualBlockList.Count} Email Names found in Dynamics...</log>
+			
+			<set var="cachedBlockList">{CacheContainer[EmailAddressCacheKey]}</set>
+			
+			<set added="new Dictionary()" existed="new Dictionary()" deleted="new Dictionary()"/>
+			
+			<for var="item" in="actualBlockList.Keys">
+				<set var="emailName">{item.ToLower()}</set>
+				
+				<if condition="cachedBlockList.ContainsKey(emailName)">
+                    <then>
+						<set var="existed[emailName]">{null}</set>
+					</then>
+					<else>
+						<set var="added[emailName]">{null}</set>
+					</else>
+                </if>
+			</for>
+			
+			<for var="cachedItem" in="cachedBlockList.Keys">
+                <if condition="!actualBlockList.ContainsKey(cachedItem)">
+                    <set var="deleted[cachedItem]">{null}</set>
+                </if>
+            </for>
+			
+			
+			<if condition="deleted.Count gt 0">
+                <set var="tryRemoveMethod">{ConcurrentDictionary.GetMethod("TryRemove")}</set>
+				
+				<log>[CacheLoader] Email Address Block List - items to remove: {Utils.Join(deleted.Keys, ', ')}</log>
+				
+				<for var="deletedDomain" in="deleted.Keys">
+					<set var="tryRemoveMethodArgs">{[deletedDomain, null]}</set>
+					<set var="res">{tryRemoveMethod.Invoke(cachedBlockList, tryRemoveMethodArgs)}</set>
+				</for>
+            </if>
+			
+			<if condition="added.Count gt 0">
+                <log>[CacheLoader] Email Address Block List - items to add: {Utils.Join(added.Keys, ', ')}</log>
+				
+				<for var="addedDomain" in="added.Keys">
+					<set var="cachedBlockList[addedDomain]">{null}</set>
+				</for>
+            </if>
+		
+		</else>
+	</if>
+	<!--EMAIL ADDRESSES BLOCK LIST END-->
+</script>
