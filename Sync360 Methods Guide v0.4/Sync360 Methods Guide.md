@@ -19,15 +19,15 @@ Where:
 ```
 <execute in="[connectionname]" entity="" var="result">
          <query>[methodname]</query>
-         <attr name="[parameter name]"> [parameter value]</attr>
-<attr name="[parameter name]"> [parameter value]</attr>
+         <attr name="[parameter name]">[parameter value]</attr>
+         <attr name="[parameter name]">[parameter value]</attr>
 </execute>
 ```
 
 ```
 <execute in="[connectionname]" entity="[methodname]" var="result">
-         <attr name="[parameter name]"> [parameter value]</attr>
-         <attr name="[parameter name]"> [parameter value]</attr>
+         <attr name="[parameter name]">[parameter value]</attr>
+         <attr name="[parameter name]">[parameter value]</attr>
 </execute>
 ```
 
@@ -80,9 +80,7 @@ The method takes the following parameters:
 
 Returns:
 
-```
 • bool (operation succeed?)
-```
 
 #### **Example:**
 
@@ -112,7 +110,7 @@ Returns:
 
 • bool (operation succeed?)
 
-**Example:**
+#### **Example:**
 
 ```
 <set var="result">{@crm.DisassociateEntities('contact', contactid, 'account', accountid, 
@@ -132,9 +130,8 @@ The method takes the following parameters:
 
 Returns:
 
-```
+
 • bool (operation succeed?)
-```
 
 #### **Example:**
 
@@ -157,7 +154,9 @@ Returns:
 
 #### **Example:**
 
+```
 <set var="result">{@crm.DisassociateUserRole(userid, roleid)}</set>
+```
 
 ### AddMembersTeam
 
@@ -170,9 +169,9 @@ The method takes the following parameters:
 
 Returns:
 
-```
+
 • bool (operation succeed?)
-```
+
 
 #### **Example:**
 
@@ -193,7 +192,7 @@ Returns:
 
 • bool (operation succeed?)
 
-**Example:**
+#### **Example:**
 
 ```
 <set var="result">{@crm.RemoveMembersTeam(userid, teamid)}</set>
@@ -208,11 +207,9 @@ The **RunWorkflow** method is used to run a work flow with the defined name for 
 
 Returns:
 
-```
 • bool (operation succeed?)
-```
 
-**Example:**
+#### **Example:**
 
 ```
 <set>{@crm.RunWorkflow('workflow1', entityid)}</set>
@@ -232,7 +229,9 @@ Returns:
 
 #### **Example:**
 
+```
 <set>{@crm.GetOptionSetValueLabel('record1', 'attribute1', 1)}</set>
+```
 
 ### GetOptionSetValueCode
 
@@ -269,8 +268,9 @@ See EntityMetadata class description here:
 <https://msdn.microsoft.com/en-us/library/microsoft.xrm.sdk.metadata.entitymetadata.aspx>
 
 #### **Example:**
-
+```
 <set var="entityMeta">{@crm.GetEntityMetadata('record1')}</set>
+```
 
 ### GetAllEntitiesMetadata
 
@@ -309,10 +309,11 @@ See EntityMetadata class description here:
 [https://msdn.microsoft.com/en-us/library/microsoft.xrm.sdk.metadata.entitymetadata.aspx\)](https://msdn.microsoft.com/en-us/library/microsoft.xrm.sdk.metadata.entitymetadata.aspx)
 
 #### **Example:**
-
+```
 <set>{@crm.GetEntityMetadata()}</set>
+```
 
-## AddListMember
+### AddListMember
 
 The **AddListMember** method allows you to add a member of team to the list. The method takes the following parameters:
 
@@ -329,7 +330,7 @@ Returns:
 <set>{@crm.AddListMember(listid, memberid)}</set>
 ```
 
-### Removel istMember
+### Remove ListMember
 
 The **RemoveListMember** method allows you to remove a member of team from the list. The method takes the following parameters:
 
@@ -338,15 +339,15 @@ The **RemoveListMember** method allows you to remove a member of team from the l
 
 Returns:
 
-```
 • bool (operation succeed?)
-```
 
 #### **Example:**
 
+```
 <set>{@crm.RemoveListMember(listid, memberid)}</set>
+```
 
-# AddItemCampaignActivity
+### AddItemCampaignActivity
 
 Add an item of the campaign activity using the **AddItemCampaignActivity** method.
 
@@ -358,14 +359,12 @@ The method takes the following parameters:
 
 Returns:
 
-```
 • bool (operation succeed?)
-```
 
 #### **Example:**
-
+```
 <set>{@crm.AddItemCampaignActivity(campaignactivityid, itemid, 'entity1')}</set>
-
+```
 ### AddItemCampaign
 
 The **AddItemCampaign** method is used to add an item of the campaign.
@@ -376,10 +375,10 @@ The method takes the following parameters:
 - itemId (Guid)
 - entityName (string)
 
-**Example:**
-
+#### **Example:**
+```
 <set>{@crm.AddItemCampaign(campaignid, itemid, 'record1')}</set>
-
+```
 ### AddPrivilegesRole
 
 The **AddPrivilegesRole** method allows you to add a privilege to the role.
@@ -394,8 +393,9 @@ Returns:
 • bool (operation succeed?)
 
 #### **Example:**
-
+```
 <set>{@crm.AddPrivilegesRole(roleid, privilegeid)}</set>
+```
 
 ### AddSubstituteProduct
 
@@ -411,8 +411,9 @@ Returns:
 • bool (operation succeed?)
 
 #### **Example:**
-
+```
 <set>{@crm.AddSubstituteProduct(productid, productid)}</set>
+```
 
 ### DeleteById
 
@@ -426,10 +427,11 @@ The method takes the following parameters:
 The method doesn't return value
 
 #### **Example:**
-
+```
 <set>{@crm.DeleteById('record1', id)}</set>
+```
 
-### **SelectById**
+### SelectById
 
 Use the **SelectById** method to select the record by its id. The method takes the following parameters:
 
@@ -458,13 +460,14 @@ The method takes the following parameters:
 - entityName (string)
 - id1 (Guid)
 - id2 (Guid)
-- fieldsFromSubordinate (List<object>, null)
+- fieldsFromSubordinate (List\<object\>, null)
 
 The method doesn't return value.
 
 #### **Example:**
-
+```
 <set>{@crm.Merge('record1', id1, id2, fieldsFromSubordinate)}</set>
+```
 
 ### RetrieveAuditDetailsRequest
 
@@ -493,9 +496,8 @@ The method takes the following parameters:
 - entityName (string),
 - entityId (Guid)
 
-```
+
 Returns:
-```
 
 • record's change history (dynamic)
 
@@ -505,7 +507,7 @@ Returns:
 <set>{@crm.RetrieveRecordChangeHistoryRequest('record1', id)}</set>
 ```
 
-# SelectActivityParties
+### SelectActivityParties
 
 The **SelectActivityParties** method allows you to get the contents of an activity party type field and add it to a variable.
 
@@ -525,48 +527,15 @@ Returns:
 <set>{@crm.SelectActivityParties('record1', id, 'column1', 'column2', 'column3')}</set>
 ```
 
-# GetEntityNameByObjectTypeCode
+### GetEntityNameByObjectTypeCode
 
 Use the **GetEntityNameByObjectTypeCode** method to select the record's name parties by its ObjectTypeCode.
-
-## Header
-
-*Italic text*
-
-**Bold text**
-
-`Inline code`
-
-### Smaller Header
-
-- Unordered list item 1
-- Unordered list item 2
-
-1. Ordered list item 1
-2. Ordered list item 2
-
-[Link](http://example.com)
-
-`code block`
-
- $Inline math$ 
-
-$$
-Display math
-$$
-
-| Labels  | Values  |
-|---------|---------|
-| Label 1 | Value 1 |
-| Label 2 | Value 2 |
 
 The method takes the following parameters:
 
 • objectTypeCode (string)
 
-```
 Returns:
-```
 
 • record's name (string)
 
@@ -576,7 +545,7 @@ Returns:
 <set>{@crm.GetEntityNameByObjectTypeCode('objectTypeCode')}</set>
 ```
 
-# GetObjectTypeCodeByEntityName
+### GetObjectTypeCodeByEntityName
 
 Use the **GetObjectTypeCodeByEntityName** method to select the record's ObjectTypeCode parties by its name.
 
@@ -586,11 +555,10 @@ The method takes the following parameters:
 
 Returns:
 
-```
 • record's ObjectTypeCode (int) or null
-```
 
-**Example:**
+
+#### **Example:**
 
 ```
 <set>{@crm.GetObjectTypeCodeByEntityName('record1')}</set>
@@ -607,9 +575,10 @@ The method takes the following parameters:
 - issueSend (bool)
 
 The method doesn't return value.
-
+#### **Example:**
+```
 <set>{@crm.ExecuteSendEmailRequest (id, ' trackingToken', true)}</set>
-
+```
 ### DeliverPromoteEmailRequest
 
 The **DeliverPromoteEmailRequest** method returns Email Id of the delivered email.
@@ -623,9 +592,9 @@ Returns:
 • Email Id (dynamic)
 
 #### **Example:**
-
+```
 <set var="result">{@crm.DeliverPromoteEmailRequest(parameters)}</set>
-
+```
 ### RunAction
 
 The **RunAction** method is used to run an Action. The method has two overloads.
@@ -672,5 +641,6 @@ Both overloads return values:
 • Out Parameters of Action (IDictionary<string, object>)
 
 #### **Examples:**
-
+```
 <set var="result">{@crm.ExecuteAction ('action Name', 'entity Name', id, properties )}</set> <set var="result">{@crm.ExecuteAction ('action Name', properties )}</set>
+```
