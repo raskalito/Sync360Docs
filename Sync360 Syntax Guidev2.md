@@ -1,8 +1,12 @@
+# SYNC 360 ENGINE
+
+The following documentation describes the syntax for Sync360 application. Sync360 is ETL tool which executes Sync360 scripts. When Sync360 engine executes a script file, each command in the file execute one by one in a single thread.
+
 # GENERAL SCRIPT SYNTAX
 
-A script for Sync360 represents an xml file which must be a valid xml file (in case of usage of root element Script as it is described in the clause or a bunch of xml elements.
+A Sync360 script is an xml file which must be a valid xml file. The root element of each script file must be ```<script>```
 
-The script consists of nested elements. Element is a logical document component either begins with a start-tag (for example, <context>) and ends with a matching end-tag (for example, </context>) or consists only of an empty element-tag (for example, <criteria />). The characters between the start- and end-tags, if any, are the element's content, and may contain markup, including other elements, which are called child elements.
+A script consist multiple tags that acts as commands for Sync360 engine. The child elements of tags can be used as parameters of the command or as flow control engine execution.
 
 ```
 <set var="CitiesAndCountries">
@@ -10,14 +14,13 @@ The script consists of nested elements. Element is a logical document component 
      <attr name="Countries">USA,UK,Canada</attr>
 </set>
 ```
-
 Names of elements, as well as names of attributes, cannot contain space characters. The name should begin with a letter or an underline character. The rest of the name may contain as the same characters as well as digit characters.
 
 Attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should be always embedded in single or double quotes.
 
 **NOTE:** It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
 
-Values of attributes can be a template string with expression in curly brackets (or without them). In this case a final value will be obtained by calculation of these expressions and the initial expressions will be substituted with this value. Content of elements rather will be always result of calculation and should be specified without curly brackets. If the template string contains only one expression without other characters, the value will be the result of calculation of this expression.
+Text inside the tag acts as a value. Curly brackets { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.
 
 ```
 <set var="firstname">Joe</set> <!-- a value without expressions. -->
