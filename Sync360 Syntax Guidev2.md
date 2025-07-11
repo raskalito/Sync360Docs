@@ -1,10 +1,8 @@
 # GENERAL SCRIPT SYNTAX
 
-A script for Sync360 represents an xml file which can be a valid xml file (in case of usage of root element Script as it is described in the clause or a bunch of xml elements.
+A script for Sync360 represents an xml file which must be a valid xml file (in case of usage of root element Script as it is described in the clause or a bunch of xml elements.
 
 The script consists of nested elements. Element is a logical document component either begins with a start-tag (for example, <context>) and ends with a matching end-tag (for example, </context>) or consists only of an empty element-tag (for example, <criteria />). The characters between the start- and end-tags, if any, are the element's content, and may contain markup, including other elements, which are called child elements.
-
-*Example:*
 
 ```
 <set var="CitiesAndCountries">
@@ -29,44 +27,34 @@ Values of attributes can be a template string with expression in curly brackets 
 
 **NOTE:** An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).
 
-The expression type is selected automatically based on the expression value evaluation, but it can be converted to a necessary type by using special construction 'as' (available types are enumerated in the clause **Ошибка! Источник ссылки не найден.**). The following examples give the same result:
-
+The expression type is selected automatically based on the expression value evaluation, but it can be converted to a necessary type by using special construction 'as'. The following examples give the same result:
 ```
 <set var="counter">{2}</set>
 <set var="counter">{2 as 'int'}</set>
 ```
 
 Moreover, variable values may be a simple value, an array and a dictionary (declaration and modification of variable values are described in the clause 7).
-
 A value of an array item can be received by specifying the array name and index of the necessary element inside square brackets. Indexes start from zero.
-
-*Example:*
-
+```
 <log>First account: {account[0]}</log>
+```
 
 The random element of an array may be selected if the name of an array is specified with empty square brackets.
-
-*Example:*
-
 ```
 <set var="crmservers">{[crm,crm4,crm5]}</set>
 <log>Random CRM server: {crmservers[]}</log>
 ```
 
 A value of a dictionary item can be received by specifying the dictionary name and name of the necessary element in quotes and inside square brackets or by specifying name of the necessary element followed by the dictionary name with a dot.
-
-*Examples:*
-
 ```
 <log>City: {account.city}</log>
 <log>City: {account["city"]}</log>
 ```
 
 If the corresponding element is not found, search of a method with this name will be produced via Reflection and, if the method is found, then it will be applied to the dictionary. Otherwise, an exception will be thrown.
-
-*Example:*
-
+'''
 <log>Contact is found: {contacts.ContainsKey(contactid)}</log>
+'''
 
 # VARIABLE TYPES
 
@@ -98,7 +86,6 @@ Variables in Sync360 can be defined with one of types listed in **Table 1**.
 
 
 # **CONSTANTS**
-
 There are three predefined constants in Sync360 that listed in **Table 2**.
 
 #### Table 2. Constants
@@ -206,15 +193,11 @@ Functions in Sync360 are methods for set of predefined objects. There are only t
 ### Simple variable
 
 To declare a simple variable, all that is needed is the keyword "**var**" followed by the variable name and its value.
-
-*Example:* 
-
 ```
 <set var="accountid">{value}</set>
 ```
 
-The other way to do same operation *Example:* 
-
+The other way to do same operation 
 ```
 <set accountid="value" />
 ```
@@ -222,9 +205,6 @@ The other way to do same operation *Example:*
 ## Array variable
 
 To declare an array variable simply put the values in square brackets separated by comma.
-
-*Examples:*
-
 ```
 <set var="crmserver">{["crm1","crm2"]}</set>
 <set cities="['New York','Los Angeles','Chicago']"/>
@@ -232,12 +212,7 @@ To declare an array variable simply put the values in square brackets separated 
 
 ## Dictionary variables
 
-To declare the dictionary variable use construction "*{new Dictionary()}*" and then set its items list
-
-using the similar way as arrays.
-
-*Example:*
-
+To declare the dictionary variable use construction "*{new Dictionary()}*" and then set its items list using the similar way as arrays.
 ```
 <set Address="new Dictionary()" />
 <set var="Address['Street']">street</set>
@@ -248,7 +223,6 @@ using the similar way as arrays.
 ### List variables
 
 List declaration is very similar to Dictionary, use construction "*{new List()}*" and then set its variables, but without keys.
-
 ```
 <set Names="new List()" />
 <set var="Names[]">Michael</set>
@@ -257,12 +231,9 @@ List declaration is very similar to Dictionary, use construction "*{new List()}*
 
 ## Object variables
 
-You can define any kind of object in Sync360 and there are four different methods. Let's look on
-
-examples:
+You can define any kind of object in Sync360 and there are four different methods. Let's look on examples:
 
 #### *Method 1:*
-
 ```
 <set var="Person">{new Object()}</set>
 <set var="Person.Name">Michael</set>
@@ -270,7 +241,6 @@ examples:
 ```
 
 #### *Method 2:*
-
 ```
 <set var="Person">
       <attr name="Name">Michael</attr>
@@ -279,11 +249,11 @@ examples:
 ```
 
 #### *Method 3:*
-
+```
 <set Person="new Object()" Person.Name="'Michael'" Person.Lastname="'White'"/>
+```
 
 #### *Method 4:*
-
 ```
 <set Person="['Name':'Michael','Lastname':'White']"/>
 ```
@@ -293,8 +263,6 @@ examples:
 ### Break
 
 **Break** construction can be used to exit the cycle based on specific condition. This construction is applicable for any time of cycle.
-
-*Example:*
 
 ```
 <set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
@@ -341,9 +309,6 @@ examples:
 ### For
 
 **For** construction is used when a code block needs to be executed a certain amount of times. There are 2 types of usage syntax listed below.
-
-*Examples:*
-
 ```
 <set crmservers="['crm','crm4','crm5']"/>
 <for var="i" from="0" to="crmservers.Count - 1" step="1">
@@ -357,12 +322,7 @@ examples:
 
 ## If and Unless
 
-**IF** construction can be used when it is necessary to execute a code block only if a specified condition in
-
-the **"condition"** attribute is equal to *true*.
-
-*Example:*
-
+**IF** construction can be used when it is necessary to execute a code block only if a specified condition in the **"condition"** attribute is equal to *true*.
 ```
 <set var="a">{10}</set>
 <set var="b">{15}</set>
@@ -380,7 +340,6 @@ the **"condition"** attribute is equal to *true*.
 **Unless** construction is used only in conjunction with **IF** to execute code block if a condition is true and another code **IF** the condition is not true.
 
 Any operator can use **IF** or **Unless**.
-
 ```
 <set Colors="['red','gray','yellow']"/>
 <log if="Colors[1] = 'gray'">Have a GRAY color</log>
@@ -394,9 +353,6 @@ Any operator can use **IF** or **Unless**.
 ### **While**
 
 **While** construction can be used when a code block need to be executed while specified condition in the **"condition"** attribute is equal to *true*.
-
-*Example:*
-
 ```
 <set var="crmservers">{['crm','crm4','crm5']}</set>
 <set var="counter">{0}</set>
@@ -443,9 +399,6 @@ Any operator can use **IF** or **Unless**.
 | user             | A user Id (MS CRM) / a user E-Mail address (Exchange) that the context is used for. | Required     |
 
 
-
-*Example:*
-
 ```
 <context for="exchange" user="{userEmail}">
      <select from="exchange" entity="contact" var="contacts">
@@ -487,10 +440,7 @@ Any operator can use **IF** or **Unless**.
 | order          | Used for sorting search results by ordering.                                               | Optional     |
 | query          | A way to specify native query for SQL datasource                                           | Optional     |
 
-*Example:*
-
 To read all names and ids of first 50 accounts where Country attribute value is equal to "US" and sort them by name attribute in descending order, you could use Select operation as follows:
-
 ```
 <select from="crmserver" entity="account" var="accounts" count="50">
     <where>
@@ -503,9 +453,6 @@ To read all names and ids of first 50 accounts where Country attribute value is 
 ```
 
 **Select** operation supports native SQL queries using query element. You can also pass parameters to the query using **attr** element. The entity element is required to be specified for the code to be valid, but with this method it's not used.
-
-*Example:*
-
 ```
 <select from="db" entity="tasks" var="tasks">
     <query>
@@ -526,8 +473,6 @@ To read all names and ids of first 50 accounts where Country attribute value is 
 | to               | Field name of the related entity.                                                                                                                                                              | Required     |
 | from             | Field name of the main entity.                                                                                                                                                                 | Required     |
 | as               | Attribute name for storing the result. Simplifies data<br>access.                                                                                                                              | Optional     |
-
-*Example:*
 
 ```
 <select from="crm" entity="contact" var="crmContacts">
@@ -568,7 +513,6 @@ The following tables list the attributes and children elements for Create operat
 | attr    | An attribute name and its value for a new created record. | Required     |
 
 To create the contact, you could use the Create operation as follows:
-
 ```
 <create in="crmserver" entity="contact" var="createdContact">
     <attr name="firstname">Joe</attr>
@@ -597,10 +541,8 @@ To create the contact, you could use the Create operation as follows:
 | where   | A criteria element contains conditions set that will be used to find<br>records to update. | Required |
 | attr    | An attribute name and its value for updated records.                                       | Required |
 
-*Example:* 
 
 To update account with name "Adidas" and set new Primary Contact attribute, you could use the Update operation as follows:
-
 ```
 <update in="crmserver" entity="account">
     <where>
@@ -626,10 +568,8 @@ To update account with name "Adidas" and set new Primary Contact attribute, you 
 |-|-|-|
 | where   | A criteria element contains conditions set that will be used to find records to delete.| Required     |
 
-#### *Example:*
 
 The following script deletes an Exchange contact by known EntryId:
-
 ```
 <delete in="exchange">
      <where>
@@ -705,9 +645,10 @@ The following script deletes an Exchange contact by known EntryId:
    </if>
 ```
 
-*Example: (Batch response handling for create operation)*
+
 
 ```
+<!- Example: (Batch response handling for create operation) -->
 <set var="newIds">{new List()}</set>
      <for var="response" in="result.Responses">
          <if condition="!response.Fault.isSet">
@@ -734,8 +675,6 @@ var="newIds[]">{innerResponse.Responses[0].id}</set>
 | for              | A server name that Batch operation will run for.                                                                            | Required     |
 | var              | The variable name that will contain the response<br>from target system. Response is presented only<br>for create operation. | Required     |
 | returnResponses  | true - return responses from each message<br>request processed.<br>false - do not return responses.                         | Optional     |
-
-*Example: (file for importing attached separetly)*
 
 ```
 <set var="PageSize">{10}</set>
@@ -796,10 +735,8 @@ There are 6 types of two operands condition operators. The following table descr
 | ge   | Evaluates to true if the attribute has a value that is greater than or equal to the condition value. |
 
 
-#### *Example:*
 
 The following script returns all contacts with first name "Joe":
-
 ```
 <select from="crmserver" entity="contact" var="contacts_with_name_Joe">
     <where>
@@ -824,10 +761,7 @@ The following script returns all contacts with first name "Joe":
 
 **NOTE:** %text% is equals to search without "%" symbol.
 
-#### *Example:*
-
 The following script returns all contacts, which first name contains "J" and mobile phone number contains "5544".
-
 ```
 <select from="crmserver" entity="contact" var="contacts">
      <where>
@@ -838,14 +772,9 @@ The following script returns all contacts, which first name contains "J" and mob
 </select>
 ```
 
-Contains condition *for Exchange server* doesn't support the **"%"** symbol - condition evaluates to true if
+Contains condition *for Exchange server* doesn't support the **"%"** symbol - condition evaluates to true if the supplied constant value is contained in the property text value. Search is *case insensitive*.
 
-the supplied constant value is contained in the property text value. Search is *case insensitive*.
-
-*Example:*
-
-The following script returns all contacts, which first name starts with "J" and mobile phone number containing "5544".
-
+The following script snippet returns all contacts, which first name starts with "J" and mobile phone number containing "5544".
 ```
 <select from="exchange" entity="contact" var="contacts">
     <where>
@@ -860,11 +789,7 @@ The following script returns all contacts, which first name starts with "J" and 
 
 **Not operator** inverts a result of a logical operation.
 
-*Example:*
-
-The following script returns identifiers of all CRM contacts that first name is not equal to "Joe" and
-
-DoNotPhone or DoNotEmail properties are not equal to true.
+The following script snippet returns identifiers of all CRM contacts that first name is not equal to "Joe" and DoNotPhone or DoNotEmail properties are not equal to true.
 
 ```
 <select from="crmserver" entity="contact" var="contacts">
@@ -887,10 +812,7 @@ DoNotPhone or DoNotEmail properties are not equal to true.
 
 **Starts with** condition operator allow to perform text searches within string properties.Condition evaluates to true if the property text value starts with supplied constant value.
 
-*Example:* 
-
-The following script returns all contacts, which first name starts with "J" and mobile phone number starts with "5544".
-
+The following script snippet returns all contacts, which first name starts with "J" and mobile phone number starts with "5544".
 ```
 <select from="crmserver" entity="contact" var="contacts">
          <where>
@@ -905,12 +827,7 @@ The following script returns all contacts, which first name starts with "J" and 
 
 **Ends with** condition operator allow to perform text searches within string properties.Condition evaluates to true if the property text value ends with supplied constant value.
 
-*Example:* 
-
-The following script returns all contacts, which first name ends with "J" and mobile phone number
-
-ends with "5544".
-
+The following script snippet returns all contacts, which first name ends with "J" and mobile phone number ends with "5544".
 ```
 <select from="crmserver" entity="contact" var="contacts">
      <where>
@@ -925,12 +842,7 @@ ends with "5544".
 
 These operators should contain two or more conditions. **And** operator evaluates to true only if all its children conditions evaluate to true. **Or** operator evaluates to true if at least one of its children conditions evaluate to true.
 
-*Example:*
-
-The following script returns all identifiers of CRM contacts which first name is equal to Joe or
-
-DoNotPhone or DoNotEmail properties are equal to true.
-
+The following script snippet returns all identifiers of CRM contacts which first name is equal to Joe or DoNotPhone or DoNotEmail properties are equal to true.
 ```
 <select from="crmserver" entity="contact" var="contacts">
      <where>
@@ -950,11 +862,9 @@ DoNotPhone or DoNotEmail properties are equal to true.
 
 **Exists** condition returns true if a specified attribute exists in an entity record. It does not matter whether the property contains a non-empty value or not.
 
-*Example:*
-
 Let us imagine that there is a custom property called ShoeSize that was added to some contacts but others do not have this field.
 
-The following script returns all contacts with this field:
+The following script snippet returns all contacts with this field:
 
 ```
 <select from="exchange" entity="contact" var="contacts_with_ShoeSize">
@@ -965,7 +875,7 @@ The following script returns all contacts with this field:
 </select>
 ```
 
-The following script returns all contacts without this field:
+The following scrip snippet returns all contacts without this field:
 
 ```
 <select from="exchange" entity="contact" var="contacts_without_ShoeSize">
@@ -980,10 +890,7 @@ The following script returns all contacts without this field:
 
 **In** condition operator returns true if the specified attribute matches to a value in a condition values list.
 
-The following example return all identifiers of CRM contacts, which first name is Bob, Joe, or Michael.
-
-*Example:*
-
+The following script snippet return all identifiers of CRM contacts, which first name is Bob, Joe, or Michael.
 ```
 <select from="crmserver" entity="contact" var="contacts">
     <where>
@@ -997,10 +904,7 @@ The following example return all identifiers of CRM contacts, which first name i
 
 *Between* condition operator returns true if the specified attribute value is between two values in a conditions values list. There are three ways to specify the condition's value.
 
-*Examples:*
-
-All scripts return all identifiers of CRM contacts, which were created in 2011.
-
+The following two script snippets return all identifiers of CRM contacts, which were created in 2011.
 ```
 <set var="dates">{[Utils.Now.AddDays(-100), Utils.Now.AddDays(-50)]}</set>
 <select from="crm" entity="contact" var="contacts">
@@ -1024,12 +928,7 @@ All scripts return all identifiers of CRM contacts, which were created in 2011.
 
 ## Exception and OnError
 
-**Exception** operation is used when it is necessary to throw an exception in the process of script
-
-execution.
-
-*Example:*
-
+**Exception** operation is used when it is necessary to throw an exception in the process of script execution.
 ```
 <set var="crmservers">crm,crm4,crm5</set>
 <for var="crmserver" in="crmservers">
@@ -1046,9 +945,6 @@ execution.
 ```
 
 **OnError** operation is used in conjunction with **Exception** for handling specific exceptions.
-
-*Example:*
-
 ```
 <sandbox verbose="false">
     <log>{2/0}</log>
@@ -1062,12 +958,7 @@ execution.
 
 **Sandbox** operation is used when it is necessary to hide exceptions in process of script execution from user. Sandbox operation has the **"verbose"** attribute that is used for enabling or disabling errors logging (if it is left empty, then (*true*) will be used by default).
 
-#### *Example:*
-
-The following script looks for CRM contact "Joe Dow" and if a single instance of this contact found, then this contact is set as a primary contact of "Adidas" company.
-
-Logging is enabled for the sandbox.
-
+The following script looks for CRM contact "Joe Dow" and if a single instance of this contact found, then this contact is set as a primary contact of "Adidas" company. Logging is enabled for the sandbox.
 ```
 <sandbox verbose="true">
     <select in="crmserver" entity="contact" var="contacts">
@@ -1095,9 +986,6 @@ Logging is enabled for the sandbox.
 **Include** operation is used if you want to separate some code into other script files. Sync360 will combine the main script and code from all includes on the moment of execution. This operation has the **"name"** attribute which value should be a path to existing script in regard to scripts folder plus filename without ".xml" extension.
 
 **NOTE: Sync360 IDE** has special order where to find script. First it tries to find specified path in a folder where a current script is situated. If the script is not found it will check Script folder in current Application folder. If after that the script is also not found it will check the standard Script folder in main Sync360 folder.
-
-*Example:*
-
 ```
 <include name="Includes\Parameters"/>
 <include name="Includes\ReadUserDetails"/>
@@ -1119,16 +1007,14 @@ Logging is enabled for the sandbox.
        <attr name="crmOwnerId"/>
     </select>
 </context>
-```
-
 <log>Contacts to be considered: {contacts.Count}</log>
+```
 
 ## Call script
 
 **Call** operation is used when it is necessary to execute another script (that already exists) before current script. Rather than include operation, the script will be executed in own context, and it will not have access to variables in main script. The Call operator supports passing parameters into the script. Operator searches for script in **@private** folder. There are two ways to specify call operator. *Examples:*
 
 Call script "MyScriptHelper" and pass parameter "CallSettings"
-
 ```
 <script>
    <var callParameters='new Object()'/>
@@ -1145,8 +1031,6 @@ Call script "MyScriptHelper" and pass parameter "CallSettings"
 ## Script
 
 **Script** element is used for code blocks grouping.
-
-*Example:*
 
 ```
 <script>
