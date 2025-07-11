@@ -1,11 +1,11 @@
 # SYNC 360 ENGINE
 
-The following documentation describes the syntax for Sync360 application. Sync360 is ETL tool which executes Sync360 scripts. When Sync360 engine executes a script file, each command in the file execute one by one in a single thread.
+The following documentation describes the syntax for Sync360 application. Sync360 is ETL tool which executes Sync360 scripts, it is build on .NET Framework and derives a lot of types from it.
+When Sync360 engine executes a script file, each command in the file execute one by one in a single thread.
 
 # GENERAL SCRIPT SYNTAX
 
 A Sync360 script is an xml file which must be a valid xml file. The root element of each script file must be ```<script>```
-
 A script consist multiple tags that acts as commands for Sync360 engine. The child elements of tags can be used as parameters of the command or as flow control engine execution.
 
 ```
@@ -15,13 +15,11 @@ A script consist multiple tags that acts as commands for Sync360 engine. The chi
 </set>
 ```
 Names of elements, as well as names of attributes, cannot contain space characters. The name should begin with a letter or an underline character. The rest of the name may contain as the same characters as well as digit characters.
-
 Attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should be always embedded in single or double quotes.
 
 **NOTE:** It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
 
 Text inside the tag acts as a value. Curly brackets { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.
-
 ```
 <set var="firstname">Joe</set> <!-- a value without expressions. -->
 <if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. -->
@@ -61,43 +59,14 @@ If the corresponding element is not found, search of a method with this name wil
 
 # VARIABLE TYPES
 
-Variables in Sync360 can be defined with one of types listed in **Table 1**.
+Variables in Sync360 can be defined with following .NET types and structures:
+char, char[], string , string[], byte , byte[], int, int[],long, long[], double, double[], bool, bool[], date, date[], List, Dictionary, Object
 
-#### Table 1. Variable types
-| <b>Type</b> | <b>Description</b>                                                              |
-|-------------|---------------------------------------------------------------------------------|
-| char        | The char keyword is used to declare a Unicode character (Unicode 16-bit character). |
-| char[]      | Array of char variables.                                                        |
-| string      | The string type represents a sequence of zero or more Unicode characters.       |
-| string[]    | Array of string variables.                                                      |
-| byte        | The byte keyword is used to declare variables in range from $0$ to 255 (Unsigned 8-bit integer).          |
-| byte[]      | Array of byte variables.                                                        |
-| int         | The int keyword is used to declare variables in range from -2,147,483,648 to 2,147,483,647 (Signed 32-bit integer).   |
-| int[]       | Array of int type variables.                                                    |
-| long        | The long keyword is used to declare variables in range from - 9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 (Signed 64-bit integer).   |
-| long[]      | Array of long type variables.                                                   |
-| double      | The double keyword signifies a simple type that stores 64-bit floating-point  values.    |
-| double[]    | Array of double type variables.                                                 |
-| bool        | The bool keyword is used to declare variables to store the Boolean values, true and false. |
-| bool[]      | Array of bool variables.                                                        |
-| date        | The date type presents an instant in time, typically expressed as a date and   time of day.  |
-| date[]      | Array of date type variables.                                                   |
-| List        | Represents a strongly typed list of objects that can be accessed by index. Standard .NET List   |
-| Dictionary  | Represents a collection of keys and values. Standard .NET Dictionary            |
-| Object      | Generic Object, its properties can be defined in script.                        |
-
-
+These are types which possible to declare by default. It is also possible to get different types of variables in Sync360 based on specific functions from .NET libraries.
 
 # **CONSTANTS**
-There are three predefined constants in Sync360 that listed in **Table 2**.
-
-#### Table 2. Constants
-| <b>Type</b> | <b>Description</b>                                            |
-|-------------|---------------------------------------------------------------|
-| "true"      | <b>True.</b> This constant represents a Boolean value True.   |
-| "false"     | <b>False.</b> This constant represents a Boolean value False. |
-| "null"      | <b>Null.</b> This constant represents Null value              |
-
+There are three predefined constants in Sync360:
+"true","false","null"
 
 
 # **OPERATORS**
