@@ -122,7 +122,7 @@ The other way to do same operation
 <set accountid="value" />
 ```
 
-## Array variable
+### Array variable
 
 To declare an array variable simply put the values in square brackets separated by comma.
 ```
@@ -130,7 +130,7 @@ To declare an array variable simply put the values in square brackets separated 
 <set cities="['New York','Los Angeles','Chicago']"/>
 ```
 
-## Dictionary variables
+### Dictionary variables
 
 To declare the dictionary variable use construction "*{new Dictionary()}*" and then set its items list using the similar way as arrays.
 ```
@@ -149,7 +149,7 @@ List declaration is very similar to Dictionary, use construction "*{new List()}*
 <set var="Names[]">Joe</set>
 ```
 
-## Object variables
+### Object variables
 
 You can define any kind of object in Sync360 and there are four different methods. Let's look on examples:
 
@@ -177,6 +177,133 @@ You can define any kind of object in Sync360 and there are four different method
 ```
 <set Person="['Name':'Michael','Lastname':'White']"/>
 ```
+# FLOW CONTROL OPERATIONS
+
+## If and Unless
+
+**IF** construction can be used when it is necessary to execute a code block only if a specified condition in the **"condition"** attribute is equal to *true*.
+```
+<set var="a">{10}</set>
+<set var="b">{15}</set>
+<if condition="a gt b">
+     <log>a is greater then b</log>
+</if>
+<if condition="a lt b">
+     <log>a is less then b</log>
+</if>
+<if condition="a eq b">
+     <log>a is equal to b</log>
+</if>
+```
+## THEN-ELSE
+
+**THEN–ELSE** construction can be used if one code block should be executed if condition is true and another code should be executed if condition is false.
+
+```
+<set var="a">{10}</set>
+<set var="b">{15}</set>
+<set var="c">{10}</set>
+<if condition="a ne b">
+         <then>
+             <log>a not equal b</log>
+         </then>
+         <then if="b ne c">
+             <log>b not equal c</log>
+         </then>
+         <else>
+              <log>a equal b</log>
+         </else>
+         <else if="b eq c">
+             <log>b equal c</log>
+         </else>
+</if>
+```
+
+**Unless** construction is used only in conjunction with **IF** to execute code block if a condition is true and another code **IF** the condition is not true.
+
+Any operator can use **IF** or **Unless**.
+```
+<set Colors="['red','gray','yellow']"/>
+<log if="Colors[1] = 'gray'">Have a GRAY color</log>
+<log unless="Colors[1] = 'blue'">Not a BLUE color</log>
+<set var="MyColor1" if="Colors[2] = 'yellow'">Have a YELLOW color</set>
+<log>{MyColor1}</log>
+<set var="MyColor2" unless="Colors[1] = 'red'">Not a red color</set>
+<log>{MyColor2}</log>
+```
+### Break
+
+**Break** construction can be used to exit the cycle based on specific condition. This construction is applicable for any time of cycle.
+
+```
+<set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+   <log>{t}</log>
+   <break if="t eq 'test3'"/>
+</for>
+<log>End cycle.</log>
+<set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+   <log>{t}</log>
+    <if condition="t eq 'test3'">
+        <break/>
+    </if>
+</for>
+<log>End cycle.</log>
+```
+
+### For
+
+**For** construction is used when a code block needs to be executed a certain amount of times. There are 2 types of usage syntax listed below.
+```
+<set crmservers="['crm','crm4','crm5']"/>
+<for var="i" from="0" to="crmservers.Count - 1" step="1">
+    <log>{crmservers[i]}</log>
+</for>
+<set crmservers="['crm','crm4','crm5']"/>
+<for var="crmserver" in="crmservers">
+    <log> {crmserver}</log>
+</for>
+```
+
+## **Continue**
+
+**Continue** construction can be used to skip cycle logic that is located under this construction and move on to the next cycle iteration.
+
+```
+<set var="testCycle">{['test1','test2','test3','test4']}</set>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+    <continue if="t eq 'test3'"/>
+    <log>{t}</log>
+</for>
+<log>End cycle.</log>
+<set var="testCycle">{['test1','test2','test3','test4']}</set>
+<log>Start cycle.</log>
+<for var="t" in="testCycle">
+     <if condition="t eq 'test3'">
+         <continue/>
+     </if>
+     <log>{t}</log>
+</for>
+<log>End cycle.</log>
+```
+
+### **While**
+
+**While** construction can be used when a code block need to be executed while specified condition in the **"condition"** attribute is equal to *true*.
+```
+<set var="crmservers">{['crm','crm4','crm5']}</set>
+<set var="counter">{0}</set>
+<while condition="counter lt crmservers.Count">
+     <log>{crmservers[counter]}</log>
+    <set var="counter">{counter + 1}</set>
+</while>
+```
+
+
 
 # **FUNCTIONS**
 
@@ -317,133 +444,6 @@ The method has overloads and therefore number of parameters can vary, below each
 
 
 
-# FLOW CONTROL OPERATIONS
-
-### Break
-
-**Break** construction can be used to exit the cycle based on specific condition. This construction is applicable for any time of cycle.
-
-```
-<set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
-<log>Start cycle.</log>
-<for var="t" in="testCycle">
-   <log>{t}</log>
-   <break if="t eq 'test3'"/>
-</for>
-<log>End cycle.</log>
-<set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
-<log>Start cycle.</log>
-<for var="t" in="testCycle">
-   <log>{t}</log>
-    <if condition="t eq 'test3'">
-        <break/>
-    </if>
-</for>
-<log>End cycle.</log>
-```
-
-## **Continue**
-
-**Continue** construction can be used to skip cycle logic that is located under this construction and move on to the next cycle iteration.
-
-```
-<set var="testCycle">{['test1','test2','test3','test4']}</set>
-<log>Start cycle.</log>
-<for var="t" in="testCycle">
-    <continue if="t eq 'test3'"/>
-    <log>{t}</log>
-</for>
-<log>End cycle.</log>
-<set var="testCycle">{['test1','test2','test3','test4']}</set>
-<log>Start cycle.</log>
-<for var="t" in="testCycle">
-     <if condition="t eq 'test3'">
-         <continue/>
-     </if>
-     <log>{t}</log>
-</for>
-<log>End cycle.</log>
-```
-
-### For
-
-**For** construction is used when a code block needs to be executed a certain amount of times. There are 2 types of usage syntax listed below.
-```
-<set crmservers="['crm','crm4','crm5']"/>
-<for var="i" from="0" to="crmservers.Count - 1" step="1">
-    <log>{crmservers[i]}</log>
-</for>
-<set crmservers="['crm','crm4','crm5']"/>
-<for var="crmserver" in="crmservers">
-    <log> {crmserver}</log>
-</for>
-```
-
-## If and Unless
-
-**IF** construction can be used when it is necessary to execute a code block only if a specified condition in the **"condition"** attribute is equal to *true*.
-```
-<set var="a">{10}</set>
-<set var="b">{15}</set>
-<if condition="a gt b">
-     <log>a is greater then b</log>
-</if>
-<if condition="a lt b">
-     <log>a is less then b</log>
-</if>
-<if condition="a eq b">
-     <log>a is equal to b</log>
-</if>
-```
-
-**Unless** construction is used only in conjunction with **IF** to execute code block if a condition is true and another code **IF** the condition is not true.
-
-Any operator can use **IF** or **Unless**.
-```
-<set Colors="['red','gray','yellow']"/>
-<log if="Colors[1] = 'gray'">Have a GRAY color</log>
-<log unless="Colors[1] = 'blue'">Not a BLUE color</log>
-<set var="MyColor1" if="Colors[2] = 'yellow'">Have a YELLOW color</set>
-<log>{MyColor1}</log>
-<set var="MyColor2" unless="Colors[1] = 'red'">Not a red color</set>
-<log>{MyColor2}</log>
-```
-
-### **While**
-
-**While** construction can be used when a code block need to be executed while specified condition in the **"condition"** attribute is equal to *true*.
-```
-<set var="crmservers">{['crm','crm4','crm5']}</set>
-<set var="counter">{0}</set>
-<while condition="counter lt crmservers.Count">
-     <log>{crmservers[counter]}</log>
-    <set var="counter">{counter + 1}</set>
-</while>
-```
-
-## THEN-ELSE
-
-**THEN–ELSE** construction can be used if one code block should be executed if condition is true and another code should be executed if condition is false.
-
-```
-<set var="a">{10}</set>
-<set var="b">{15}</set>
-<set var="c">{10}</set>
-<if condition="a ne b">
-         <then>
-             <log>a not equal b</log>
-         </then>
-         <then if="b ne c">
-             <log>b not equal c</log>
-         </then>
-         <else>
-              <log>a equal b</log>
-         </else>
-         <else if="b eq c">
-             <log>b equal c</log>
-         </else>
-</if>
-```
 
 # DATA OPERATIONS
 
