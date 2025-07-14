@@ -5,9 +5,9 @@ When Sync360 engine executes a script file, each command in the file execute one
 
 # GENERAL SCRIPT SYNTAX
 
-A Sync360 script is an xml file which must be a valid xml file. The root element of each script file must be ```<script>```
-A script consist multiple tags that acts as commands for Sync360 engine. The child elements of tags can be used as parameters of the command or as flow control engine execution.
-
+A Sync360 script is an xml file which must be a valid xml file and consist of Sync360 specific commands. The root element of each script file must be ```<script>```. Each element under the root element represents either flow control or a command for the script execution.
+The child elements of tags can be used as parameters of the command or if used inside flow control elements as command for optional execution. There is no limitation of levels or number of commands inside a sync360 script.
+An example of sync360 command with child elements that acts as command properties.
 ```
 <set var="CitiesAndCountries">
     <attr name="Cities">Houston,Phoenix</attr>
@@ -16,17 +16,17 @@ A script consist multiple tags that acts as commands for Sync360 engine. The chi
 ```
 Names of elements, as well as names of attributes, cannot contain space characters. The name should begin with a letter or an underline character. The rest of the name may contain as the same characters as well as digit characters.
 Attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should be always embedded in single or double quotes.
+It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
 
-**NOTE:** It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
-
-Text inside the tag acts as a value. Curly brackets { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.
+Content inside an element acts as a value. Curly brackets { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.  
 ```
-<set var="firstname">Joe</set> <!-- a value without expressions. -->
-<if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. -->
-<set var="calculatedvalue">{294+322}</set> <!-- an expression in the element content. -->
+<set var="firstname">Joe</set> <!-- assignment of text value 'Joe' to variable 'firstname' without expressions. -->
+<set var="calculatedvalue">{294+322}</set> <!-- assignment of result of expression in the element content. Notice that braces are required -->
+<set calculated="294+322" /> <!-- assignment of result of expression via property. Notice that braces are not required -->
+<if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. In this command doesn't require braces -->
 ```
 
-**NOTE:** An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).
+An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).
 
 The expression type is selected automatically based on the expression value evaluation, but it can be converted to a necessary type by using special construction 'as'. The following examples give the same result:
 ```
@@ -106,109 +106,9 @@ Collections total is `.Count`. This operator can be applied to any collection va
 Null coalesing is `??`. This operator returns the first calculated value in chain of expressions. <br><b>Example:</b> If 'MyVar' property of 'Global' variable is not null displays property value, else display text 'MyVar was not set'. ```<log>{Globals['MyVar'] ?? 'MyVar was not set'}</log>```  
 Ternary conditional is `?` with usage of ` expression ? value if true : value if false`. This operator evaluates an expression before and if it is true 
 
-# **FUNCTIONS**
-
-In Sync360 there are static instances of classes with predefined list of methods that aim to help a developer to implement the scripting logic. These classes were written using C# and .NET framework and implement the logic which is not available using standard Sync360 commands.
-
-### Class CSV
-This class aims to works with CSV files. It has two methods Read and Write. There are default values for parameters supplied to methods of this class:  
-```
-DefaultEncoding = Encoding.UTF8
-DefaultDelimiter = ","
-DefaultQuote = "'"
-DefaultComment = "#"
-DefaultTrim = true
-DefaultHasHeader = true
-DefaultTopLinesToSkip = 0
-DefaultAppend = true
-DefaultWriteHeader = true
-```
-
-`Csv.Read` used to read a csv file into a variable of List type where each element of this list will be a line from csv file as a separate structured record.
-
-The method has overloads and therefore number of parameters can vary, below each available overload
-1) `<set var="records">{Csv.Read(string path, Encoding encoding, string delimiter, string quote, string comment, bool trim, bool hasHeader = DefaultHasHeader, int topLinesToSkip = DefaultTopLinesToSkip)}</set>` with this overload 2 last parameters are optional and default value will be used when not specified.
-2) `<set var="records">{Csv.Read(string path, Encoding encoding, string delimiter, string quote = DefaultQuote, bool hasHeader = DefaultHasHeader)}</set>` with this overload 
-3) `<set var="records">{Csv.Read(string path, Encoding encoding, dynamic configuration)}</set>`  with this overload into last parameter it is required to pass object with properties named `Delimiter`, `Quote`, `Comment`, `Trim`, `HasHeader` and `TopLinesToSkip`. Each property is optional, if missing the default values will be used.
-4) `<set var="records">{Csv.Read(string path)}</set>` this overload uses default values.
-<b>Examples:</b>
-```
-<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding(1252),',','"','!",true,15)}</set>
-
-<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding('utf-8'),';')}</set>
-
-<set var="configuration">
-    <attr name="Delimiter">,</attr>
-    <attr name="Quote">'</attr>
-    <attr name="Comment">#</attr>
-    <attr name="Trim">{true}</attr>
-    <attr name="HasHeader">{true}</attr>
-    <attr name="TopLinesToSkip">{15}</attr>
-</set>
-<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding('utf-8'),configuration)}</set>
-```
-
-`Csv.Write` this method transforms data loaded into Sync360 engine and writes it into a CSV file. The method has two overloads and 
-
-
-
-| FileUtils. WriteToFile | <b>Description</b><br/> The function writes specified string to a file. It is usually used for logging. Last parameter instructs to append to a file.<br/> <b>Parameters</b></br> WriteToFile(string, string, bool)<br/>  $\bullet$  string fileName — a name of the file where the string will be added.<br/>  $\bullet$ string text - <br/>  $\bullet$ bool isAppend - appends a text to a file. <br/> <b>Example</b> <br/> ``` <set>{FileUtils.WriteToFile("c:\temp\log.txt","Test", true)}</set> ```|
-| FileUtils.ReadIdsFromFile| <b>Description</b></br> The function is used to read predefined GUIDS from text file. GUIDS should be placed line by line. The result will be array variable.<br/> <b>Parameters</b></br> ReadIdsFromFile(string)<br>string fileName—a name of the file GUIDS are taken from. <br/> <b>Example</b> <br/> ``` <set var="Ids">{FileUtils.ReadIdsFromFile(".\UserGuids.txt")}</set> ``` |
-| FileUtils.ReadFile | <b>Description</b> <br/> Opens a file, reads the contents of the file into a byte array, and then closes the file.<br/> <b>Parameters</b> ReadFile(string)<br/> $\bullet$ string fileName—a name of the processed file. <br/> <b>Example</b><br/> ``` <set var="Bytes">{FileUtils.ReadFile(".\UserGuids.txt")}</set> ```|
-| FileUtils.ReadFileAsBase64 | <b>Description</b><br/> Open a file, reads the contents of the file into a byte array, converts the array into a Base64 string, and then closes the file.<br/> <b>Parameters</b><br/> ReadFileAsBase64(string)<br/> $\bullet$ string fileName — a name of the processed file.<br/> <b>Example</b><br/> ``` <set var="Bytes">{FileUtils.ReadFileAsBase64(".\UserGuids.txt")}</set> ``` |
-| FileUtils.DirectoryEntries| Returns the list of all files and subdirectories in a specified path.<br/> <b>Parameters</b></br> DirectoryEntries(string) </br> $\bullet$ string path — a path to a required directory.  </br> <b>Example</b> |                                                            
-| FileUtils.MoveFile   | <b>Description</b> <br/> Moves a specified file to a new location, providing the  option to specify a new file name.<br/> <b>Parameters</b></br>  MoveFile(string, string) <br/> $\bullet$  string source File Name - a path to a source file.<br/> $\bullet$ string destFileName — a new path to a file.<br/> <b>Example</b><br/> ```<set>{FileUtils.MoveFile("c:\temp\loq.txt",<br/>"c:\temp2\log.txt") }</set> ``` |
-| FileUtils.GetFiles  | <b>Description</b><br/> Returns the names of files (including their paths) that match the specified search pattern in the specified directory.<br/> <b>Parameters</b><br/> GetFiles(string, string)</br>$\bullet$  string folder -  <br/> $\bullet$ string searchPattern -</br><b>Example</b><br/> ``` <set>{FileUtils.GetFiles(@"c:\", "c*")}</set>```|
-| FileUtils.Zip    | <b>Description</b><br/> The function archives files into a zip-archive in a selected folder.<br/> <b>Parameters</b></br> Zip(param1, param2)<br/> $\bullet$ string sourceFolder - a path to a source folder.<br/> $\bullet$  string zipFile-a file that will be archived.<br><b>Example</b>|
-| FileUtils.Unzip | <b>Description</b><br/> The function extracts files from a zip-archive in a selected folder.<br/> <b>Parameters</b> <br/> Unzip(param1, param2)<br/> $\bullet$ string zipFile - a name of an archive.<br/> $\bullet$ string extractFolder-a path to an extraction folder.<br/> <b>Example</b> |
-|Html.ToPlainText | <b>Description</b><br/> Converts plain text to an html string or to an html  document.<br/> <b>Parameters</b><br/> ToPlainText(string)<br/> $\bullet$ string html - converts an html string to an html document.<br/>ToPlainText(HtmlDocument doc)<br/>$\bullet$HtmlDocument doc — converts an html document to an html string.|
-| Http.SetUseDefaultCredentials | <b>Description</b><br>Sets the use of default credentials for each http connection.<br><b>Parameters</b><br>SetUseDefaultCredentials(bool)<br>bool value<br><b>Example</b>|                                                                                              
-| Http.SetClientEncoding        | <b>Description</b><br>Sets a client encoding for connections.<br><b>Parameters</b><br>SetClientEncoding(string)<br><b>Example</b> |                                                                                                                                      
-| Http.Get                      | <b>Description</b><br>The HTTP GET method requests a representation of the specified resource.<br><b>Parameters</b><br>Get(string, string, string, string, string object)<br> $\bullet$ string url - URL used in the request.<br>string username-retrieves requested username.<br> $\bullet$ string password - retrieves requested password.<br> $\bullet$ string domain - retrieves requested password.<br> $\bullet$ object headers - retrieves specific headers.<br><b>Example</b> <br/> ```<set var="response">{Http.Get('http://www.example.com')}</set> ```|
-| Http.Put   | <b>Description</b><br/> The HTTP PUT request method creates a new resource or replaces a representation of the target resource with the request payload.<br/> <b>Parameters</b> Put(string url, string data, object headers)<br/> $\bullet$ string url-URL used in the request.<br/> $\bullet$ string data-data sent as parameters to URL in the request.<br/> $\bullet$ object headers <br/>  <b>Example</b> <br/> ```<set var="response">{Http.Put('http://www.example.com', 'some data', 'headers go here')}</set> ```|
-| Http.Post | <b>Description</b><br/> The HTTP POST method sends data to the server.<br/> <b>Parameters</b><br/> Post(string, string, string, string, string, object)<br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.  <br/> $\bullet$ string password. <br/> $\bullet$ string domain.    <br/> $\bullet$ string data — data sent as parameters to URL in the request. <br/> $\bullet$ object headers. <br/><b>Example</b><br/> ```<set var="response">{Http.Post('http://www.example.com', 'some data', 'headers go here')}</set>``` |
-| Http.Patch |<b>Description</b><br/>The HTTP PATCH request method applies partial modifications to a resource. <br/> <b>Parameters</b></br> Patch(string, string, string, string, string, object) <br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.<br/> $\bullet$ string password.<br/> $\bullet$ string domain. <br/> $\bullet$ string data.<br/> $\bullet$ object headers.<br/> <b>Example</b><br> ``` <set var="response">{Http.Patch('http://www.example.com', 'some data', 'headers go here')}</set> ```|
-| Http.Download | <b>Description</b><br/> Downloads the file that URL contains, e. g. page, archive, document.<br/> <b>Parameters</b><br/> Download(string)<br/> $\bullet$ string url-an address that contains the required file. <br/> <b>Example</b><br/> ``` <set var="response">{Http.Download('http://www.example.com')}</set>``` |
-| Http.GetRaw  | <b>Description</b> <br/> The Get. Raw method requests a representation of the specified resource but in unchanged, literal form.<br/> <b>Parameters</b> GetRaw(string, int, int) <br/> $\bullet$ string url   <br/> $\bullet$  int sendTimeout <br/> $\bullet$ int receiveTimeout <br/> <b>Example</b>  |
-| Http.SetCookie | <b>Description</b><br/> Set cookie for the specified resource.<br/> <b>Parameters</b> <br/>  SetCookie(string, string)<br/> $\bullet$  string url <br/> $\bullet$  string cookie  <br/> <b>Example</b> |
-| Http.GetCookie | <b>Description</b><br/> Gets cookie from the specified resource.<br/> <b>Parameters</b><br/>  GetCookie(string) <br/>  $\bullet$ string url  <br/> <b>Example</b>|
-| Json.ToJson    | <b>Description</b><br/> Converts an object to JSON format.<br/> <b>Parameters</b> <br/> ToJson(object)<br/>  $\bullet$ object value <b>Example</b><br> ``` <set>{Json.ToJson(DynamicDictionaryVariable)}</set> ``` |
-| Json.ToAsciiJson | <b>Description</b><br/> Converts an object to ASCII JSON format and removes non-ASCII symbols.<br/> <b>Parameters</b> <br/> ToAsciiJson(object value)<br/> $\bullet$ object value <br/> <b>Example</b><br/> ``` <set>{Json.ToAsciiJson(DynamicDictionaryVariable)}</set> ```|         
-| Json.FromJson    | <b>Description</b><br/> Converts JSON to a dictionary. <br/> <b>Parameters</b><br/> FromJson(string)<br/> $\bullet$ string value-JSON string that will be converted.<br/> <b>Example</b><br> ``` <set var="test1">{Json.FromJson(stringVariable)}</set> <log>(test1.GetType()) - (test1)</log> ``` |
-| Json.GetDictionary  | <b>Description</b><br/> Converts JSON to an object.<br/> <b>Parameters</b> <br/> GetDictionary(string) <br/> $\bullet$ string value <br/> <b>Example</b><br/> ``` <set var="test1">{Json.GetDictionary(string)}</set> <log>(test1.GetType()) – (test1)</log> ```  |
-| Json.GetArrayFromJson  | <b>Description</b><br/></br> <b>Parameters</b><br/> GetArrayFromJson(string)<br/> $\bullet$ string value <br/> <b>Example</b> </br> ``` <set var="test1">{Json.GetArrayFromJson(string)}</set>  <log>(test1.GetType()) – (test1)</log> ``` |
-| "Utils.NewGuid"   | <b>Description</b></br> This function returns new random GUID. <br/> <b>Parameters</b>  <br/> <b>Example</b> <br/> ``` <set var="newGuid">{Utils.NewGuid}</set> ``` |
-| "Utils.Split"    | <b>Description</b></br> This function identifies the substrings in a string array that are delimited by one or more characters specified in an array, then places the substrings into a specified Unicode character array.<br/> <b>Parameters</b> <br/> <b>Example</b> <br/>     ``` <set var="Names">Roman; Joe; Michael</set>  <set var="NamesAr">{Utils.Split(Names,';')}</set> ``` |
-| "Utils.Join"   | <b>Description</b> <br/> This function combines array values into string with specified delimiter. <br/> <b>Parameters</b> <br/> <b>Example</b> <br/>``` <set var="NamesAr">{['Roman','Joe','Michael']}</set>  <set var="NamesStr">{Utils.Join(NamesAr,';')}</set> ``` |
-| "Utils.toUpper" | <b>Description</b> <br/> This function returns a copy of this string converted to uppercase. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b>|
-| "Utils.toLower" | <b>Description</b> <br/> This function returns a copy of this string converted to lowercase.<br/> <b>Parameters</b>  <br/> $\bullet$ string <br/> <b>Example</b> 
-| "Utils.NewLine" | <b>Description</b> <br/> This function returns newline string ("\n").<br/> <b>Parameters</b><br/> <b>Example</b> |
-| "Utils.Now"     | <b>Description</b> <br/> This function returns a date type object that is set to the current date and time on this computer, expressed as the local time. <br/> <b>Parameters</b> <br/> <b>Example</b>|
-| "Utils.Replace"| <b>Description</b> <br/> This function Returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b> <br/> ``` <set var="str1">This is an example</set>  <set var="str2">{Utils.Replace(str1,'This','Here')}</set> ``` |
-| Utils.IsKeyExist  | <b>Description</b></br/> Checks whether the key exists in a dictionary or not.<br/> <b>Parameters</b><br/> IsKeyExist(object, string) <br/>  $\bullet$ object dict - the required dictionary. <br/>  $\bullet$   string key — the line that contains a key <br/> <b>Example</b> <br/> ``` <set>{Utils.IsKeyExist("DictionaryExample", "reg4y736")}</set> ``` |
-| Utils.ParseGUID   | <b>Description</b> <br/> Converts the string representation of a GUID to the equivalent Guid structure.<br/> <b>Parameters</b><br/> ParseGuid(string) <br/>  $\bullet$ string guid - the required GUID.<br/> <b>Example</b><br/> ``` <set var="newGuidVar">{Utils.ParseGUID('5dcf85ae-ca84-4718-afb8-1795db389763')</set> ```|
-| Utils.TextualltEquals  | <b>Description</b><br/> Compares two objects:  If objects are of the same type, it compares them as they are. If objects are of different types, it converts them into strings and then compares the strings.<br/> <b>Parameters</b> TextuallyEquals(object, object, bool)</br>  $\bullet$ object one - the first object in a pair. </br>  $\bullet$  object two - the second object in a pair.</br>  $\bullet$ bool ignoreCase - manages case sensitivity.<br/> <b>Example</b>|
-| Utils. Right<br>Utils. Left | <b>Description</b> <br/> <b>Parameters</b><br>Right(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br>Left(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br/> <b>Example</b>|                                                     
-| Utils. Encode<br>Utils. Decode | <b>Description</b><br>Encode to/Decode from the standard HTML encoding.<br/><b>Parameters</b><br>Encode(string)<br> $\bullet$ string str<br>Decode(string)<br/> $\bullet$ string str<br><b>Example</b>|                                                                 
-| Utils. DateToString<br>Utils.StringToDate  | <b>Description</b><br>Converts date to string and vice versa.<br/> <b>Parameters</b><br>DateToString(DateTime, string)<br> $\bullet$ DateTime date-the exact date to be converted.<br/> $\bullet$ string format.<br/> StringToDate(string, string)<br>$\bullet$ string date - the exact string to be converted.<br> $\bullet$ string format <br/> <b>Example</b>|
-| Utils.SpeecifyKindUtc<br/>Utils.SpecifyKindLocal<br/>Utils.SpecifyKindInspecified | <b>Description</b><br>Applies a specified timezone to date.<br/> <b>Parameters</b> SpecifyKindUtc(DateTime)<br/> $\bullet$ DateTime date <br/> SpecifyKindLocal(DateTime) <br/> $\bullet$ DateTime date <br/> SpecifyKindUnspecified(DateTime) <br/> $\bullet$ DateTime date <br/> <b>Example</b>|
-| Utils.Eval    | <b>Description</b><br/>  The function executes a provided string as a command.<br/> <b>Parameters</b><br/> Eval(string) <br/> $\bullet$ string expression<br/>  <b>Example</b><br/> ``` <set var="NeedProcess">{Utils.Eval(strExpression)}</set> ``` |
-| Utils.GetRandom  | <b>Description</b><br/> The function gets random values of random types<br/> <b>Parameters</b><br/> GetRandom(string, object)<br/> $\bullet$ string type <br/> $\bullet$ object max <br/> <b>Example</b> |
-| Xml.Load    |  <b>Description</b><br/> Loads an XElement from a file, optionally preserving white space, setting the base URI, and retaining line information.<br/> <b>Parameters</b><br/> Load(string, int) <br/> $\bullet$ string uri <br/> $\bullet$ int options <br/> <b>Example</b><br> ``` <set xml="Xml.Load(fileName)"/>``` |
-| Xml.LoadEnc | <b>Description</b><br/> Loads an XElement from a file.<br/> <b>Parameters</b><br/> LoadEnc(string) <br/> $\bullet$ string uri<br> <br/> <b>Example</b> |
-| Xml.Parse   | <b>Description</b><br/> Load an XElement from a string that contains XML, optionally preserving white space and retaining line information.<br/> <b>Parameters</b> <br/> Parse(string, int) <br/> $\bullet$ string text <br/> $\bullet$ int options <br/> <b>Example</b><br/> ``` <set var="xmlSource"><![CDATA[<root><add name="abdc">Test data</add><add name="n2">Second text data</add></root>]]></set> 	<set xml="Xml.Parse(xmlSource, 1)"/> ``` |
-| Xml.Select  | <b>Description</b><br/> Searches and selects values from within the specified element of an XML file and returns these values as an array.<br/> <b>Parameters</b><br/> Select(XElement, string, IDictionary) <br/> $\bullet$ XElement xml <br/> $\bullet$ string expression <br/> $\bullet$ IDictionary fields<br/> <b>Example</b>|
-| Xml.ToXml<br/> Xml.FromXml   | <b>Description</b><br/> Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.<br/> Passes XML string and returns an object.<br/> <b>Parameters</b><br/> ToXml(object, string) <br/> $\bullet$ object value <br/> $\bullet$  string rootElementName <br/> FromXml(string)<br/> $\bullet$ string xml <br/> <b>Example</b> |
-| "Math.*" |<b>Math.</b> This .NET object is used for common mathematical functions, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.math.aspx> |
-| "File.*" |<b>File.</b> This .NET object is used for operations with files, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.io.file.aspx> |
-| "Path.*" |<b>Path.</b> This .NET object is used for operations with filesystem, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.io.path.aspx> |
-| "Encoding.*" |<b>Encoding.</b> This .NET object is used for character and text encoding, for the list of supported methods and properties refer to <http://msdn.microsoft.com/en-us/library/system.text.encoding.aspx> |
-| "TimeSpans.*" |<b>Timespans.</b> This .NET object is used for operations with time intervals. for the list of supported methods and properties refer to <http://msdn.microsoft.com/en-us/library/system.timespan.aspx> |
-
-
 # DECLARATION OF THE VARIABLES
 
-**Set** operation is used for declaration and modification of the variables. The name of variable can be added as **var** attribute of **set** element. However, you can skip this attribute and define variable explicitly.
+`set` operation is used for declaration and modification of the variables. The name of variable can be supplied via `var` attribute of `set` element, then a value is passed via content of set tag. However, you can skip `var` attribute and define variable name explicitly as a property of set tag, in this case the value passed into property tag will be
 
 ### Simple variable
 
@@ -277,6 +177,145 @@ You can define any kind of object in Sync360 and there are four different method
 ```
 <set Person="['Name':'Michael','Lastname':'White']"/>
 ```
+
+# **FUNCTIONS**
+
+In Sync360 there are static instances of classes with predefined list of methods that aim to help a developer to implement the scripting logic. These classes were written using C# and .NET framework and implement the logic which is not available using standard Sync360 commands.
+
+### Class CSV
+This class aims to works with CSV files. It has two methods Read and Write. There are default values for parameters supplied to methods of this class:  
+```
+DefaultEncoding = Encoding.UTF8
+DefaultDelimiter = ","
+DefaultQuote = "'"
+DefaultComment = "#"
+DefaultTrim = true
+DefaultHasHeader = true
+DefaultTopLinesToSkip = 0
+DefaultAppend = true
+DefaultWriteHeader = true
+```
+
+`Csv.Read` used to read a csv file into a variable of List type where each element of this list will be a line from csv file as a separate structured record.
+
+The method has overloads and therefore number of parameters can vary, below each available overload
+1) `<set var="records">{Csv.Read(string path, Encoding encoding, string delimiter, string quote, string comment, bool trim, bool hasHeader = DefaultHasHeader, int topLinesToSkip = DefaultTopLinesToSkip)}</set>` with this overload 2 last parameters are optional and default value will be used when not specified.
+2) `<set var="records">{Csv.Read(string path, Encoding encoding, string delimiter, string quote = DefaultQuote, bool hasHeader = DefaultHasHeader)}</set>` with this overload 
+3) `<set var="records">{Csv.Read(string path, Encoding encoding, dynamic configuration)}</set>`  with this overload into last parameter it is required to pass object with properties named `Delimiter`, `Quote`, `Comment`, `Trim`, `HasHeader` and `TopLinesToSkip`. Each property is optional, if missing the default values will be used.
+4) `<set var="records">{Csv.Read(string path)}</set>` this overload uses default values.
+<b>Examples:</b>
+```
+<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding(1252),',','"','!",true,15)}</set>
+
+<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding('utf-8'),';')}</set>
+
+<set var="configuration">
+    <attr name="Delimiter">,</attr>
+    <attr name="Quote">'</attr>
+    <attr name="Comment">#</attr>
+    <attr name="Trim">{true}</attr>
+    <attr name="HasHeader">{true}</attr>
+    <attr name="TopLinesToSkip">{15}</attr>
+</set>
+<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding('utf-8'),configuration)}</set>
+```
+
+`Csv.Write` this method transforms data loaded into Sync360 engine and writes it into a CSV file. The method has two overloads and 
+1) `<set var="result">{Csv.Write(List<object> data, string path, Encoding encoding, string delimiter, string quote = DefaultQuote, string comment = DefaultComment, bool trim = DefaultTrim, bool append = DefaultAppend, bool writeHeader = DefaultWriteHeader)}</set>` The data provided should be a list of Dictionaries where each dictionary instance represents a row, and keys are used as columns and values are used as data which will be written into csv file. Therefore each dictionary instance must have the same keys. The other parameters are the same as for `Csv.Read` method.  
+2) `<set>{Csv.Write(List<object> data, string path)}</set>` in this overload default parameters will be used and example of invokation without returning boolean.
+<b>Examples:</b>
+```
+<set var="csvData">{new List()}</set>
+<set var="row">{new Dictionary"></set>
+<set var="row['column1']">text1</set>
+<set var="row['column2']">text2</set>
+<set var="csvData[]">{row}</set>
+<set var="row">{new Dictionary"></set>
+<set var="row['column1']">text3</set>
+<set var="row['column2']">text4</set>
+<set var="csvData[]">{row}</set>
+<set>{Csv.Write(csvData, 'c:\temp\sampleData.csv'</set>
+<!--Example above generating a simple csv file with two columns named 'column1' and 'column2' and two rows with different values -->
+
+<select from="crm" entity="contact" var="records">
+    <attr name="firstname" />
+    <attr name="lastname" />
+    <attr name="jobtitle" />
+    <attr name="emailaddress1" />
+    <attr name="parentcustomerid" />
+</select>
+<set var="csv">{new List()}</set>
+<for var="record" in="records">
+    <set var="values">{new Dictionary()}</set>
+    <for var="key" in="record.Keys">
+        <if condition="key.ToString() eq 'parentcustomerid'>
+            <then>
+                <set var="values[key]">{record[key].Name ?? ''}</set>
+            </then>
+            <else>
+                <set var="values[key]">{record[key]}</set>
+            </else>
+    <for>
+</for>
+<set>{Csv.Write(csv, 'c:\temp\crmContacts.csv'</set>
+<!--Example above dynamically forms required data structure from records retrieved from Dynamics CRM system using select operator. Notice that several flow control operators are used in this example to iterate through data and to output correct properties based on field type (parentcustomerid is a lookup field to another table and therefore to get it's text value .Name property used -->
+```
+
+| FileUtils. WriteToFile | <b>Description</b><br/> The function writes specified string to a file. It is usually used for logging. Last parameter instructs to append to a file.<br/> <b>Parameters</b></br> WriteToFile(string, string, bool)<br/>  $\bullet$  string fileName — a name of the file where the string will be added.<br/>  $\bullet$ string text - <br/>  $\bullet$ bool isAppend - appends a text to a file. <br/> <b>Example</b> <br/> ``` <set>{FileUtils.WriteToFile("c:\temp\log.txt","Test", true)}</set> ```|
+| FileUtils.ReadIdsFromFile| <b>Description</b></br> The function is used to read predefined GUIDS from text file. GUIDS should be placed line by line. The result will be array variable.<br/> <b>Parameters</b></br> ReadIdsFromFile(string)<br>string fileName—a name of the file GUIDS are taken from. <br/> <b>Example</b> <br/> ``` <set var="Ids">{FileUtils.ReadIdsFromFile(".\UserGuids.txt")}</set> ``` |
+| FileUtils.ReadFile | <b>Description</b> <br/> Opens a file, reads the contents of the file into a byte array, and then closes the file.<br/> <b>Parameters</b> ReadFile(string)<br/> $\bullet$ string fileName—a name of the processed file. <br/> <b>Example</b><br/> ``` <set var="Bytes">{FileUtils.ReadFile(".\UserGuids.txt")}</set> ```|
+| FileUtils.ReadFileAsBase64 | <b>Description</b><br/> Open a file, reads the contents of the file into a byte array, converts the array into a Base64 string, and then closes the file.<br/> <b>Parameters</b><br/> ReadFileAsBase64(string)<br/> $\bullet$ string fileName — a name of the processed file.<br/> <b>Example</b><br/> ``` <set var="Bytes">{FileUtils.ReadFileAsBase64(".\UserGuids.txt")}</set> ``` |
+| FileUtils.DirectoryEntries| Returns the list of all files and subdirectories in a specified path.<br/> <b>Parameters</b></br> DirectoryEntries(string) </br> $\bullet$ string path — a path to a required directory.  </br> <b>Example</b> |                                                            
+| FileUtils.MoveFile   | <b>Description</b> <br/> Moves a specified file to a new location, providing the  option to specify a new file name.<br/> <b>Parameters</b></br>  MoveFile(string, string) <br/> $\bullet$  string source File Name - a path to a source file.<br/> $\bullet$ string destFileName — a new path to a file.<br/> <b>Example</b><br/> ```<set>{FileUtils.MoveFile("c:\temp\loq.txt",<br/>"c:\temp2\log.txt") }</set> ``` |
+| FileUtils.GetFiles  | <b>Description</b><br/> Returns the names of files (including their paths) that match the specified search pattern in the specified directory.<br/> <b>Parameters</b><br/> GetFiles(string, string)</br>$\bullet$  string folder -  <br/> $\bullet$ string searchPattern -</br><b>Example</b><br/> ``` <set>{FileUtils.GetFiles(@"c:\", "c*")}</set>```|
+| FileUtils.Zip    | <b>Description</b><br/> The function archives files into a zip-archive in a selected folder.<br/> <b>Parameters</b></br> Zip(param1, param2)<br/> $\bullet$ string sourceFolder - a path to a source folder.<br/> $\bullet$  string zipFile-a file that will be archived.<br><b>Example</b>|
+| FileUtils.Unzip | <b>Description</b><br/> The function extracts files from a zip-archive in a selected folder.<br/> <b>Parameters</b> <br/> Unzip(param1, param2)<br/> $\bullet$ string zipFile - a name of an archive.<br/> $\bullet$ string extractFolder-a path to an extraction folder.<br/> <b>Example</b> |
+|Html.ToPlainText | <b>Description</b><br/> Converts plain text to an html string or to an html  document.<br/> <b>Parameters</b><br/> ToPlainText(string)<br/> $\bullet$ string html - converts an html string to an html document.<br/>ToPlainText(HtmlDocument doc)<br/>$\bullet$HtmlDocument doc — converts an html document to an html string.|
+| Http.SetUseDefaultCredentials | <b>Description</b><br>Sets the use of default credentials for each http connection.<br><b>Parameters</b><br>SetUseDefaultCredentials(bool)<br>bool value<br><b>Example</b>|                                                                                              
+| Http.SetClientEncoding        | <b>Description</b><br>Sets a client encoding for connections.<br><b>Parameters</b><br>SetClientEncoding(string)<br><b>Example</b> |                                                                                                                                      
+| Http.Get                      | <b>Description</b><br>The HTTP GET method requests a representation of the specified resource.<br><b>Parameters</b><br>Get(string, string, string, string, string object)<br> $\bullet$ string url - URL used in the request.<br>string username-retrieves requested username.<br> $\bullet$ string password - retrieves requested password.<br> $\bullet$ string domain - retrieves requested password.<br> $\bullet$ object headers - retrieves specific headers.<br><b>Example</b> <br/> ```<set var="response">{Http.Get('http://www.example.com')}</set> ```|
+| Http.Put   | <b>Description</b><br/> The HTTP PUT request method creates a new resource or replaces a representation of the target resource with the request payload.<br/> <b>Parameters</b> Put(string url, string data, object headers)<br/> $\bullet$ string url-URL used in the request.<br/> $\bullet$ string data-data sent as parameters to URL in the request.<br/> $\bullet$ object headers <br/>  <b>Example</b> <br/> ```<set var="response">{Http.Put('http://www.example.com', 'some data', 'headers go here')}</set> ```|
+| Http.Post | <b>Description</b><br/> The HTTP POST method sends data to the server.<br/> <b>Parameters</b><br/> Post(string, string, string, string, string, object)<br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.  <br/> $\bullet$ string password. <br/> $\bullet$ string domain.    <br/> $\bullet$ string data — data sent as parameters to URL in the request. <br/> $\bullet$ object headers. <br/><b>Example</b><br/> ```<set var="response">{Http.Post('http://www.example.com', 'some data', 'headers go here')}</set>``` |
+| Http.Patch |<b>Description</b><br/>The HTTP PATCH request method applies partial modifications to a resource. <br/> <b>Parameters</b></br> Patch(string, string, string, string, string, object) <br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.<br/> $\bullet$ string password.<br/> $\bullet$ string domain. <br/> $\bullet$ string data.<br/> $\bullet$ object headers.<br/> <b>Example</b><br> ``` <set var="response">{Http.Patch('http://www.example.com', 'some data', 'headers go here')}</set> ```|
+| Http.Download | <b>Description</b><br/> Downloads the file that URL contains, e. g. page, archive, document.<br/> <b>Parameters</b><br/> Download(string)<br/> $\bullet$ string url-an address that contains the required file. <br/> <b>Example</b><br/> ``` <set var="response">{Http.Download('http://www.example.com')}</set>``` |
+| Http.GetRaw  | <b>Description</b> <br/> The Get. Raw method requests a representation of the specified resource but in unchanged, literal form.<br/> <b>Parameters</b> GetRaw(string, int, int) <br/> $\bullet$ string url   <br/> $\bullet$  int sendTimeout <br/> $\bullet$ int receiveTimeout <br/> <b>Example</b>  |
+| Http.SetCookie | <b>Description</b><br/> Set cookie for the specified resource.<br/> <b>Parameters</b> <br/>  SetCookie(string, string)<br/> $\bullet$  string url <br/> $\bullet$  string cookie  <br/> <b>Example</b> |
+| Http.GetCookie | <b>Description</b><br/> Gets cookie from the specified resource.<br/> <b>Parameters</b><br/>  GetCookie(string) <br/>  $\bullet$ string url  <br/> <b>Example</b>|
+| Json.ToJson    | <b>Description</b><br/> Converts an object to JSON format.<br/> <b>Parameters</b> <br/> ToJson(object)<br/>  $\bullet$ object value <b>Example</b><br> ``` <set>{Json.ToJson(DynamicDictionaryVariable)}</set> ``` |
+| Json.ToAsciiJson | <b>Description</b><br/> Converts an object to ASCII JSON format and removes non-ASCII symbols.<br/> <b>Parameters</b> <br/> ToAsciiJson(object value)<br/> $\bullet$ object value <br/> <b>Example</b><br/> ``` <set>{Json.ToAsciiJson(DynamicDictionaryVariable)}</set> ```|         
+| Json.FromJson    | <b>Description</b><br/> Converts JSON to a dictionary. <br/> <b>Parameters</b><br/> FromJson(string)<br/> $\bullet$ string value-JSON string that will be converted.<br/> <b>Example</b><br> ``` <set var="test1">{Json.FromJson(stringVariable)}</set> <log>(test1.GetType()) - (test1)</log> ``` |
+| Json.GetDictionary  | <b>Description</b><br/> Converts JSON to an object.<br/> <b>Parameters</b> <br/> GetDictionary(string) <br/> $\bullet$ string value <br/> <b>Example</b><br/> ``` <set var="test1">{Json.GetDictionary(string)}</set> <log>(test1.GetType()) – (test1)</log> ```  |
+| Json.GetArrayFromJson  | <b>Description</b><br/></br> <b>Parameters</b><br/> GetArrayFromJson(string)<br/> $\bullet$ string value <br/> <b>Example</b> </br> ``` <set var="test1">{Json.GetArrayFromJson(string)}</set>  <log>(test1.GetType()) – (test1)</log> ``` |
+| "Utils.NewGuid"   | <b>Description</b></br> This function returns new random GUID. <br/> <b>Parameters</b>  <br/> <b>Example</b> <br/> ``` <set var="newGuid">{Utils.NewGuid}</set> ``` |
+| "Utils.Split"    | <b>Description</b></br> This function identifies the substrings in a string array that are delimited by one or more characters specified in an array, then places the substrings into a specified Unicode character array.<br/> <b>Parameters</b> <br/> <b>Example</b> <br/>     ``` <set var="Names">Roman; Joe; Michael</set>  <set var="NamesAr">{Utils.Split(Names,';')}</set> ``` |
+| "Utils.Join"   | <b>Description</b> <br/> This function combines array values into string with specified delimiter. <br/> <b>Parameters</b> <br/> <b>Example</b> <br/>``` <set var="NamesAr">{['Roman','Joe','Michael']}</set>  <set var="NamesStr">{Utils.Join(NamesAr,';')}</set> ``` |
+| "Utils.toUpper" | <b>Description</b> <br/> This function returns a copy of this string converted to uppercase. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b>|
+| "Utils.toLower" | <b>Description</b> <br/> This function returns a copy of this string converted to lowercase.<br/> <b>Parameters</b>  <br/> $\bullet$ string <br/> <b>Example</b> 
+| "Utils.NewLine" | <b>Description</b> <br/> This function returns newline string ("\n").<br/> <b>Parameters</b><br/> <b>Example</b> |
+| "Utils.Now"     | <b>Description</b> <br/> This function returns a date type object that is set to the current date and time on this computer, expressed as the local time. <br/> <b>Parameters</b> <br/> <b>Example</b>|
+| "Utils.Replace"| <b>Description</b> <br/> This function Returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b> <br/> ``` <set var="str1">This is an example</set>  <set var="str2">{Utils.Replace(str1,'This','Here')}</set> ``` |
+| Utils.IsKeyExist  | <b>Description</b></br/> Checks whether the key exists in a dictionary or not.<br/> <b>Parameters</b><br/> IsKeyExist(object, string) <br/>  $\bullet$ object dict - the required dictionary. <br/>  $\bullet$   string key — the line that contains a key <br/> <b>Example</b> <br/> ``` <set>{Utils.IsKeyExist("DictionaryExample", "reg4y736")}</set> ``` |
+| Utils.ParseGUID   | <b>Description</b> <br/> Converts the string representation of a GUID to the equivalent Guid structure.<br/> <b>Parameters</b><br/> ParseGuid(string) <br/>  $\bullet$ string guid - the required GUID.<br/> <b>Example</b><br/> ``` <set var="newGuidVar">{Utils.ParseGUID('5dcf85ae-ca84-4718-afb8-1795db389763')</set> ```|
+| Utils.TextualltEquals  | <b>Description</b><br/> Compares two objects:  If objects are of the same type, it compares them as they are. If objects are of different types, it converts them into strings and then compares the strings.<br/> <b>Parameters</b> TextuallyEquals(object, object, bool)</br>  $\bullet$ object one - the first object in a pair. </br>  $\bullet$  object two - the second object in a pair.</br>  $\bullet$ bool ignoreCase - manages case sensitivity.<br/> <b>Example</b>|
+| Utils. Right<br>Utils. Left | <b>Description</b> <br/> <b>Parameters</b><br>Right(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br>Left(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br/> <b>Example</b>|                                                     
+| Utils. Encode<br>Utils. Decode | <b>Description</b><br>Encode to/Decode from the standard HTML encoding.<br/><b>Parameters</b><br>Encode(string)<br> $\bullet$ string str<br>Decode(string)<br/> $\bullet$ string str<br><b>Example</b>|                                                                 
+| Utils. DateToString<br>Utils.StringToDate  | <b>Description</b><br>Converts date to string and vice versa.<br/> <b>Parameters</b><br>DateToString(DateTime, string)<br> $\bullet$ DateTime date-the exact date to be converted.<br/> $\bullet$ string format.<br/> StringToDate(string, string)<br>$\bullet$ string date - the exact string to be converted.<br> $\bullet$ string format <br/> <b>Example</b>|
+| Utils.SpeecifyKindUtc<br/>Utils.SpecifyKindLocal<br/>Utils.SpecifyKindInspecified | <b>Description</b><br>Applies a specified timezone to date.<br/> <b>Parameters</b> SpecifyKindUtc(DateTime)<br/> $\bullet$ DateTime date <br/> SpecifyKindLocal(DateTime) <br/> $\bullet$ DateTime date <br/> SpecifyKindUnspecified(DateTime) <br/> $\bullet$ DateTime date <br/> <b>Example</b>|
+| Utils.Eval    | <b>Description</b><br/>  The function executes a provided string as a command.<br/> <b>Parameters</b><br/> Eval(string) <br/> $\bullet$ string expression<br/>  <b>Example</b><br/> ``` <set var="NeedProcess">{Utils.Eval(strExpression)}</set> ``` |
+| Utils.GetRandom  | <b>Description</b><br/> The function gets random values of random types<br/> <b>Parameters</b><br/> GetRandom(string, object)<br/> $\bullet$ string type <br/> $\bullet$ object max <br/> <b>Example</b> |
+| Xml.Load    |  <b>Description</b><br/> Loads an XElement from a file, optionally preserving white space, setting the base URI, and retaining line information.<br/> <b>Parameters</b><br/> Load(string, int) <br/> $\bullet$ string uri <br/> $\bullet$ int options <br/> <b>Example</b><br> ``` <set xml="Xml.Load(fileName)"/>``` |
+| Xml.LoadEnc | <b>Description</b><br/> Loads an XElement from a file.<br/> <b>Parameters</b><br/> LoadEnc(string) <br/> $\bullet$ string uri<br> <br/> <b>Example</b> |
+| Xml.Parse   | <b>Description</b><br/> Load an XElement from a string that contains XML, optionally preserving white space and retaining line information.<br/> <b>Parameters</b> <br/> Parse(string, int) <br/> $\bullet$ string text <br/> $\bullet$ int options <br/> <b>Example</b><br/> ``` <set var="xmlSource"><![CDATA[<root><add name="abdc">Test data</add><add name="n2">Second text data</add></root>]]></set> 	<set xml="Xml.Parse(xmlSource, 1)"/> ``` |
+| Xml.Select  | <b>Description</b><br/> Searches and selects values from within the specified element of an XML file and returns these values as an array.<br/> <b>Parameters</b><br/> Select(XElement, string, IDictionary) <br/> $\bullet$ XElement xml <br/> $\bullet$ string expression <br/> $\bullet$ IDictionary fields<br/> <b>Example</b>|
+| Xml.ToXml<br/> Xml.FromXml   | <b>Description</b><br/> Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.<br/> Passes XML string and returns an object.<br/> <b>Parameters</b><br/> ToXml(object, string) <br/> $\bullet$ object value <br/> $\bullet$  string rootElementName <br/> FromXml(string)<br/> $\bullet$ string xml <br/> <b>Example</b> |
+| "Math.*" |<b>Math.</b> This .NET object is used for common mathematical functions, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.math.aspx> |
+| "File.*" |<b>File.</b> This .NET object is used for operations with files, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.io.file.aspx> |
+| "Path.*" |<b>Path.</b> This .NET object is used for operations with filesystem, for the list of supported methods refer to <http://msdn.microsoft.com/en-us/library/system.io.path.aspx> |
+| "Encoding.*" |<b>Encoding.</b> This .NET object is used for character and text encoding, for the list of supported methods and properties refer to <http://msdn.microsoft.com/en-us/library/system.text.encoding.aspx> |
+| "TimeSpans.*" |<b>Timespans.</b> This .NET object is used for operations with time intervals. for the list of supported methods and properties refer to <http://msdn.microsoft.com/en-us/library/system.timespan.aspx> |
+
+
+
 
 # FLOW CONTROL OPERATIONS
 
