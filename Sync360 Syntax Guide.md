@@ -1,7 +1,7 @@
 # SYNC 360 ENGINE
 
 The following documentation describes the syntax for Sync360 application. Sync360 is ETL tool which executes Sync360 scripts, it is build on .NET Framework and derives a lot of types from it.
-When Sync360 engine executes a script file, each command in the file execute one by one in a single thread.
+When Sync360 engine executes a script file, each command in the file execute one by one in a single thread. The Sync360 application as any ETL tool has predefined list of connectors for external systems which can be used to perform CRUD operations against their data.
 
 # GENERAL SCRIPT SYNTAX
 
@@ -11,7 +11,7 @@ A script consist multiple tags that acts as commands for Sync360 engine. The chi
 ```
 <set var="CitiesAndCountries">
     <attr name="Cities">Houston,Phoenix</attr>
-     <attr name="Countries">USA,UK,Canada</attr>
+    <attr name="Countries">USA,UK,Canada</attr>
 </set>
 ```
 Names of elements, as well as names of attributes, cannot contain space characters. The name should begin with a letter or an underline character. The rest of the name may contain as the same characters as well as digit characters.
@@ -70,40 +70,88 @@ There are three predefined constants in Sync360:
 
 
 # **OPERATORS**
+In Sync360 scripting language operators is a construct that can be used in expressions. Sync360 engine doesn't provide operand coercion, operators can be used only across supported types.
+There are some significant differences in semantics used for operators compared to other programming languages. For example operator '=' and '==' in sync360 syntax means the same.
+The list of all available operators and their explanation is below:
 
-#### Table 3. Operators
-| <b>Type</b>                  | <b>Description</b>  |
-|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| $" +"$                       | <b>Addition</b>. This operator adds the second operand to the first operand.<br/><b>Supported variable types:</b> int, long, double, string.|
-| $"-"$                        | <b>Subtraction</b>. This operator subtracts the second operand from the first operand.<br/><b>Supported variable types:</b>  int, long, double.   |
-| $"*"$                        | <b> Multiplication</b>. This operator multiplies the first operand by the second operand.<br/><b>Supported variable types:</b>  int, long, double.    |
-| $"/"$                        | <b>Division</b>. This operator divides the first operand by the second operand.<br/><b>Supported variable types:</b> int, long, double.  |
-| $"=", "=="$, "eq"            | <b>Equal.</b> This operator returns true if the first operand is equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string, bool, date and object.  |
-| $"!=", "<>"$, "ne"           | <b>Not equal.</b> This operator returns true if the first operand is not equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string, bool, date and object.  |
-| $">"$ , "gt"                 | <b>Greater than.</b> This operator returns true if the first operand is greater than the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date. |
-| $"<"$, "lt"                  | <b>Less than.</b> This operator returns true if the first operand is less than the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date.  |
-| $">="$ , "ge"                | <b>Greater or equal.</b> This operator returns true if the first operand is greater than or equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date.    |
-| $"<="$, "le"                 | <b>Less or equal.</b> This operator returns true if the first operand is less than or equal to the second operand.<br/><b>Supported variable types:</b> int, long, double, string and date.   |
-| "&&", "and"                  | <b>And.</b> This operator performs a logical-AND of its bool operands.<br/><b>Supported variable types:</b> bool.   |
-| $"\|\|"$, "or"               | <b>Or.</b> This operator performs a logical-OR of its bool operands.<br/><b>Supported variable types:</b> bool. |
-| $"!"$, "not"                 | <b>Not.</b> This operator is a unary operator that negates its operand. It returns true only if its operand is false.<br/><b>Supported variable types:<b/> bool.   |              
-| $"[]", "."$                  | <b>Index.</b> This operator returns an array element at the specified index or a dictionary element with the specified string key. |
-| $"??"$                       | <b>Ternary Operation.</b> This operator returns the first calculated value in chain of expressions. <br><b>Example:</b> If variable is not null displays variable value, else display text 'MyVar was not set'.<br/>```<log>{Globals['MyVar'] ?? 'MyVar was not set'}</log>``` |           
+### Arithmetic operators:
+Addition operator is `+`. This operator adds second operand to the first operand. Supported types: int, long, double, string. The operator is ad hoc polymorphic, for numbers it performs arithmetic operation and for strings performs concantenation.  
+Subtraction operator is `-`. This operator subtracts second operand from the first operand. Supported types: int, long, double.  
+Multiplication operator is `*`. This operator multiplies first operand by the second operand. Supported types: int, long, double.  
+Division operator is `/`. This operator divides the first operand by the second operand. Supported types: int, long, double.  
+
+### Relational operators:
+Equals operator is `=` or `==` or `eq`. This operator returns true if the first operand is equal to the second operand. Supported  types: int, long, double, string, bool, date and object.  
+Not equal operatoris `!=` or `<>` or `ne`. This operator returns true if the first operand is not equal to the second operand. Supported  types: int, long, double, string, bool, date and object.  
+Greater tha operator  is `>` or `gt`'. This operator returns true if the first operand is greater than the second operand. Supported types: int, long, double, string and date.  
+Less than is `<` or `lt`. This operator returns true if the first operand is less than the second operand. Supported types: int, long, double, string and date.  
+Greater or equal is `>=` or `ge`. This operator returns true if the first operand is greater than or equal to the second operand. Supported  types: int, long, double, string and date.  
+Less or equal is `<=` or `le`. This operator returns true if the first operand is less than or equal to the second operand. Supported  types: int, long, double, string and date.  
+
+### Logical operators:
+And is `&&` or `and`. This operator performs a logical-AND of its bool operands. Supported  types: bool.  
+Or is `||` or `or`. This operator performs a logical-OR of its bool operands. Supported types: bool.  
+Not is `!` or `not`. This operator is a unary operator that negates its operand. It returns true only if its operand is false.Supported  types: bool.  
+
+### Program structure operators:
+Index, Record or Object access is  `[]` or `.`. This operator returns an array element at the specified index, a property of an object or a dictionary element with the specified string key.  
+<b>Example:</b> ```<log>{myDict['property1']}</log>``` or ```<log>{myDict.property1}</log>```  
+
+Expression validation is `.isSet`. This operator can be applied to any expression or variable  to validate that it can be evaluated. When expression can be evaluated and returns a value operator returns true otherwise it return false. This operator prevents exceptions when applied to expressions  
+<b>Example:</b> ```<set var="myVar">{232}</set> <log>{myVar.isSet}</log> ``` or ```<if condition="(250+300+myVar).isSet"><log>myVar is a number</log></if>```  
+
+Collections total is `.Count`. This operator can be applied to any collection variable to get total number of items in collection.<br><b>Example:</b> ```<set var="myArray">{1,2,3]}</set> <log>{myArray.Count</log>```  
+
+### Conditional operators
+Null coalesing is `??`. This operator returns the first calculated value in chain of expressions. <br><b>Example:</b> If 'MyVar' property of 'Global' variable is not null displays property value, else display text 'MyVar was not set'. ```<log>{Globals['MyVar'] ?? 'MyVar was not set'}</log>```  
+Ternary conditional is `?` with usage of ` expression ? value if true : value if false`. This operator evaluates an expression before and if it is true 
 
 # **FUNCTIONS**
 
-Functions in Sync360 are methods for set of predefined objects. There are only two predefined functions that doesn't bind to an object.
+In Sync360 there are static instances of classes with predefined list of methods that aim to help a developer to implement the scripting logic. These classes were written using C# and .NET framework and implement the logic which is not available using standard Sync360 commands.
 
-**NOTE:** Helper functions (sometimes simply called "helpers") are usually functions that wrap useful functionality that you're going to reuse repeatedly.
+### Class CSV
+This class aims to works with CSV files. It has two methods Read and Write. There are default values for parameters supplied to methods of this class:  
+```
+DefaultEncoding = Encoding.UTF8
+DefaultDelimiter = ","
+DefaultQuote = "'"
+DefaultComment = "#"
+DefaultTrim = true
+DefaultHasHeader = true
+DefaultTopLinesToSkip = 0
+DefaultAppend = true
+DefaultWriteHeader = true
+```
 
-#### Table 4. Functions
-| <b>Type</b>   | <b>Description</b>     |                                                                                                                                                                                                                                                                 
-|---------------|------------------------------------------------------------------------------------|
-| "isSet"       | <b>Is Set.</b> This function returns true if the operand has value (not null).    |                                                                                                                                                                                                      
-| "Count"       | <b>Count.</b> This function returns the number of elements in the collection.     |
-| Csv.Read      | <b>Description</b><br/> The function reads through a CSV file and creates the list of strings where every line is a separate record. The number of parameters specified may vary. And this overloaded function may be used several times throughout the script. If some parameters are not specified, the default values listed in the script are used instead, e.g. Read(string path, string quote = DefaultQuote).<br/><b> Parameters</b><br/> Read(param1, param2, param3, param4, param5, param6, param7, param8) <br/> $\bullet$ string path - path to a file and its name.<br/>$\bullet$ Encoding encoding —the type of encoding used in a file. <br/> $\bullet$ string delimiter - delimiter used in a file. <br/> $\bullet$ string quote — multiline text delimiter used in a file. <br/> $\bullet$ string comment - comment symbol used in a file. <br/> $\bullet$ bool trim - checks whether value trimming is required or not. <br/> $\bullet$ bool hasHeader -checks whether a CSV file has a header or not. </br> $\bullet$ int topLinesToSkip - the number of lines to skip in a file.<br/> <b>Example</b> |
-| Csv.Write    | <b>Description</b><br>The function transforms CRM records and writes it into a CSV file in the correct form. Since CSV files has a specific structure, scripts create a dictionary for each line and each<br>dictionary has a key (a column header) and a value (a line value). Below is the example of this code:<br>```<set var="csv">{new List()}</set> <for var="record" in="records"> <set var="values">{new Dictionary()}</set> <for var="key" in="record.Keys">  <set var="values[key]>{record[key]}</set> <set var="csv[]">(values)</set> </for>``` <br/> <b>Parameters</b><br>Write(param1, param2, param3, param4, param5, param6,param7, param8)<br> $\bullet$ string path — a path to a file and its name.<br> $\bullet$ Encoding encoding — the type of encoding used in a file.<br> $\bullet$ string delimiter-delimiter used in a file.<br> $\bullet$ string quote — multiline text delimiter used in a file.<br> $\bullet$ string comment - comment symbol used in a file.<br> $\bullet$ bool trim - checks whether value trimming is required or not.<br> $\bullet$ bool hasHeader - checks whether a CSV file has a header or not.<br> $\bullet$ int topLinesToSkip - the number of lines to skip in a file.<br/> <b>Example</b> |
-| Csv.Open   | <b>Description</b><br><b>Paremeters</b><br><b>Example</b> |                                                                                                                                                                                                                              
+`Csv.Read` used to read a csv file into a variable of List type where each element of this list will be a line from csv file as a separate structured record.
+
+The method has overloads and therefore number of parameters can vary, below each available overload
+1) `<set var="records">{Csv.Read(string path, Encoding encoding, string delimiter, string quote, string comment, bool trim, bool hasHeader = DefaultHasHeader, int topLinesToSkip = DefaultTopLinesToSkip)}</set>` with this overload 2 last parameters are optional and default value will be used when not specified.
+2) `<set var="records">{Csv.Read(string path, Encoding encoding, string delimiter, string quote = DefaultQuote, bool hasHeader = DefaultHasHeader)}</set>` with this overload 
+3) `<set var="records">{Csv.Read(string path, Encoding encoding, dynamic configuration)}</set>`  with this overload into last parameter it is required to pass object with properties named `Delimiter`, `Quote`, `Comment`, `Trim`, `HasHeader` and `TopLinesToSkip`. Each property is optional, if missing the default values will be used.
+4) `<set var="records">{Csv.Read(string path)}</set>` this overload uses default values.
+<b>Examples:</b>
+```
+<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding(1252),',','"','!",true,15)}</set>
+
+<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding('utf-8'),';')}</set>
+
+<set var="configuration">
+    <attr name="Delimiter">,</attr>
+    <attr name="Quote">'</attr>
+    <attr name="Comment">#</attr>
+    <attr name="Trim">{true}</attr>
+    <attr name="HasHeader">{true}</attr>
+    <attr name="TopLinesToSkip">{15}</attr>
+</set>
+<set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding('utf-8'),configuration)}</set>
+```
+
+`Csv.Write` this method transforms data loaded into Sync360 engine and writes it into a CSV file. The method has two overloads and 
+
+
+
 | FileUtils. WriteToFile | <b>Description</b><br/> The function writes specified string to a file. It is usually used for logging. Last parameter instructs to append to a file.<br/> <b>Parameters</b></br> WriteToFile(string, string, bool)<br/>  $\bullet$  string fileName — a name of the file where the string will be added.<br/>  $\bullet$ string text - <br/>  $\bullet$ bool isAppend - appends a text to a file. <br/> <b>Example</b> <br/> ``` <set>{FileUtils.WriteToFile("c:\temp\log.txt","Test", true)}</set> ```|
 | FileUtils.ReadIdsFromFile| <b>Description</b></br> The function is used to read predefined GUIDS from text file. GUIDS should be placed line by line. The result will be array variable.<br/> <b>Parameters</b></br> ReadIdsFromFile(string)<br>string fileName—a name of the file GUIDS are taken from. <br/> <b>Example</b> <br/> ``` <set var="Ids">{FileUtils.ReadIdsFromFile(".\UserGuids.txt")}</set> ``` |
 | FileUtils.ReadFile | <b>Description</b> <br/> Opens a file, reads the contents of the file into a byte array, and then closes the file.<br/> <b>Parameters</b> ReadFile(string)<br/> $\bullet$ string fileName—a name of the processed file. <br/> <b>Example</b><br/> ``` <set var="Bytes">{FileUtils.ReadFile(".\UserGuids.txt")}</set> ```|
@@ -412,6 +460,7 @@ Any operator can use **IF** or **Unless**.
 | order          | Used for sorting search results by ordering.                                               | Optional     |
 | query          | A way to specify native query for SQL datasource                                           | Optional     |
 
+Use4si.Core.DynamicDictionary
 To read all names and ids of first 50 accounts where Country attribute value is equal to "US" and sort them by name attribute in descending order, you could use Select operation as follows:
 ```
 <select from="crmserver" entity="account" var="accounts" count="50">
