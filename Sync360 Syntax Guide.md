@@ -270,77 +270,72 @@ The object structure in Sync360 can have as many nested properties as needed, a 
 </if>
 <!--  the result of the above script execution will be single output 'a is less then b' -->
 ```
-`if` elements can be nested as many times as needed to create the logic flow. However it can make the code unreadable and therefore there are other methods as well.
-`if` is also a standard property that can be applied to any other element in sync360 syntax. When `if` applied to an element the value of it evaluate before execution of the command and only if it true the command will be executed
+
+`if` elements can be nested as many times as needed to create the logic flow. However too many nested elements can make the code unreadable and therefore there are other methods to control the execution flow. 
+`if` can act as standard property that can be applied to any other element in sync360 syntax. When `if` applied to an element the value of it evaluate before execution of the command and only if it true the command will be executed. Another property that can be added to any element is `unless` it works similar to `if` property just makes an opposite evaluation - command executed only if expression doesn't evaluate as true.
 ```
-<set var="mapping">{new List()</set>
-<set var="mapping[]">
-    <attr name="src">fullname</attr>
-    <attr name="dst">name</attr>
-</set>
-<set var="mapping[]">
-    <attr name="src">fullname</attr>
-    <attr name="dst">name</attr>
-</set>
-
+<set var="a">{5}</set>
+<set var="b">{5}</set>
+<set var="c">{10}</set>
+<if condition="a eq b">
+	<log>a is same as b</log>
+	<log if="b eq c">b is also same as c</log>
+	<log unless="b eq c">but b is not same as c</log>
+	<if condition="a ne c">
+       <log>a is not the same a c</log>
+    </if>
+</if>
+<!-- the result of the above script will be output of the following lines  
+a is same as b
+but b is not same as c
+a is not the same a c
 ```
 
-
-## THEN-ELSE
-
-**THEN–ELSE** construction can be used if one code block should be executed if condition is true and another code should be executed if condition is false.
-
+When `if` element is used, it is possible to control the execution of flow using nested `then` and `else` elements. That allows to execute a set of different commands when experssion evaluates as true and as false. `then` element can contain inline `if` property and that allows multiple code flows to execute within same parent `if` element. However `else` element cannot have `if` inline and therefore only one nested `else` element can exists per `if`.
 ```
 <set var="a">{10}</set>
 <set var="b">{15}</set>
 <set var="c">{10}</set>
 <if condition="a ne b">
-         <then>
-             <log>a not equal b</log>
-         </then>
-         <then if="b ne c">
-             <log>b not equal c</log>
-         </then>
-         <else>
-              <log>a equal b</log>
-         </else>
-         <else if="b eq c">
-             <log>b equal c</log>
-         </else>
+   <then>
+      <log>a not equal b</log>
+   </then>
+   <then if="b ne c">
+      <log>b not equal c</log>
+   </then>
+  <else>
+     <log>a equal b</log>
+  </else>
 </if>
 ```
 
-**Unless** construction is used only in conjunction with **IF** to execute code block if a condition is true and another code **IF** the condition is not true.
+## For, While, Break, Continue
 
-Any operator can use **IF** or **Unless**.
-```
-<set Colors="['red','gray','yellow']"/>
-<log if="Colors[1] = 'gray'">Have a GRAY color</log>
-<log unless="Colors[1] = 'blue'">Not a BLUE color</log>
-<set var="MyColor1" if="Colors[2] = 'yellow'">Have a YELLOW color</set>
-<log>{MyColor1}</log>
-<set var="MyColor2" unless="Colors[1] = 'red'">Not a red color</set>
-<log>{MyColor2}</log>
-```
-
-### For
-
-**For** construction is used when a code block needs to be executed a certain amount of times. There are 2 types of usage syntax listed below.
+`for` element is used when a code block needs to be executed a certain amount of times. Sync360 supports iteration through enumerated structures using `for` statement as well as standard iteration by number of times, this depend on attributes supplied in the `for` element.
 ```
 <set crmservers="['crm','crm4','crm5']"/>
 <for var="i" from="0" to="crmservers.Count - 1" step="1">
-    <log>{crmservers[i]}</log>
+    <log>{crmservers[i]}</log> <!--logs iteratively a value from array by it's index -->
 </for>
+
 <set crmservers="['crm','crm4','crm5']"/>
 <for var="crmserver" in="crmservers">
-    <log> {crmserver}</log>
+    <log>{crmserver}</log>  <!--logs iteratively each individual value from crmservers array -->
 </for>
 ```
 
-### Break
+`while` construction can be used when a code block need to be executed while specified condition in the **"condition"** attribute is equal to *true*.
+```
+<set var="crmservers">{['crm','crm4','crm5']}</set>
+<set var="counter">{0}</set>
+<while condition="counter lt crmservers.Count">
+     <log>{crmservers[counter]}</log>
+    <set var="counter">{counter + 1}</set>
+</while>
+```
 
-**Break** construction can be used to exit the cycle based on specific condition. This construction is applicable for any time of cycle.
 
+`break` element can be used to exit the loop. It is intended to be used in conjunction with `if` element to make a conditional end of cycle. Once break command executed, the Sync360 engine moves to the next command after closure of `for` element .
 ```
 <set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
 <log>Start cycle.</log>
@@ -360,12 +355,7 @@ Any operator can use **IF** or **Unless**.
 <log>End cycle.</log>
 ```
 
-
-
-## **Continue**
-
-**Continue** construction can be used to skip cycle logic that is located under this construction and move on to the next cycle iteration.
-
+`continue` element can be used to skip current cycle logic that is located under this element and move on to the next cycle iteration.
 ```
 <set var="testCycle">{['test1','test2','test3','test4']}</set>
 <log>Start cycle.</log>
@@ -384,20 +374,6 @@ Any operator can use **IF** or **Unless**.
 </for>
 <log>End cycle.</log>
 ```
-
-### **While**
-
-**While** construction can be used when a code block need to be executed while specified condition in the **"condition"** attribute is equal to *true*.
-```
-<set var="crmservers">{['crm','crm4','crm5']}</set>
-<set var="counter">{0}</set>
-<while condition="counter lt crmservers.Count">
-     <log>{crmservers[counter]}</log>
-    <set var="counter">{counter + 1}</set>
-</while>
-```
-
-
 
 # **FUNCTIONS**
 
