@@ -16,14 +16,14 @@ An example of sync360 command with child elements that acts as command propertie
 ```
 Names of elements, as well as names of attributes, cannot contain space characters. The name should begin with a letter or an underline character. The rest of the name may contain as the same characters as well as digit characters.
 Attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should be always embedded in single or double quotes.
-It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
+It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above). 
 
 Content inside an element acts as a value. Curly brackets { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.  
 ```
 <set var="firstname">Joe</set> <!-- assignment of text value 'Joe' to variable 'firstname' without expressions. -->
 <set var="calculatedvalue">{294+322}</set> <!-- assignment of result of expression in the element content. Notice that braces are required -->
 <set calculated="294+322" /> <!-- assignment of result of expression via property. Notice that braces are not required -->
-<if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. In this command doesn't require braces -->
+<if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. In this command condition attribute doesn't require braces, evaluation always occurs.-->
 ```
 
 An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).
@@ -59,9 +59,25 @@ If the corresponding element is not found, search of a method with this name wil
 
 # VARIABLE TYPES
 
-Variables in Sync360 can be defined with following .NET types and structures:
-char, char[], string , string[], byte , byte[], int, int[],long, long[], double, double[], bool, bool[], date, date[], List, Dictionary, Object
-
+Variables in Sync360 use short names for known .NET types and structures, except Object type which is a custom class based on System.Dynamic.DynamicObject. Below are the list of short names and their respective .NET structures in braces. 
+```
+char (System.Char)  
+string (System.String)  
+float (System.Single)  
+int (System.Int32)  
+long (System.Int64)  
+double (System.Double)
+decimal (System.Decimal)
+bool (System.Boolean)
+DateTime (System.DateTime)
+Guid (System.Guid)
+StringBuilder (System.Text.StringBuilder)
+Regex (System.Text.RegularExpressions.Regex)
+List (System.Collections.Generic.List`1[System.Object])
+Dictionary (System.Collections.Generic.Dictionary`2[System.String,System.Object])  
+Object (Use4si.Core.DynamicDictionary)
+```
+Using any of these types it is possible to create an array. Sync360 automatically will use the type of elements inside array to define the type of array, however if there will be different types of elements, the array will be created as System.Object[]
 These are types which possible to declare by default. It is also possible to get different types of variables in Sync360 based on specific functions from .NET libraries.
 
 # **CONSTANTS**
@@ -95,12 +111,13 @@ Not is `!` or `not`. This operator is a unary operator that negates its operand.
 
 ### Program structure operators:
 Index, Record or Object access is  `[]` or `.`. This operator returns an array element at the specified index, a property of an object or a dictionary element with the specified string key.  
-<b>Example:</b> ```<log>{myDict['property1']}</log>``` or ```<log>{myDict.property1}</log>```  
+```<log>{myDict['property1']}</log>``` or ```<log>{myDict.property1}</log>```  
 
 Expression validation is `.isSet`. This operator can be applied to any expression or variable  to validate that it can be evaluated. When expression can be evaluated and returns a value operator returns true otherwise it return false. This operator prevents exceptions when applied to expressions  
-<b>Example:</b> ```<set var="myVar">{232}</set> <log>{myVar.isSet}</log> ``` or ```<if condition="(250+300+myVar).isSet"><log>myVar is a number</log></if>```  
+ ```<set var="myVar">{232}</set> <log>{myVar.isSet}</log> ``` or ```<if condition="(250+300+myVar).isSet"><log>myVar is a number</log></if>```  
 
-Collections total is `.Count`. This operator can be applied to any collection variable to get total number of items in collection.<br><b>Example:</b> ```<set var="myArray">{1,2,3]}</set> <log>{myArray.Count</log>```  
+Collections total is `.Count`. This operator can be applied to any collection variable to get total number of items in collection.  
+```<set var="myArray">{1,2,3]}</set> <log>{myArray.Count</log>```  
 
 ### Conditional operators
 Null coalesing is `??`. This operator returns the first calculated value in chain of expressions. <br><b>Example:</b> If 'MyVar' property of 'Global' variable is not null displays property value, else display text 'MyVar was not set'. ```<log>{Globals['MyVar'] ?? 'MyVar was not set'}</log>```  
@@ -110,78 +127,135 @@ Ternary conditional is `?` with usage of ` expression ? value if true : value if
 
 `set` operation is used for declaration and modification of the variables. The name of variable can be supplied via `var` attribute of `set` element, then a value is passed via content of set tag. However, you can skip `var` attribute and define variable name explicitly as a property of set tag, in this case the value passed into property tag will be
 
-### Simple variable
+## Simple variable
 
-To declare a simple variable, all that is needed is the keyword "**var**" followed by the variable name and its value.
+To declare a simple variable, define a name using `var` property and provide value via element content. When value passed without curly braces it evaluated as string. Using curly braces and providing digits Sync360 engine attempts to resolve it to best matching simple types. The default behavior that numeric values are resolved as Int32 or Int64 depending on size. Any fraction numbers are resolved as Double. Because of that is there a need to use specific type it is required to use `as` operator to define a type.
+```
+<set var="text">Hello</set>
+
+<set var="num1">{1}</set>
+<log>{num1.GetType()}</log> <!-- Outputs 'System.Int32' -->
+
+<set var="num2">{3249570234750343425}</set>
+<log>{num2.GetType()}</log> <!-- Outputs 'System.In64' -->
+
+<set var="num3">{1.4}</set>
+<log>{num3.GetType()}</log> <!-- Outputs 'System.Double' -->
+
+<set var="num4">{1.4 as 'decimal'}</set>
+<log>{num4.GetType()}</log> <!-- Outputs 'System.Decimal' -->
+```
+It is possible to assign to variable a value of another variable
 ```
 <set var="accountid">{value}</set>
-```
 
-The other way to do same operation 
-```
+<!-- The other way to do same operation -->
 <set accountid="value" />
 ```
 
-### Array variable
+## Structures
+Structures are essential part of Sync360 scripting as they provide methods for manipulating and working with data. When outputing structure using `log` command the Sync360 engine automatically serialize them to string representation.
 
-To declare an array variable simply put the values in square brackets separated by comma.
-```
-<set var="crmserver">{["crm1","crm2"]}</set>
-<set cities="['New York','Los Angeles','Chicago']"/>
-```
+### Dictionary
 
-### Dictionary variables
-
-To declare the dictionary variable use construction "*{new Dictionary()}*" and then set its items list using the similar way as arrays.
+To declare the dictionary variable use construction `<set var="myDict">{new Dictionary()}</set>` after that you can assign values by specifing string keys using `[]` index operator. 
 ```
 <set Address="new Dictionary()" />
-<set var="Address['Street']">street</set>
-<set var="Address['City']">city</set>
-<set var="Address['Country']">country</set>
+<set var="Address['Street']">Brookview Dr NW</set>
+<set var="Address['State']">GA</set>
+<set var="Address['Zip']">30318</set>
+<set var="Address['City']">Atlanta</set>
+<set var="Address['Country']">US</set>
 ```
 
-### List variables
+Dictionaries are key structure for writing scripts in Sync360 as it is often used for caching data retrieved from external systems for it easier access via identifiers. Methods that exists in Dictionary like ContainsKey allows easier verification for creating the script logic flow.
 
-List declaration is very similar to Dictionary, use construction "*{new List()}*" and then set its variables, but without keys.
+### List
+
+List declaration is very similar to Dictionary, use construction `<set var="myList">{new List()}</set>` and then assign values to list using `[]`.
 ```
 <set Names="new List()" />
 <set var="Names[]">Michael</set>
 <set var="Names[]">Joe</set>
 ```
-
-### Object variables
-
-You can define any kind of object in Sync360 and there are four different methods. Let's look on examples:
-
-#### *Method 1:*
+List structure is particularly useful when there is no need to access individual specific elements or when there is a need to access a random elements.  List also can be used for sorting string or number values due to it default methods.
 ```
+<log>{Names[]}</log> <!-- output random element of List -->
+
+<set var="SortedList">{new List()}</set>
+<set var="SortedList[]">{29}</set>
+<set var="SortedList[]">{5}</set>
+<set var="SortedList[]">{32}</set>
+<log>{SortedList}</log>  <!-- Outputs [29, 5, 32] -->
+<set>{SortedList.Sort()}</set>
+<log>{SortedList}</log>  <!-- Outputs [5, 29, 32] -->
+
+```
+
+### Array
+
+To declare an array variable put the values in square brackets separated by comma.
+```
+<set var="crmserver">{["crm1","crm2"]}</set> <!-- 'crmserver' variable type will be System.String[] -->
+<set cities="['New York','Los Angeles','Chicago']"/>  <!-- 'cities' variable type will be System.String[] -->
+<set randomnumbers="[3,6,7,12]"/> <!-- 'randomnumbers' variable type will be System.In32[] -->
+
+<set var="myDict">{new Dictionary()}</set>
+<set var="myList">{new List()}</set>
+<set var="myArray">{[myDict,myList]}</set> <!-- 'myArray' variable will be System.Object[] -->
+```
+Arrays compared to List or Dictionary structures cannot be extended to include additional elements after initialization, the number of elements is strict by definition and it is required to initialize a new array if there is a need to add additional element.
+
+### Object
+
+In Sync360 an object can be created via different syntax constuctions. Since each object is  a dynamic object, it's structure after definition is not strict, you can add additional properties to an object at anytime.
+
+In the following example the same object defined using 4 different syntax schemes:
+```
+<!--Intialize empty Object and then add properties and values -->
 <set var="Person">{new Object()}</set>
 <set var="Person.Name">Michael</set>
 <set var="Person.Lastname">White</set>
-```
 
-#### *Method 2:*
-```
+<!--Short version of syntax ot initialize empty object and then assign properties -->
+<set Person="new Object()" Person.Name="'Michael'" Person.Lastname="'White'"/>
+
+<!--Initiale object with properties and values -->
 <set var="Person">
       <attr name="Name">Michael</attr>
       <attr name="Lastname">White</attr>
 </set>
-```
 
-#### *Method 3:*
-```
-<set Person="new Object()" Person.Name="'Michael'" Person.Lastname="'White'"/>
-```
-
-#### *Method 4:*
-```
+<!--Short version of initializing object with properties and their values -->
 <set Person="['Name':'Michael','Lastname':'White']"/>
 ```
+
+The object structure in Sync360 can have as many nested properties as needed, a simple example of a object which describes a house
+```
+<set var="House">
+  <attr name="Material">brick</attr>
+  <attr name="Price">{300000}</attr>
+    <attr name="Rooms">
+    <attr name="DiningRoom">{30}</attr>
+    <attr name="Bathroom">{8}</attr>
+    <attr name="Livingroom">{40}</attr>
+    <attr name="Bedroom">{45}</attr>
+    <attr name="Kitchen">{15}</attr>
+    <attr name="Basement">{20}</attr>
+  </attr>
+</set>
+<set var="House.Color">white</set>
+
+<log>{House}</log>
+<!--When outputing objects in Sync360 it searializes them to a string. In this example the result of log command will be:  
+['Material': 'brick', 'Price': 300000, 'Rooms': ['DiningRoom': 30, 'Bathroom': 8, 'Livingroom': 40, 'Bedroom': 45, 'Kitchen': 15, 'Basement': 20], 'Color': 'white'] -->
+```
+
 # FLOW CONTROL OPERATIONS
 
-## If and Unless
+## IF,THEN-ELSE, UNLESS
 
-**IF** construction can be used when it is necessary to execute a code block only if a specified condition in the **"condition"** attribute is equal to *true*.
+`if` element is used to wrap code block and instruct Sync360 engine to execute this code only when condition evaluates as true. `condition` is property of if element which always evaluates into boolean value, it is not required to use curly braces for this propery.
 ```
 <set var="a">{10}</set>
 <set var="b">{15}</set>
@@ -194,7 +268,24 @@ You can define any kind of object in Sync360 and there are four different method
 <if condition="a eq b">
      <log>a is equal to b</log>
 </if>
+<!--  the result of the above script execution will be single output 'a is less then b' -->
 ```
+`if` elements can be nested as many times as needed to create the logic flow. However it can make the code unreadable and therefore there are other methods as well.
+`if` is also a standard property that can be applied to any other element in sync360 syntax. When `if` applied to an element the value of it evaluate before execution of the command and only if it true the command will be executed
+```
+<set var="mapping">{new List()</set>
+<set var="mapping[]">
+    <attr name="src">fullname</attr>
+    <attr name="dst">name</attr>
+</set>
+<set var="mapping[]">
+    <attr name="src">fullname</attr>
+    <attr name="dst">name</attr>
+</set>
+
+```
+
+
 ## THEN-ELSE
 
 **THEN–ELSE** construction can be used if one code block should be executed if condition is true and another code should be executed if condition is false.
@@ -231,6 +322,21 @@ Any operator can use **IF** or **Unless**.
 <set var="MyColor2" unless="Colors[1] = 'red'">Not a red color</set>
 <log>{MyColor2}</log>
 ```
+
+### For
+
+**For** construction is used when a code block needs to be executed a certain amount of times. There are 2 types of usage syntax listed below.
+```
+<set crmservers="['crm','crm4','crm5']"/>
+<for var="i" from="0" to="crmservers.Count - 1" step="1">
+    <log>{crmservers[i]}</log>
+</for>
+<set crmservers="['crm','crm4','crm5']"/>
+<for var="crmserver" in="crmservers">
+    <log> {crmserver}</log>
+</for>
+```
+
 ### Break
 
 **Break** construction can be used to exit the cycle based on specific condition. This construction is applicable for any time of cycle.
@@ -254,19 +360,7 @@ Any operator can use **IF** or **Unless**.
 <log>End cycle.</log>
 ```
 
-### For
 
-**For** construction is used when a code block needs to be executed a certain amount of times. There are 2 types of usage syntax listed below.
-```
-<set crmservers="['crm','crm4','crm5']"/>
-<for var="i" from="0" to="crmservers.Count - 1" step="1">
-    <log>{crmservers[i]}</log>
-</for>
-<set crmservers="['crm','crm4','crm5']"/>
-<for var="crmserver" in="crmservers">
-    <log> {crmserver}</log>
-</for>
-```
 
 ## **Continue**
 
