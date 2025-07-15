@@ -378,7 +378,7 @@ When `if` element is used, it is possible to control the execution of flow using
 
 # **FUNCTIONS**
 
-In Sync360 there are static instances of classes with predefined list of methods that aim to help a developer to implement the scripting logic. These classes were written using C# and .NET framework and implement the logic which is not available using standard Sync360 commands. Invoking class methods can be considered as standalone functions.
+In Sync360 there are static instances of classes with predefined list of methods that aim to help a developer to implement the scripting logic. These classes are written using C# and .NET framework and implement the logic which is not available using standard Sync360 commands. Invoking class methods can be considered as standalone functions.
 
 ### Class CSV
 The class provides methods to work with CSV files. It has two methods Read and Write. There are default values for parameters supplied to methods of this class:  
@@ -625,10 +625,11 @@ The short access to System.TimeSpan .Net structure.
 
 
 # DATA OPERATIONS
+As Sync360 main purpose is data processing the commands to perform data operations is most valuable feature of the engine. Developers can utilize the same commands in the almost the same syntax to perform CRUD operations in various system (support of command is varied based on specific connector). This streamlines the development of integrations or ETL processes.
 
 ## **Context**
 
-**Context** construction is used when it is necessary to perform a set of operation in a specific user context. Context can be used only if current user has permissions for Impersonation usage on server.
+`Context` element is used to wrap commands that must be performed under specific user context. By default all data operations are performed under user/service specified in the configuration file, the context allows to perform the operation under another user/service credential, the only requirement is for the service account to have impersonation permission in the target. The context element affects only data operation commands for specific connection specified in `for` attribute, it doesn't has any effect to any non data operation commands.
 
 #### Table 5. Context constriction attributes.
 | <b>Attribute</b> | <b>Description</b>                                                                  | <b>Usage</b> |
