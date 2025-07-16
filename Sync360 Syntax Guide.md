@@ -691,7 +691,7 @@ Specify values for the table/properties of new record via child `attr` element.
 
 ```
 <!-- example of create operation where all values are explicitly provided -->
-<set var="accountid">{new Guid('5862c957-b2df-4f44-adb7-429ce006d943')}</set> <!-- assuming we have a unique identifier of required record -->
+<set var="accountid">{new Guid('5862c957-b2df-4f44-adb7-429ce006d943')}</set> <!-- assuming we know a unique identifier of required record -->
 <create in="crmserver" entity="contact" var="newContactId">
     <attr name="firstname">Joe</attr>
     <attr name="lastname">Doe</attr>
