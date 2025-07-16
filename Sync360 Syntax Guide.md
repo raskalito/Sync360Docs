@@ -681,39 +681,6 @@ The short access to System.TimeSpan .Net structure.
 As Sync360 main purpose is data processing the commands to perform data operations is most valuable feature of the engine. Developers can utilize the same commands in almost the same syntax to perform CRUD operations in various system (support of command is varied based on specific connector). This streamlines the development of integrations or ETL processes.
 Flow control operators can be used inside elements of data operators, the commands of flow control operators will execute prior executing the actual command, thus allowing to construct queries programatticaly using sync360 syntax logic.
 
-## **Context**
-
-`context` element is used to wrap commands that must be performed under specific user context. By default all data operations are performed under user/service specified in the configuration file, the context allows to perform the operation under another user/service credential, the only requirement is for the service account to have impersonation permission in the target. The context element affects only data operation commands for specific connection specified in `for` attribute, it doesn't has any effect to any non data operation commands. `user` attribute in context element is used to specify whom it is required to impersonate. In current version of Sync360 context command can be used for Exchange and Dynamics CRM/Power Platform connections. For Exchange connection user attribute expects email address of target user, for CRM connection the user attribute should be GUID of user record.
-
-```
-<context for="exchange" user="{userEmail}">
-     <select from="exchange" entity="contact" var="contacts">
-         <where>
-             <or> <condition attr="crmLinkState" op="eq">0</condition>
-                  <condition attr="crmLinkState" op="eq">2</condition>
-            </or>
-            <condition attr="crmid" op="ne"></condition>
-         </where>
-         <attr name="EntryId"/>
-         <attr name="crmid"/>
-         <attr name="crmLinkState"/>
-         <attr name="iconindex"/>
-         <attr name="crmOwnerId"/>
-     </select>
-</context>
-
-<context for="crm" user="{userGuid}">
-     <select from="crm" entity="contact" var="contacts">
-         <where>
-            <condition attr="contactid" op="eq">{contactId}</condition>
-         </where>
-         <attr name="fullname"/>
-         <attr name="jobtitle"/>
-         <attr name="emailaddress1"/>
-     </select>
-</context>
-```
-
 ### Create
 
 `create` element creates a record in specified table with defined attributes and returns newly created record uniqueidentifier into variable. The followig attributes are supported for this element:  
@@ -722,15 +689,48 @@ Flow control operators can be used inside elements of data operators, the comman
 `var` attribute specifies the name of variable to store uniqueidentifier of newly created record. It is an optional attribute  
 Specify values for the table/properties of new record via child `attr` element.
 
-To create the contact, you could use the Create operation as follows:
 ```
-<create in="crmserver" entity="contact" var="createdContact">
+<!-- example of create operation where all values are explicitly provided -->
+<set var="accountid">{new Guid('5862c957-b2df-4f44-adb7-429ce006d943')}</set> <!-- assuming we have a unique identifier of required record -->
+<create in="crmserver" entity="contact" var="newContactId">
     <attr name="firstname">Joe</attr>
     <attr name="lastname">Doe</attr>
     <attr name="emailaddress1">joe.doe@mail.com</attr>
     <attr name="jobtitle">manager</attr>
     <attr name="telephone1">444-44-44</attr>
     <attr name="parentcustomerid">account:{accountid}</attr>
+</create>
+```
+
+```
+<!-- creating a record using flow control and predefined mapping -->
+<set var="mappings">{new List()}</set>
+<set var="mappings[]">
+  <attr name="src">FirstName</attr>
+  <attr name="dst">firstname</attr>
+  <attr name="type">string</attr>
+</set>
+<set var="mappings[]">
+  <attr name="src">LastName</attr>
+  <attr name="dst">lastname</attr>
+  <attr name="type">string</attr>
+</set>
+<set var="mappings[]">
+  <attr name="src">Email</attr>
+  <attr name="dst">emailaddress1</attr>
+  <attr name="type">string</attr>
+</set> <!-- just three attributes, in real scenario there will be full mapping -->
+
+<set var="Data"> <!-- defining data directly in Sync360 for example, in real scenarios the data will be retrieved from another system -->
+    <attr name="FirstName">Joe</attr>
+    <attr name="LastName">Doe</attr>
+    <attr name="Email">joe.doe@mail.com</attr>
+</set>
+
+<create in="crm" entity="contact" var="newContactId">
+    <for var="mapping" in="mappings">
+        <attr name="{mapping.dst}">{Data[mapping.src]}</attr>
+    </for>
 </create>
 ```
 
@@ -857,6 +857,39 @@ The following script deletes an Exchange contact by known EntryId:
          <condition attr="EntryId" op="eq">{EntryId}</condition>
     </where>
 </delete>
+```
+
+## **Context**
+
+`context` element is used to wrap commands that must be performed under specific user context. By default all data operations are performed under user/service specified in the configuration file, the context allows to perform the operation under another user/service credential, the only requirement is for the service account to have impersonation permission in the target. The context element affects only data operation commands for specific connection specified in `for` attribute, it doesn't has any effect to any non data operation commands. `user` attribute in context element is used to specify whom it is required to impersonate. In current version of Sync360 context command can be used for Exchange and Dynamics CRM/Power Platform connections. For Exchange connection user attribute expects email address of target user, for CRM connection the user attribute should be GUID of user record.
+
+```
+<context for="exchange" user="{userEmail}">
+     <select from="exchange" entity="contact" var="contacts">
+         <where>
+             <or> <condition attr="crmLinkState" op="eq">0</condition>
+                  <condition attr="crmLinkState" op="eq">2</condition>
+            </or>
+            <condition attr="crmid" op="ne"></condition>
+         </where>
+         <attr name="EntryId"/>
+         <attr name="crmid"/>
+         <attr name="crmLinkState"/>
+         <attr name="iconindex"/>
+         <attr name="crmOwnerId"/>
+     </select>
+</context>
+
+<context for="crm" user="{userGuid}">
+     <select from="crm" entity="contact" var="contacts">
+         <where>
+            <condition attr="contactid" op="eq">{contactId}</condition>
+         </where>
+         <attr name="fullname"/>
+         <attr name="jobtitle"/>
+         <attr name="emailaddress1"/>
+     </select>
+</context>
 ```
 
 ## Batch
