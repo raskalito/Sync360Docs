@@ -1,7 +1,8 @@
 # SYNC 360 ENGINE
 
-The following documentation describes the syntax for Sync360 application. Sync360 is ETL tool which executes Sync360 scripts, it is build on .NET Framework version 4.6.2 and derives a lot of types from it.
-When Sync360 engine executes a script file, each command in the file execute one by one in a single thread. The Sync360 application as any ETL tool has predefined list of connectors for external systems which can be used to perform CRUD operations against their data.
+The following documentation describes the syntax for programming scripts for Sync360 application. Sync360 is ETL tool which executes Sync360 scripts, it is build on .NET Framework version 4.6.2 and derives a lot of types from it.
+When Sync360 engine executes a script file, each command in the script file execute one by one in a single thread. The Sync360 application as any ETL tool has predefined list of connectors for external systems which can be used to perform CRUD operations against their data.
+The access to specific connector in context of script execution depends on configuration files used for script execution, meaning there is a configuration file where the name of connection explictly set along with type of connection and authetification information.
 
 # GENERAL SCRIPT SYNTAX
 
@@ -125,7 +126,7 @@ Ternary conditional is `?` with usage of ` expression ? value if true : value if
 
 # DECLARATION OF THE VARIABLES
 
-`set` operation is used for declaration and modification of the variables. The name of variable can be supplied via `var` attribute of `set` element, then a value is passed via content of set tag. However, you can skip `var` attribute and define variable name explicitly as a property of set tag, in this case the value passed into property tag will be
+`set` operation is used for declaration and modification of the variables. The name of variable can be supplied via `var` attribute of `set` element, then a value is passed via content of set tag. However, you can skip `var` attribute and define variable name explicitly as a property of set tag, in this case the value passed into the property will be used a variable value. Set element could be also used without any attributes, in this case it used for execution/evaluation of expression passed into content of element, without any assignment.
 
 ## Simple variable
 
@@ -546,12 +547,64 @@ These classes are used to work with html syntax and html document.
 ### Class Http
 The class used to perform http requests. It particularly useful for integration with REST based endpoints, however it is not limited to this.
 
-`Http.SetUseDefaultCredentials` <b>Description</b><br>Sets the use of default credentials for each http connection.<br><b>Parameters</b><br>SetUseDefaultCredentials(bool)<br>bool value<br><b>Example</b>|                                                                                              
-`Http.SetClientEncoding` <b>Description</b><br>Sets a client encoding for connections.<br><b>Parameters</b><br>SetClientEncoding(string)<br><b>Example</b> |                                                                                                                                      
-`Http.Get` <b>Description</b><br>The HTTP GET method requests a representation of the specified resource.<br><b>Parameters</b><br>Get(string, string, string, string, string object)<br> $\bullet$ string url - URL used in the request.<br>string username-retrieves requested username.<br> $\bullet$ string password - retrieves requested password.<br> $\bullet$ string domain - retrieves requested password.<br> $\bullet$ object headers - retrieves specific headers.<br><b>Example</b> <br/> ```<set var="response">{Http.Get('http://www.example.com')}</set> ```|
-`Http.Put` <b>Description</b><br/> The HTTP PUT request method creates a new resource or replaces a representation of the target resource with the request payload.<br/> <b>Parameters</b> Put(string url, string data, object headers)<br/> $\bullet$ string url-URL used in the request.<br/> $\bullet$ string data-data sent as parameters to URL in the request.<br/> $\bullet$ object headers <br/>  <b>Example</b> <br/> ```<set var="response">{Http.Put('http://www.example.com', 'some data', 'headers go here')}</set> ```|
-`Http.Post` <b>Description</b><br/> The HTTP POST method sends data to the server.<br/> <b>Parameters</b><br/> Post(string, string, string, string, string, object)<br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.  <br/> $\bullet$ string password. <br/> $\bullet$ string domain.    <br/> $\bullet$ string data — data sent as parameters to URL in the request. <br/> $\bullet$ object headers. <br/><b>Example</b><br/> ```<set var="response">{Http.Post('http://www.example.com', 'some data', 'headers go here')}</set>``` |
-`Http.Patch` <b>Description</b><br/>The HTTP PATCH request method applies partial modifications to a resource. <br/> <b>Parameters</b></br> Patch(string, string, string, string, string, object) <br/> $\bullet$ string url-URL used in the request. <br/> $\bullet$ string login.<br/> $\bullet$ string password.<br/> $\bullet$ string domain. <br/> $\bullet$ string data.<br/> $\bullet$ object headers.<br/> <b>Example</b><br> ``` <set var="response">{Http.Patch('http://www.example.com', 'some data', 'headers go here')}</set> ```|
+`Http.SetUseDefaultCredentials` sets the use of default credentials for each subsequent http request.  
+```<set>{Http.SetUseDefaultCredentials(true)}</set>```
+
+`Http.SetClientEncoding` sets a client encoding for connections. Encoding should be provided as string.  
+```<set>{Http.SetClientEncoding('utf-8')</set>```
+
+`Http.Get` method performs HTTP GET web request for specified URL. The method has overloads and therefore number of parameters can vary, below each available overload  
+1) `<set var="response">{Http.Get(string url)}</set>` can be used for public websites that doesn't require authorization or specific headers. The response is retrieved as a string.
+2) `<set var="response">{Http.Get(string url, string login, string password)}</set>` using basic web authorization by username and password. The  information will be added automatically as "Authorization" header with type "Basic".
+3) `<set var="response">{Http.Get(string url, string login, string password, string domain)}</set>` can be used for websites requiring windows authentification using NetworkCredentials.
+4) `<set var="response">{Http.Get(string url, object headers)}</set>` to pass custom headers. The most commonly used overload for permorming requests as allows full control over what will be passed to request. Headers can be defined as an object or a dictionary, where property name is header name and value is header value.
+ ```
+<set var="response">{Http.Get('http://www.example.com')}</set>
+
+<set var="response">{Http.Get('http://www.bankaccount.com', 'user', 'password')}</set>
+
+<set var="response">{Http.Get('http://internal.xyz', 'user', 'password', 'domain')}</set>
+
+<set headers="new Dictionary()"/>
+<set var="headers['User-Agent']">Opera/9.80 (Windows NT 5.1; U; ru) Presto/2.9.168 Version/11.51</set>
+<set var="headers['Accept']">*/*</set>
+<set var="headers['Content-Type']">application/x-www-form-urlencoded</set>
+<set var="url">https://api.system.com/get</set>
+<set var="response">{Http.Get(url, headers)}</set>
+ ```
+
+`Http.Put` method performs HTTP PUT request to specific URL using provided data and headers.  
+```
+<set headers="new Dictionary()"/>
+<set var="headers['Accept']">*/*</set>
+<set var="headers['Content-Type']">application/x-www-form-urlencoded</set>
+<set var="data">{new Dictionary()}</set>
+<set var="data['param1']">Text1</set>
+<set var="data['param2']">Text2</set>
+<set var="response">{Http.Put('http://www.example.com', data, headers)}</set>
+```
+
+`Http.Post` method performs HTTP POST request to specific URL. The method has overloads and therefore number of parameters can vary, below each available overload  
+1) `<set var="response">{Http.Post(string url, string data)}</set>` can be used for public websites that doesn't require authorization or specific headers. The result of request will be written in response.
+2) `<set var="response">{Http.Post(string url, string login, string password, string data)}</set>` using basic web authorization by username and password. The  information will be added automatically as "Authorization" header with type "Basic".
+3) `<set var="response">{Http.Post(string url, string login, string password, string data, object headers)}</set>` also using basic web authorization but allows to include custom headers.
+4) `<set var="response">{Http.Post(string url, string login, string password, string domain, string data, object headers)}</set>` can be used for websites requiring windows authentification using NetworkCredentials.
+5) `<set var="response">{Http.Post(string url, string data, object headers)}</set>` used when web service requiree a custom authentification scheme via headers.
+
+```
+<set var="response">{Http.Post('http://www.example.com', 'some data', 'headers go here')}</set>
+```
+
+`Http.Patch` method performs HTTP PATCH request to specific URL. The method has overloads and therefore number of parameters can vary, below each available overload  
+1) `<set var="response">{Http.Patch(string url, string data)}</set>` can be used for public websites that doesn't require authorization or specific headers. The result of request will be written in response.
+2) `<set var="response">{Http.Patch(string url, string login, string password, string data)}</set>` using basic web authorization by username and password. The  information will be added automatically as "Authorization" header with type "Basic".
+3) `<set var="response">{Http.Patch(string url, string login, string password, string data, object headers)}</set>` also using basic web authorization but allows to include custom headers.
+4) `<set var="response">{Http.Patch(string url, string login, string password, string domain, string data, object headers)}</set>` can be used for websites requiring windows authentification using NetworkCredentials.
+5) `<set var="response">{Http.Patch(string url, string data, object headers)}</set>` used when web service requiree a custom authentification scheme via headers.
+
+``` 
+<set var="response">{Http.Patch('http://www.example.com', 'some data', 'headers go here')}</set>
+```
 `Http.Download` <b>Description</b><br/> Downloads the file that URL contains, e. g. page, archive, document.<br/> <b>Parameters</b><br/> Download(string)<br/> $\bullet$ string url-an address that contains the required file. <br/> <b>Example</b><br/> ``` <set var="response">{Http.Download('http://www.example.com')}</set>``` |
 `Http.GetRaw` <b>Description</b> <br/> The Get. Raw method requests a representation of the specified resource but in unchanged, literal form.<br/> <b>Parameters</b> GetRaw(string, int, int) <br/> $\bullet$ string url   <br/> $\bullet$  int sendTimeout <br/> $\bullet$ int receiveTimeout <br/> <b>Example</b>  |
 `Http.SetCookie` <b>Description</b><br/> Set cookie for the specified resource.<br/> <b>Parameters</b> <br/>  SetCookie(string, string)<br/> $\bullet$  string url <br/> $\bullet$  string cookie  <br/> <b>Example</b> |
@@ -625,18 +678,12 @@ The short access to System.TimeSpan .Net structure.
 
 
 # DATA OPERATIONS
-As Sync360 main purpose is data processing the commands to perform data operations is most valuable feature of the engine. Developers can utilize the same commands in the almost the same syntax to perform CRUD operations in various system (support of command is varied based on specific connector). This streamlines the development of integrations or ETL processes.
+As Sync360 main purpose is data processing the commands to perform data operations is most valuable feature of the engine. Developers can utilize the same commands in almost the same syntax to perform CRUD operations in various system (support of command is varied based on specific connector). This streamlines the development of integrations or ETL processes.
+Flow control operators can be used inside elements of data operators, the commands of flow control operators will execute prior executing the actual command, thus allowing to construct queries programatticaly using sync360 syntax logic.
 
 ## **Context**
 
-`Context` element is used to wrap commands that must be performed under specific user context. By default all data operations are performed under user/service specified in the configuration file, the context allows to perform the operation under another user/service credential, the only requirement is for the service account to have impersonation permission in the target. The context element affects only data operation commands for specific connection specified in `for` attribute, it doesn't has any effect to any non data operation commands.
-
-#### Table 5. Context constriction attributes.
-| <b>Attribute</b> | <b>Description</b>                                                                  | <b>Usage</b> |
-|-|-|-|
-| for              | A server name that a context is created for.                                        | Required     |
-| user             | A user Id (MS CRM) / a user E-Mail address (Exchange) that the context is used for. | Required     |
-
+`context` element is used to wrap commands that must be performed under specific user context. By default all data operations are performed under user/service specified in the configuration file, the context allows to perform the operation under another user/service credential, the only requirement is for the service account to have impersonation permission in the target. The context element affects only data operation commands for specific connection specified in `for` attribute, it doesn't has any effect to any non data operation commands. `user` attribute in context element is used to specify whom it is required to impersonate. In current version of Sync360 context command can be used for Exchange and Dynamics CRM/Power Platform connections. For Exchange connection user attribute expects email address of target user, for CRM connection the user attribute should be GUID of user record.
 
 ```
 <context for="exchange" user="{userEmail}">
@@ -654,30 +701,53 @@ As Sync360 main purpose is data processing the commands to perform data operatio
          <attr name="crmOwnerId"/>
      </select>
 </context>
+
+<context for="crm" user="{userGuid}">
+     <select from="crm" entity="contact" var="contacts">
+         <where>
+            <condition attr="contactid" op="eq">{contactId}</condition>
+         </where>
+         <attr name="fullname"/>
+         <attr name="jobtitle"/>
+         <attr name="emailaddress1"/>
+     </select>
+</context>
+```
+
+### Create
+
+`create` element creates a record in specified table with defined attributes and returns newly created record uniqueidentifier into variable. The followig attributes are supported for this element:  
+`in` attribute specifies name of connection for external system as defined in configuration file for the current context of script execution. It is a required attribute  
+`entity` attribute specifies table in which new record should be created. It is a required attribute
+`var` attribute specifies the name of variable to store uniqueidentifier of newly created record. It is an optional attribute  
+Specify values for the table/properties of new record via child `attr` element.
+
+To create the contact, you could use the Create operation as follows:
+```
+<create in="crmserver" entity="contact" var="createdContact">
+    <attr name="firstname">Joe</attr>
+    <attr name="lastname">Doe</attr>
+    <attr name="emailaddress1">joe.doe@mail.com</attr>
+    <attr name="jobtitle">manager</attr>
+    <attr name="telephone1">444-44-44</attr>
+    <attr name="parentcustomerid">account:{accountid}</attr>
+</create>
 ```
 
 ## Select
 
-**Select** operation looks for records of specific type in accordance with the criteria and stores the retrieved data into a specified variable. The result is always an array of dictionaries. The following tables enumerate the attributes and child elements for Read operation.
+`select` element is used for querying the data from external system. The followig attributes are supported for this element:  
+`from` attribute specifies name of connection for external system as defined in configuration file for the current context of script execution. It is a required attribute  
+`entity` attribute specifies table name from which data should be retrieved. This attribute is required when using sync360 native way to define query and optional when using connector specific syntax via `query` element.  
+`var` attribute specifies variable name that will contain the result of search operation. 
+`count` attribute specifies the number of records that will be passed to connector query to limit the returned results. This attribute is optional and can be omited.
+`page` attribute specifies from which page return records. Works in conjuction with count attribute to set the pagesize. This attribute is optional and can be omited.
 
-#### Table 6. Read operation attributes.
-| <b>Attribute</b> | <b>Description</b>                                  | <b>Usage</b> |
-|-|-|-|
-| from   | A server name that Read operation will run for.     | Required     |
-| entity | A type of records that the search will perform for. | Optional     |
-| var   | The variable name that will contain the result of search operation. | Optional |
-| count | A number of records that will be returned by search                 | Optional |
-| page  | Determine from which page return records                            | Optional |
-
-**NOTE:** Here in after, if "entity" attribute has not been specified, the "contact" entity will be used by default.
-
-#### Table 7. Read operation children elements.
-| <b>Element</b> | <b>Description</b>                                                                         | <b>Usage</b> |
-|-|-|-|
-| attr           | An attribute name the found records always contain.                                        | Required     |
-| where          | A criteria element contains conditions set that will be used to find<br>records to update. | Optional     |
-| order          | Used for sorting search results by ordering.                                               | Optional     |
-| query          | A way to specify native query for SQL datasource                                           | Optional     |
+The select operation requires child elements for defininig the query structure. The following child elements are used:  
+`attr` element is used for specifiying name of fields/attribute on external table that should be retrieved. If there are no attr elements in select operation, the query will return only uniqueidentifier.  
+`where` element is used to define criteria to narrow down the query. This element requires child elements to define actual conditions and cannot be used without them.
+`order` element is used for adding sorting in the query, the sorting will be performed on the external system side.  
+`query` element is used to specify query in native query language of external system. When `query` element used all the details of query are specified as content of it and other child elements not used. In other words you can either use `query` child element or define the query using `attr`, `order` and `where`.
 
 Use4si.Core.DynamicDictionary
 To read all names and ids of first 50 accounts where Country attribute value is equal to "US" and sort them by name attribute in descending order, you could use Select operation as follows:
@@ -733,36 +803,7 @@ To read all names and ids of first 50 accounts where Country attribute value is 
 </select>
 ```
 
-### Create
 
-**Create** operation creates a specified entity record with defined attributes and stores a copy of created data into the specified variable. This operation returns an array of dictionaries.
-
-The following tables list the attributes and children elements for Create operation.
-#### Table 9. Create operation attributes.
-| <b>Attribute</b> | <b>Description</b>                                    | <b>Usage</b> |
-|------------------|-------------------------------------------------------|--------------|
-| in    | A server name that the create operation performs for. | Required    |
-| entity  | A type of records that will be created.        | Optional     |
-| var | The variable name that will contain a result of Create operation. | Required |
-
-
-#### Table 10. Create operation children elements.
-
-| Element | <b>Description</b>                                        | <b>Usage</b> |
-|-|-|-|
-| attr    | An attribute name and its value for a new created record. | Required     |
-
-To create the contact, you could use the Create operation as follows:
-```
-<create in="crmserver" entity="contact" var="createdContact">
-    <attr name="firstname">Joe</attr>
-    <attr name="lastname">Doe</attr>
-    <attr name="emailaddress1">joe.doe@mail.com</attr>
-    <attr name="jobtitle">manager</attr>
-    <attr name="telephone1">444-44-44</attr>
-    <attr name="parentcustomerid">account:{accountid}</attr>
-</create>
-```
 
 ### Update
 
@@ -1311,3 +1352,4 @@ You can extend script engine functionality from the script, by binding to standa
     <set TimeSpans="static TimeSpan"/>
 </script>
 ```
+
