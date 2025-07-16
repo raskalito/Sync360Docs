@@ -749,7 +749,8 @@ The select operation requires child elements for defininig the query structure. 
 `order` element is used for adding sorting in the query, the sorting will be performed on the external system side.  
 `query` element is used to specify query in native query language of external system. When `query` element used all the details of query are specified as content of it and other child elements not used. In other words you can either use `query` child element or define the query using `attr`, `order` and `where`.
 
-Use4si.Core.DynamicDictionary
+The result of select operation will be array of Use4si.Core.DynamicDictionary structure.
+
 To read all names and ids of first 50 accounts where Country attribute value is equal to "US" and sort them by name attribute in descending order, you could use Select operation as follows:
 ```
 <select from="crmserver" entity="account" var="accounts" count="50">
