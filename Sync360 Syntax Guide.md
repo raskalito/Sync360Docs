@@ -744,13 +744,41 @@ The generic class with multiple various methods that assist with sync360 scripti
 ```
 <set var="newGuid">{Utils.NewGuid}</set>
 ```
-`Utils.Split`  <b>Description</b></br> This function identifies the substrings in a string array that are delimited by one or more characters specified in an array, then places the substrings into a specified Unicode character array.<br/> <b>Parameters</b> <br/> <b>Example</b> <br/>     ``` <set var="Names">Roman; Joe; Michael</set>  <set var="NamesAr">{Utils.Split(Names,';')}</set> ``` |
-`Utils.Join`  <b>Description</b> <br/> This function combines array values into string with specified delimiter. <br/> <b>Parameters</b> <br/> <b>Example</b> <br/>``` <set var="NamesAr">{['Roman','Joe','Michael']}</set>  <set var="NamesStr">{Utils.Join(NamesAr,';')}</set> ``` |
-`Utils.toUpper` <b>Description</b> <br/> This function returns a copy of this string converted to uppercase. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b>|
-`Utils.toLower` <b>Description</b> <br/> This function returns a copy of this string converted to lowercase.<br/> <b>Parameters</b>  <br/> $\bullet$ string <br/> <b>Example</b> 
-`Utils.NewLine` <b>Description</b> <br/> This function returns newline string ("\n").<br/> <b>Parameters</b><br/> <b>Example</b> |
-`Utils.Now` <b>Description</b> <br/> This function returns a date type object that is set to the current date and time on this computer, expressed as the local time. <br/> <b>Parameters</b> <br/> <b>Example</b>|
-`Utils.Replace` <b>Description</b> <br/> This function Returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b> <br/> ``` <set var="str1">This is an example</set>  <set var="str2">{Utils.Replace(str1,'This','Here')}</set> ``` |
+`Utils.Split` method identifies the substrings in a string value that are delimited by one or more characters provided, then places the substrings into a specified string array.  
+```
+<set var="Names">Roman; Joe; Michael</set>
+<set var="NamesArray">{Utils.Split(Names,';')}</set>
+<log>{NamesArray[0]}</log> <!-- outputs Roman -->
+ ```  
+`Utils.Join` method combines array values into string with specified delimiter. It is opposite of Split method.  
+```
+<set var="NamesArray">{['Roman','Joe','Michael']}</set>
+<set var="NamesStr">{Utils.Join(NamesArray,';')}</set>
+<log>{NamesStr}</log> <!-- outputs Roman;Joe;Michael -->
+```  
+`Utils.ToUpper` method returns a copy of provided string converted to uppercase.  
+```
+<set var="text">small case</set>
+<log>{Utils.ToUpper(text)}</log> <!--outputs SMALL CASE -->
+```
+`Utils.toLower` method returns a copy of provided string converted to lowercase.  
+```
+<set var="text">ALL CAPS</set>
+<log>{Utils.ToLower(text)}</log> <!--outputs all caps -->
+```
+`Utils.NewLine` method returns newline string ("\n").  
+```
+<log>line1 {Utils.NewLine}line2 </log> <!--outputs
+line1 
+line2 
+-->
+```
+`Utils.Now` method returns a datetime structure that is set to the current date and time based in the local timezone, which is based on the current environment configuration.  
+```
+<set var="currentDate">{Utils.Now}</set>
+<log>{currentDate.Kind}</log> <!-- outputs local -->
+```  
+`Utils.Replace` method returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b> <br/> ``` <set var="str1">This is an example</set>  <set var="str2">{Utils.Replace(str1,'This','Here')}</set> ``` |
 `Utils.IsKeyExist` <b>Description</b></br/> Checks whether the key exists in a dictionary or not.<br/> <b>Parameters</b><br/> IsKeyExist(object, string) <br/>  $\bullet$ object dict - the required dictionary. <br/>  $\bullet$   string key — the line that contains a key <br/> <b>Example</b> <br/> ``` <set>{Utils.IsKeyExist("DictionaryExample", "reg4y736")}</set> ``` |
 `Utils.ParseGUID` <b>Description</b> <br/> Converts the string representation of a GUID to the equivalent Guid structure.<br/> <b>Parameters</b><br/> ParseGuid(string) <br/>  $\bullet$ string guid - the required GUID.<br/> <b>Example</b><br/> ``` <set var="newGuidVar">{Utils.ParseGUID('5dcf85ae-ca84-4718-afb8-1795db389763')</set> ```|
 `Utils.TextualltEquals` <b>Description</b><br/> Compares two objects:  If objects are of the same type, it compares them as they are. If objects are of different types, it converts them into strings and then compares the strings.<br/> <b>Parameters</b> TextuallyEquals(object, object, bool)</br>  $\bullet$ object one - the first object in a pair. </br>  $\bullet$  object two - the second object in a pair.</br>  $\bullet$ bool ignoreCase - manages case sensitivity.<br/> <b>Example</b>|
@@ -772,12 +800,33 @@ The generic class with multiple various methods that assist with sync360 scripti
 
 ### Class Xml
 The class provides methods to work with xml documents.
-`Xml.Load` Loads an XElement from a file, optionally preserving white space, setting the base URI, and retaining line information.<br/> <b>Parameters</b><br/> Load(string, int) <br/> $\bullet$ string uri <br/> $\bullet$ int options <br/> <b>Example</b><br> ``` <set xml="Xml.Load(fileName)"/>``` |
-`Xml.LoadEnc`  Loads an XElement from a file.<br/> <b>Parameters</b><br/> LoadEnc(string) <br/> $\bullet$ string uri<br> <br/> <b>Example</b> |
-`Xml.Parse` Load an XElement from a string that contains XML, optionally preserving white space and retaining line information.<br/> <b>Parameters</b> <br/> Parse(string, int) <br/> $\bullet$ string text <br/> $\bullet$ int options <br/> <b>Example</b><br/> ``` <set var="xmlSource"><![CDATA[<root><add name="abdc">Test data</add><add name="n2">Second text data</add></root>]]></set> 	<set xml="Xml.Parse(xmlSource, 1)"/> ``` |
-`Xml.Select` Searches and selects values from within the specified element of an XML file and returns these values as an array.<br/> <b>Parameters</b><br/> Select(XElement, string, IDictionary) <br/> $\bullet$ XElement xml <br/> $\bullet$ string expression <br/> $\bullet$ IDictionary fields<br/> <b>Example</b>|
-`Xml.ToXml`  
-`Xml.FromXml` Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.<br/> Passes XML string and returns an object.<br/> <b>Parameters</b><br/> ToXml(object, string) <br/> $\bullet$ object value <br/> $\bullet$  string rootElementName <br/> FromXml(string)<br/> $\bullet$ string xml <br/> <b>Example</b> |
+`Xml.Load` Loads an XElement from a file, optionally preserving white space, setting the base URI, and retaining line information  
+```
+<set xml="Xml.Load(fileName)"/>
+```
+`Xml.LoadEnc`  Loads an XElement from a file.
+```
+todo example
+```
+`Xml.Parse` Load an XElement from a string that contains XML, optionally preserving white space and retaining line information.  
+``` 
+<set var="xmlSource"><![CDATA[
+ <root>
+   <add name="abdc">Test data</add>
+   <add name="n2">Second text data</add>
+ </root>]]>
+</set>
+<set xml="Xml.Parse(xmlSource, 1)"/>
+```
+`Xml.Select` Searches and selects values from within the specified element of an XML file and returns these values as an array.  
+```
+todo example
+```
+`Xml.ToXml`  todo description  
+`Xml.FromXml` Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.<br/> Passes XML string and returns an object  
+```
+to do example
+```
 
 ### Class Math
 The short access to System.Math standard .NET class.  
