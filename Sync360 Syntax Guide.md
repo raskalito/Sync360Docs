@@ -638,15 +638,112 @@ example todo
 
 ### Class Json
 The class provides methods to work with JSON format.  
-`Json.ToJson` <b>Description</b><br/> Converts an object to JSON format.<br/> <b>Parameters</b> <br/> ToJson(object)<br/>  $\bullet$ object value <b>Example</b><br> ``` <set>{Json.ToJson(DynamicDictionaryVariable)}</set> ``` |
-`Json.ToAsciiJson` <b>Description</b><br/> Converts an object to ASCII JSON format and removes non-ASCII symbols.<br/> <b>Parameters</b> <br/> ToAsciiJson(object value)<br/> $\bullet$ object value <br/> <b>Example</b><br/> ``` <set>{Json.ToAsciiJson(DynamicDictionaryVariable)}</set> ```|         
-`Json.FromJson` <b>Description</b><br/> Converts JSON to a dictionary. <br/> <b>Parameters</b><br/> FromJson(string)<br/> $\bullet$ string value-JSON string that will be converted.<br/> <b>Example</b><br> ``` <set var="test1">{Json.FromJson(stringVariable)}</set> <log>(test1.GetType()) - (test1)</log> ``` 
-`Json.GetDictionary` <b>Description</b><br/> Converts JSON to an object.<br/> <b>Parameters</b> <br/> GetDictionary(string) <br/> $\bullet$ string value <br/> <b>Example</b><br/> ``` <set var="test1">{Json.GetDictionary(string)}</set> <log>(test1.GetType()) – (test1)</log> ```  |
-`Json.GetArrayFromJson`  <b>Description</b><br/></br> <b>Parameters</b><br/> GetArrayFromJson(string)<br/> $\bullet$ string value <br/> <b>Example</b> </br> ``` <set var="test1">{Json.GetArrayFromJson(string)}</set>  <log>(test1.GetType()) – (test1)</log> ``` |
+`Json.ToJson` method performs serialization of object to a string in JSON format. Accepts objects as parameter and indents JSON string by default. Indent can be disabled by passing false to second parameter.
+```
+<set var="Person">
+  <attr name="firstname">John</attr>
+  <attr name="lastname">Doe</attr>
+  <attr name="children">{["Mary", "Kate"]}</attr>
+</set>
+<set var="jsonString">{Json.ToJson(Person)}</set>
+<log>{jsonString}</log> <!-- outputs
+{
+  "firstname": "John",
+  "lastname": "Doe",
+  "children": [
+    "Mary",
+    "Kate"
+  ]
+}
+-->
+
+<set var="jsonString">{Json.ToJson(Person,false)}</set>
+<log>{jsonString}</log> <!-- outputs
+{"firstname":"John","lastname":"Doe","children":["Mary","Kate"]} -->
+ ```
+
+`Json.ToAsciiJson` method performs serialization of object to a string in ASCII JSON format and removes non-ASCII symbols. It works and used the same way as ToJson method.  
+
+`Json.FromJson` method deserializes JSON string into DynamicDictionary object.
+``` 
+<set var="lbr">{'{'}</set>
+<set var="rbr">}</set>
+<set var="stringJson"><![CDATA[
+{lbr}
+  "firstname": "John",
+  "lastname": "Doe",
+  "children": [
+    "Mary",
+    "Kate"
+  ]
+{rbr}
+]]>
+</set>
+
+<set var="jsonObject">{Json.FromJson(stringJson)}</set>
+<log>{jsonObject}</log> <!-- outputs
+ ['firstname': 'John', 'lastname': 'Doe', 'children': [[], []]]
+-->
+<log>{jsonObject.children.Count}</log> <!-- outputs 2 -->
+```
+
+`Json.GetDictionary` method deserializes JSON string into System.Dynamic.ExpandoObject object.
+```
+<set var="lbr">{'{'}</set>
+<set var="rbr">}</set>
+<set var="stringJson"><![CDATA[
+{lbr}
+  "firstname": "John",
+  "lastname": "Doe",
+  "children": [
+    "Mary",
+    "Kate"
+  ]
+{rbr}
+]]>
+</set>
+<set var="jsonObject">{Json.GetDictionary(stringJson)}</set>
+<log>{jsonObject}</log> <!-- outputs
+['firstname': 'John', 'lastname': 'Doe', 'children': ['Mary', 'Kate']]
+-->
+```  
+`Json.GetArrayFromJson` method deserializes JSON string which starts as array of elements into Generic List of System.Dynamic.ExpandoObject
+```
+<set var="lbr">{'{'}</set>
+<set var="rbr">}</set>
+<set var="stringJson"><![CDATA[
+[
+{lbr}
+  "firstname": "John",
+  "lastname": "Doe",
+  "children": [
+    "Mary",
+    "Kate"
+  ]
+{rbr},
+{lbr}
+  "firstname": "Paul",
+  "lastname": "Doe",
+  "children": [
+    "Bob"
+  ]
+{rbr}
+]
+]]>
+</set>
+
+<set var="jsonObject">{Json.GetArrayFromJson(stringJson)}</set>
+<log>{jsonObject}</log> <!-- outputs
+ [['firstname': 'John', 'lastname': 'Doe', 'children': ['Mary', 'Kate']], ['firstname': 'Paul', 'lastname': 'Doe', 'children': ['Bob']]]
+-->
+```
 
 ### Class Utils
-The generic class with multiple various methods that assist with sync360 scripting.
-`Utils.NewGuid` <b>Description</b></br> This function returns new random GUID. <br/> <b>Parameters</b>  <br/> <b>Example</b> <br/> ``` <set var="newGuid">{Utils.NewGuid}</set> ``` |
+The generic class with multiple various methods that assist with sync360 scripting.  
+`Utils.NewGuid` method returns a new random GUID.  
+```
+<set var="newGuid">{Utils.NewGuid}</set>
+```
 `Utils.Split`  <b>Description</b></br> This function identifies the substrings in a string array that are delimited by one or more characters specified in an array, then places the substrings into a specified Unicode character array.<br/> <b>Parameters</b> <br/> <b>Example</b> <br/>     ``` <set var="Names">Roman; Joe; Michael</set>  <set var="NamesAr">{Utils.Split(Names,';')}</set> ``` |
 `Utils.Join`  <b>Description</b> <br/> This function combines array values into string with specified delimiter. <br/> <b>Parameters</b> <br/> <b>Example</b> <br/>``` <set var="NamesAr">{['Roman','Joe','Michael']}</set>  <set var="NamesStr">{Utils.Join(NamesAr,';')}</set> ``` |
 `Utils.toUpper` <b>Description</b> <br/> This function returns a copy of this string converted to uppercase. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b>|
