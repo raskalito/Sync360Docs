@@ -1,8 +1,7 @@
 # SYNC 360 ENGINE
 
 The following documentation describes the syntax for programming scripts for Sync360 application. Sync360 is ETL tool which executes Sync360 scripts, it is build on .NET Framework version 4.6.2 and derives a lot of types from it.
-When Sync360 engine executes a script file, each command in the script file execute one by one in a single thread. The Sync360 application as any ETL tool has predefined list of connectors for external systems which can be used to perform CRUD operations against their data.
-The access to specific connector in context of script execution depends on configuration files used for script execution, meaning there is a configuration file where the name of connection explictly set along with type of connection and authetification information.
+When Sync360 engine executes a script file, each command in the script file execute one by one in a single thread. The Sync360 application as any ETL tool has predefined list of connectors for external systems which can be used to perform CRUD operations against their data. The connector for Dynamics CRM is most advanced and has support of all syntax capabilities, for other connectors support may vary. The access to specific connector in context of script execution depends on configuration files used for script execution, meaning there is a configuration file where the name of connection explictly set along with type of connection and authetification information.
 
 # GENERAL SCRIPT SYNTAX
 
@@ -19,7 +18,7 @@ Names of elements, as well as names of attributes, cannot contain space characte
 Attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should be always embedded in single or double quotes.
 It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above). 
 
-Content inside an element acts as a value. Curly brackets { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.  
+Content inside an element acts as a value. Curly braces { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.  
 ```
 <set var="firstname">Joe</set> <!-- assignment of text value 'Joe' to variable 'firstname' without expressions. -->
 <set var="calculatedvalue">{294+322}</set> <!-- assignment of result of expression in the element content. Notice that braces are required -->
@@ -462,10 +461,10 @@ The method has overloads and therefore number of parameters can vary, below each
 
 ### Class FileUtils
 The class provides methods to work with windows file system. It has various methods for manipulating with files, the methods will be described below.  
-`FileUtils.ReadFile` opens a file, reads the contents of the file into a byte array, and then closes the file. It can be useful when the file must be transfered from a file system into another system.
+`FileUtils.ReadFile` opens a file, reads the contents of the file into a byte array, and then closes the file. It can be useful when the file must be transfered from a file system into another system.  
 ``` <set var="Bytes">{FileUtils.ReadFile("c:\temp\data.bin")}</set> ```  
 
-`FileUtils.ReadFileAsBase64` opens a file, reads the contents of the file into a byte array, converts the array into a Base64 string, and then closes the file. This method especially useful for uploading attachments into Dataverse, as the file contents are stored in base64 format inside documentbody property.
+`FileUtils.ReadFileAsBase64` opens a file, reads the contents of the file into a byte array, converts the array into a Base64 string, and then closes the file. This method especially useful for uploading attachments into Dataverse, as the file contents are stored in base64 format inside documentbody property.  
 ```<set var="Bytes">{FileUtils.ReadFileAsBase64("c:\temp\data.bin")}</set>```
 
 `FileUtils.ReadIdsFromFile` method is used to read predefined GUIDS from text file. GUIDS should be placed line by line. The result will be an array of System.Guid.  
@@ -545,7 +544,7 @@ These classes are used to work with html syntax and html document.
 ```
 
 ### Class Http
-The class used to perform http requests. It particularly useful for integration with REST based endpoints, however it is not limited to this.
+The class used to perform http requests. It particularly useful for integration with REST based endpoints, however it is not limited to this. The class is using System.Net.WebClient for permorming http requests with extension to support cookies, unless other specified.
 
 `Http.SetUseDefaultCredentials` sets the use of default credentials for each subsequent http request.  
 ```<set>{Http.SetUseDefaultCredentials(true)}</set>```
@@ -581,7 +580,12 @@ The class used to perform http requests. It particularly useful for integration 
 <set var="data">{new Dictionary()}</set>
 <set var="data['param1']">Text1</set>
 <set var="data['param2']">Text2</set>
-<set var="response">{Http.Put('http://www.example.com', data, headers)}</set>
+<set var="url">https://www.example.com/REST/1/Projects/</set>
+<set var="response">{Http.Put(url, data, headers)}</set>
+
+<set var="headers['Content-Type']">application/json</set>
+<set var="json">{Json.ToAsciiJson(data)}</set>
+<set var="response">{Http.Put(url, json, headers)}</set>
 ```
 
 `Http.Post` method performs HTTP POST request to specific URL. The method has overloads and therefore number of parameters can vary, below each available overload  
@@ -592,7 +596,11 @@ The class used to perform http requests. It particularly useful for integration 
 5) `<set var="response">{Http.Post(string url, string data, object headers)}</set>` used when web service requiree a custom authentification scheme via headers.
 
 ```
-<set var="response">{Http.Post('http://www.example.com', 'some data', 'headers go here')}</set>
+<set var="json">{Json.ToAsciiJson(listOfEmployees)}</set>
+
+<set var="response">{Http.Post('https://www.example.com', json, headers)}</set>
+
+<set var="response">{Http.Put("https://flintco.openasset.com/REST/1/Projects/" + project.Value + "/Employees", json, headers)}</set>
 ```
 
 `Http.Patch` method performs HTTP PATCH request to specific URL. The method has overloads and therefore number of parameters can vary, below each available overload  
@@ -605,10 +613,28 @@ The class used to perform http requests. It particularly useful for integration 
 ``` 
 <set var="response">{Http.Patch('http://www.example.com', 'some data', 'headers go here')}</set>
 ```
-`Http.Download` <b>Description</b><br/> Downloads the file that URL contains, e. g. page, archive, document.<br/> <b>Parameters</b><br/> Download(string)<br/> $\bullet$ string url-an address that contains the required file. <br/> <b>Example</b><br/> ``` <set var="response">{Http.Download('http://www.example.com')}</set>``` |
-`Http.GetRaw` <b>Description</b> <br/> The Get. Raw method requests a representation of the specified resource but in unchanged, literal form.<br/> <b>Parameters</b> GetRaw(string, int, int) <br/> $\bullet$ string url   <br/> $\bullet$  int sendTimeout <br/> $\bullet$ int receiveTimeout <br/> <b>Example</b>  |
-`Http.SetCookie` <b>Description</b><br/> Set cookie for the specified resource.<br/> <b>Parameters</b> <br/>  SetCookie(string, string)<br/> $\bullet$  string url <br/> $\bullet$  string cookie  <br/> <b>Example</b> |
-`Http.GetCookie` <b>Description</b><br/> Gets cookie from the specified resource.<br/> <b>Parameters</b><br/>  GetCookie(string) <br/>  $\bullet$ string url  <br/> <b>Example</b>|
+`Http.Download` downloads the file that URL contains, e. g. page, archive, document.
+```
+<set var="instructionPdf">{Http.Download('http://www.example.com/docs/instruction.pdf')}</set>
+```
+
+`Http.GetRaw` this method performs Get request using TcpClient.TcpClient. So the response will be provided in unchanged, literal form.There are two overloads for this method  
+1)`<set var="rawresponse">{Http.GetRaw(string url}</set>` simply perform HTTP GET request  
+2)`<set var="rawresponse">{Http.GetRaw(string url, int sendTimeout, int receiveTimeout}</set>` The same as above but allows to specify timeouts  
+```
+example todo
+```
+
+`Http.SetCookie` set cookie for the specific URL.
+```
+<set var="cookie">id=a3fWa;Expires=Thu, 31 Oct 2021 07:28:00 GMT;</set>
+<set>{Http.SetCookie("http://example.com", cookie)}</set>
+```
+
+`Http.GetCookie` retrieves cookie from the specified URL.
+```
+<set var="cookie">{Http.GetCookie("http://example.com")}</set>
+```
 
 ### Class Json
 The class provides methods to work with JSON format.  
@@ -739,20 +765,47 @@ Specify values for the table/properties of new record via child `attr` element.
 `select` element is used for querying the data from external system. The followig attributes are supported for this element:  
 `from` attribute specifies name of connection for external system as defined in configuration file for the current context of script execution. It is a required attribute  
 `entity` attribute specifies table name from which data should be retrieved. This attribute is required when using sync360 native way to define query and optional when using connector specific syntax via `query` element.  
-`var` attribute specifies variable name that will contain the result of search operation. 
-`count` attribute specifies the number of records that will be passed to connector query to limit the returned results. This attribute is optional and can be omited.
-`page` attribute specifies from which page return records. Works in conjuction with count attribute to set the pagesize. This attribute is optional and can be omited.
-
+`var` attribute specifies variable name that will contain the result of search operation.  
+`count` attribute specifies the number of records that will be passed to connector query to limit the returned results. This attribute is optional and can be omited.  
+`page` attribute specifies from which page return records. Works in conjuction with count attribute to set the pagesize. This attribute is optional and can be omited.  
+```
+<!-- Retrieves second record from the crm table account, retrieves only unique identifier of the record -->
+<select from="crm" entity="account" var="records" count="1" page="2">
+</select>
+```
 The select operation requires child elements for defininig the query structure. The following child elements are used:  
 `attr` element is used for specifiying name of fields/attribute on external table that should be retrieved. If there are no attr elements in select operation, the query will return only uniqueidentifier.  
-`where` element is used to define criteria to narrow down the query. This element requires child elements to define actual conditions and cannot be used without them.
-`order` element is used for adding sorting in the query, the sorting will be performed on the external system side.  
+`order` element is used for adding sorting in the query, the sorting will be performed on the external system side.
+```
+<!-- Retrieves all records from account table and sort them ascending. For each record retrieves only uniqueidentifer and name columns.-->
+<select from="crm" entity="account" var="records">
+    <attr name="accountid" />
+    <attr name="name" />
+    <order by="name" desc="false" />
+</select>
+```
+
+`where` element is used to define criteria to narrow down the query. This element requires at least one child element `condition`.  
+`condition` child element must have attributes `attr` and `op` for specifiying name of attribute and operator correspondingly. If operator requires a value it is passed into content of element. The following criteria operators availalbe for `op` attribute value:  
+Operators that can be applied to any data type: `eq` (Equals), `ne` (Not Equals), `ex` (Exists)
+Operators for numeric fields and dates: `lt` (Less Than), `le` (Less Than or Equal), `gt` (Greater Than), `ge` (Greater Than or Equal)
+Operators for strings: `co` (Contains), `sw` (Start With), `ew` (Ends with)
+
+```
+<select from="crmserver" entity="contact" var="contacts_with_name_Joe">
+    <where>
+         <condition attr="firstname" op="eq">Joe</condition>
+    </where>
+    <attr name="contactid" />
+</select>
+```
 `query` element is used to specify query in native query language of external system. When `query` element used all the details of query are specified as content of it and other child elements not used. In other words you can either use `query` child element or define the query using `attr`, `order` and `where`.
 
-The result of select operation will be array of Use4si.Core.DynamicDictionary structure.
+The result of select operation will be array of Use4si.Core.DynamicDictionary structures.
 
 To read all names and ids of first 50 accounts where Country attribute value is equal to "US" and sort them by name attribute in descending order, you could use Select operation as follows:
 ```
+<!--using sync360 syntax -->
 <select from="crmserver" entity="account" var="accounts" count="50">
     <where>
          <condition attr="address1_country" op="eq">US</attr>
@@ -760,6 +813,27 @@ To read all names and ids of first 50 accounts where Country attribute value is 
     <attr name="name"/>
     <attr name="accountid"/>
     <order by="name" desc="true"/>
+</select>
+
+<!--same operation as above but using native query of crm system, which is fetchxml. Notice that CDATA is used to escape fecthxml as sync360 scripts are also xml -->
+<select from="crmserver" entity="account" var="accounts">
+    <query>
+<![CDATA[
+<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" count="50">
+  <entity name="account">
+    <attribute name="name" />
+    <attribute name="accountid" />
+    <order attribute="name" descending="true" />
+    <filter type="and">
+      <condition attribute="address1_country" operator="eq" value="US" />
+    </filter>
+    <link-entity name="contact" from="contactid" to="primarycontactid" visible="false" link-type="outer" alias="a_410707b195544cd984376608b1802904">
+      <attribute name="emailaddress1" />
+    </link-entity>
+  </entity>
+</fetch>
+]]>
+    </query>
 </select>
 ```
 
@@ -1044,7 +1118,7 @@ There are 6 types of two operands condition operators. The following table descr
 |------|------------------------------------------------------------------------------------------------------|
 | eq   | Evaluates to true if an attribute has a value that is equal to the condition value.                  |
 | ne   | Evaluates to true if an attribute has a value that is not equal to the condition value.              |
-| 1t   | Evaluates to true if the attribute has a value that is less than the condition value.                |
+| lt   | Evaluates to true if the attribute has a value that is less than the condition value.                |
 | le   | Evaluates to true if the attribute has a value that is less than or equal to the condition value.    |
 | gt   | Evaluates to true if the attribute has a value that is greater than the condition value.             |
 | ge   | Evaluates to true if the attribute has a value that is greater than or equal to the condition value. |
@@ -1064,17 +1138,6 @@ The following script returns all contacts with first name "Joe":
 ## Contains Condition Operator
 
 **Contains** condition operator allow to perform text searches within string properties.Condition evaluates to true if the supplied constant value contains in the property text value.
-
-#### Table 18. The Contains condition operator search patterns for CRM servers.
-| Pattern | Description                                                                           |
-|---------|---------------------------------------------------------------------------------------|
-| %text   | Evaluates to true if the property text value ends with the supplied constant value.   |
-| %text%  | Evaluates to true if the supplied constant value contains in the property text value. |
-| text%   | Evaluates to true if the property text value starts with the supplied constant value. |
-
-
-
-**NOTE:** %text% is equals to search without "%" symbol.
 
 The following script returns all contacts, which first name contains "J" and mobile phone number contains "5544".
 ```
