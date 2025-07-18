@@ -82,9 +82,7 @@ There are three predefined constants in Sync360:
 
 
 # **OPERATORS**
-In Sync360 scripting language operators is a construct that can be used in expressions. Sync360 engine doesn't provide operand coercion, operators can be used only across supported types.
-There are some significant differences in semantics used for operators compared to other programming languages. For example operator '=' and '==' in sync360 syntax means the same.
-The list of all available operators and their explanation is below:
+In the Sync360 scripting language, an operator is a construct that can be used in expressions. The Sync360 engine doesn't provide operand coercion; operators can be used only across supported types. There are some significant differences in the semantics used for operators compared to other programming languages. For example, operators `=` and `==` in Sync360 syntax mean the same thing. The list of all available operators and their explanations is below:
 
 ### Arithmetic operators:
 Addition operator is `+`. This operator adds second operand to the first operand. Supported types: int, long, double, string. The operator is ad hoc polymorphic, for numbers it performs arithmetic operation and for strings performs concantenation.  
