@@ -1589,10 +1589,9 @@ The following two script snippets return all identifiers of CRM contacts, which 
 
 ## EXCEPTION HANDLING OPERATIONS
 
-## Exception and OnError
-
-**Exception** operation is used when it is necessary to throw an exception in the process of script execution.
-```
+### Exception
+`exception` operation is used when it is necessary to throw an exception in the process of script execution. When exception occurs in Sync360 it stops the whole script execution, which in IDE will show to the user the line where exception occured and when running by service will exit the script until the next scheduled execution.
+```xml
 <set var="crmservers">crm,crm4,crm5</set>
 <for var="crmserver" in="crmservers">
     <select from="{crmserver}" entity="account" var="accounts">
@@ -1607,22 +1606,12 @@ The following two script snippets return all identifiers of CRM contacts, which 
 </for>
 ```
 
-**OnError** operation is used in conjunction with **Exception** for handling specific exceptions.
-```
-<sandbox verbose="false">
-    <log>{2/0}</log>
-    <onerror of="typeof System.DivideByZeroException">
-       <log>This is DivideByZero!</log>
-    </onerror>
-</sandbox>
-```
-
 ### Sandbox
 
-**Sandbox** operation is used when it is necessary to hide exceptions in process of script execution from user. Sandbox operation has the **"verbose"** attribute that is used for enabling or disabling errors logging (if it is left empty, then (*true*) will be used by default).
+`sandbox` operation is used when it is necessary to hide exceptions in process of script execution from user. Sandbox operation has the **"verbose"** attribute that is used for enabling or disabling errors logging (if it is left empty, then (*true*) will be used by default).
 
 The following script looks for CRM contact "Joe Dow" and if a single instance of this contact found, then this contact is set as a primary contact of "Adidas" company. Logging is enabled for the sandbox.
-```
+```xml
 <sandbox verbose="true">
     <select in="crmserver" entity="contact" var="contacts">
        <where>
@@ -1642,14 +1631,28 @@ The following script looks for CRM contact "Joe Dow" and if a single instance of
 </sandbox>
 ```
 
+
+
+`onerror` operation is used in conjunction with **Exception** for handling specific exceptions.
+```
+<sandbox verbose="false">
+    <log>{2/0}</log>
+    <onerror of="typeof System.DivideByZeroException">
+       <log>This is DivideByZero!</log>
+    </onerror>
+</sandbox>
+```
+
+
+
 # STRUCTURAL OPERATIONS
 
 ## Include
 
-**Include** operation is used if you want to separate some code into other script files. Sync360 will combine the main script and code from all includes on the moment of execution. This operation has the **"name"** attribute which value should be a path to existing script in regard to scripts folder plus filename without ".xml" extension.
+`include` operation is used if you want to separate some code into other script files. Sync360 will combine the main script and code from all includes on the moment of execution. This operation has the `name` attribute which value should be a path to existing script in regard to scripts folder plus filename without ".xml" extension.
 
 **NOTE: Sync360 IDE** has special order where to find script. First it tries to find specified path in a folder where a current script is situated. If the script is not found it will check Script folder in current Application folder. If after that the script is also not found it will check the standard Script folder in main Sync360 folder.
-```
+```xml
 <include name="Includes\Parameters"/>
 <include name="Includes\ReadUserDetails"/>
 <include name="Includes\ReadSettings"/>
@@ -1675,10 +1678,10 @@ The following script looks for CRM contact "Joe Dow" and if a single instance of
 
 ## Call script
 
-**Call** operation is used when it is necessary to execute another script (that already exists) before current script. Rather than include operation, the script will be executed in own context, and it will not have access to variables in main script. The Call operator supports passing parameters into the script. Operator searches for script in **@private** folder. There are two ways to specify call operator. *Examples:*
+`call` operation is used when it is necessary to execute another script (that already exists) before current script. Rather than include operation, the script will be executed in own context, and it will not have access to variables in main script. The Call operator supports passing parameters into the script. Operator searches for script in `@private` folder. There are two ways to specify call operator:
 
 Call script "MyScriptHelper" and pass parameter "CallSettings"
-```
+```xml
 <script>
    <var callParameters='new Object()'/>
    <var callParameters.Param1='value1'/>
@@ -1693,7 +1696,7 @@ Call script "MyScriptHelper" and pass parameter "CallSettings"
 
 ## Script
 
-**Script** element is used for code blocks grouping.
+`script` element is used for code blocks grouping.
 
 ```
 <script>
@@ -1703,13 +1706,12 @@ Call script "MyScriptHelper" and pass parameter "CallSettings"
 
 ## Log
 
-**Log** operation can be used when you need to maintain history of script executions and provide some more information to the output. It also eases process of script debugging.
+`log` operation can be used when you need to maintain history of script executions and provide some more information to the output. It also eases process of script debugging.
 
-```
+```xml
 <script>
-     <log>Result: {2+2}</log>
-</script>
-<script>
+    <log>Result: {2+2}</log>
+
     <select from="crm" entity="systemuser" var="users">
        <attr name="systemuserid"/>
        <attr name="fullname"/>
@@ -1724,7 +1726,7 @@ Call script "MyScriptHelper" and pass parameter "CallSettings"
 
 You can extend script engine functionality from the script, by binding to standard .NET classes or by adding custom assemblies. The assembly should be placed in Global Assembly Cache or in the Sync360 main directory.
 
-```
+```xml
 <script name="StdLib">
 <!-- The following line will bind assembly to ScheduleItem operator-->
     <set ScheduleItem="typeof 'Use4si.Infrastructure.Processing.ScheduleItem, Use4si.Infrastructure'"/>
