@@ -312,58 +312,97 @@ The object structure in Sync360 can have as many nested properties as needed, a 
 
 ## IF,THEN-ELSE, UNLESS
 
-`if` element is used to wrap code block and instruct Sync360 engine to execute this code only when condition evaluates as true. `condition` is property of if element which always evaluates into boolean value, it is not required to use curly braces for this propery.
-```xml
-<set var="a">{10}</set>
-<set var="b">{15}</set>
-<if condition="a gt b">
-     <log>a is greater then b</log>
-</if>
-<if condition="a lt b">
-     <log>a is less then b</log>
-</if>
-<if condition="a eq b">
-     <log>a is equal to b</log>
-</if>
-<!--  the result of the above script execution will be single output 'a is less then b' -->
-```
-
-`if` elements can be nested as many times as needed to create the logic flow. However too many nested elements can make the code unreadable and therefore there are other methods to control the execution flow. 
+`if` element is used to wrap code block and instruct Sync360 engine to execute this code only when condition evaluates as true. `condition` is attribute of if element which always evaluates into boolean value, it is not required to use curly braces for this attribute.
 `if` can act as standard property that can be applied to any other element in sync360 syntax. When `if` applied to an element the value of it evaluate before execution of the command and only if it true the command will be executed. Another property that can be added to any element is `unless` it works similar to `if` property just makes an opposite evaluation - command executed only if expression doesn't evaluate as true.
-```xml
-<set var="a">{5}</set>
-<set var="b">{5}</set>
-<set var="c">{10}</set>
-<if condition="a eq b">
-  <log>a is same as b</log>
-  <log if="b eq c">b is also same as c</log>
-  <log unless="b eq c">but b is not same as c</log>
-  <if condition="a ne c">
-    <log>a is not the same a c</log>
-  </if>
-</if>
-<!-- the result of the above script will be output of the following lines  
-a is same as b
-but b is not same as c
-a is not the same a c
--->
-```
 
-When `if` element is used, it is possible to control the execution of flow using nested `then` and `else` elements. That allows to execute a set of different commands when experssion evaluates as true and as false. `then` element can contain inline `if` property and that allows multiple code flows to execute within same parent `if` element. However `else` element cannot have `if` inline and therefore only one nested `else` element can exists per `if`. `then` and `else` child elements are always used together, it is not valid to include only `then` or only `else` inside an `if` element.
+### Two ways to use IF:
+
+1. **Simple IF (without then/else)**:
 ```xml
-<set var="a">{10}</set>
-<set var="b">{15}</set>
-<set var="c">{10}</set>
-<if condition="a ne b">
-   <then>
-      <log>a not equal b</log>
-   </then>
-   <then if="b ne c">
-      <log>b not equal c</log>
-   </then>
-  <else>
-     <log>a equal b</log>
-  </else>
+<if condition="a gt b">
+    <log>This executes if condition is true</log>
+    <log>Multiple commands allowed</log>
+</if>
+```
+2. **IF with THEN/ELSE (must use both together)**:
+
+```xml
+<if condition="a gt b">
+    <then>
+        <log>This executes if true</log>
+    </then>
+    <else>
+        <log>This executes if false</log>
+    </else>
+</if>
+```
+**IMPORTANT RULES**:
+
+- `<then>` and `<else>` MUST be used together - you cannot have one without the other
+- `<then>` and `<else>` must be direct children of `<if>`
+- You can have multiple `<then>` blocks with different conditions using if attribute
+- Only one `<else>` block is allowed per `<if>` element
+- DO NOT mix simple IF syntax with then/else syntax  
+
+
+**INVALID EXAMPLES**:
+```xml
+<!-- WRONG: else without then -->
+<if condition="a gt b">
+    <log>Some code</log>
+    <else>  <!-- ERROR: Cannot use else without then -->
+        <log>Other code</log>
+    </else>
+</if>
+
+<!-- WRONG: mixing syntaxes -->
+<if condition="a gt b">
+    <log>Direct command</log>  <!-- ERROR: Cannot mix with then/else -->
+    <then>
+        <log>Then block</log>
+    </then>
+    <else>
+        <log>Else block</log>
+    </else>
+</if>
+```
+**VALID EXAMPLES**:
+```xml
+<!-- Simple IF -->
+<if condition="existingRecordId ne null">
+    <update in="crm" entity="contact">
+        <!-- update logic -->
+    </update>
+    <set var="Stats.Updated">{Stats.Updated + 1}</set>
+</if>
+
+<!-- IF with THEN/ELSE -->
+<if condition="existingRecordId ne null">
+    <then>
+        <update in="crm" entity="contact">
+            <!-- update logic -->
+        </update>
+        <set var="Stats.Updated">{Stats.Updated + 1}</set>
+    </then>
+    <else>
+        <create in="crm" entity="contact">
+            <!-- create logic -->
+        </create>
+        <set var="Stats.Created">{Stats.Created + 1}</set>
+    </else>
+</if>
+
+<!-- Multiple THEN blocks -->
+<if condition="recordType.isSet">
+    <then if="recordType eq 'contact'">
+        <log>Processing contact</log>
+    </then>
+    <then if="recordType eq 'account'">
+        <log>Processing account</log>
+    </then>
+    <else>
+        <log>Unknown record type</log>
+    </else>
 </if>
 ```
 
@@ -1433,7 +1472,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 # COMMON SYNTAX MISTAKES
 
 1. **Using braces in auto-evaluating attributes**:
-   ```xml
+```xml
    <!-- WRONG -->
    <if condition="{a gt b}">
    <for var="i" from="{0}" to="{10}">
@@ -1441,3 +1480,80 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
    <!-- CORRECT -->
    <if condition="a gt b">
    <for var="i" from="0" to="10">
+```   
+2. **Incorrect IF/THEN/ELSE usage**:
+```xml
+   <!-- WRONG: else without then -->
+   <if condition="a eq b">
+       <else>
+           <log>Cannot use else without then</log>
+       </else>
+   </if>
+   
+   <!-- CORRECT: Use simple if for single branch -->
+   <if condition="a ne b">
+       <log>Not equal</log>
+   </if>
+   
+   <!-- CORRECT: Use then/else together for dual branch -->
+   <if condition="a eq b">
+       <then>
+           <log>Equal</log>
+       </then>
+       <else>
+           <log>Not equal</log>
+       </else>
+   </if>
+```
+3. **Mixing IF syntaxes:**  
+```xml
+<!-- WRONG: Direct commands with then/else -->
+<if condition="test">
+    <log>Direct command</log>
+    <then>
+        <log>Then block</log>
+    </then>
+    <else>
+        <log>Else block</log>
+    </else>
+</if>
+
+<!-- CORRECT: Choose one syntax style -->
+<if condition="test">
+    <log>Direct command 1</log>
+    <log>Direct command 2</log>
+</if>
+```
+
+# SYNC360 QUICK REFERENCE
+
+## Elements that contain code blocks:
+- `<script>` - root element
+- `<if>` - conditional execution
+- `<then>` - true branch (must pair with else)
+- `<else>` - false branch (must pair with then)
+- `<for>` - iteration loop
+- `<while>` - conditional loop
+- `<sandbox>` - exception handling block
+- `<onerror>` - exception handler
+- `<batch>` - batch operations
+- `<transaction>` - atomic operations
+- `<context>` - user context operations
+
+## Elements that are commands:
+- `<set>` - variable assignment
+- `<log>` - output message
+- `<create>` - create record
+- `<update>` - update record
+- `<delete>` - delete record
+- `<select>` - query records
+- `<break>` - exit loop
+- `<continue>` - skip iteration
+- `<exception>` - throw exception
+- `<include>` - include script
+- `<call>` - call script
+
+## Attributes that auto-evaluate:
+- `condition` in if/while
+- `from`, `to`, `step` in for
+- `continueOnError` in batch
