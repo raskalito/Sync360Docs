@@ -322,7 +322,7 @@ a is not the same a c
 -->
 ```
 
-When `if` element is used, it is possible to control the execution of flow using nested `then` and `else` elements. That allows to execute a set of different commands when experssion evaluates as true and as false. `then` element can contain inline `if` property and that allows multiple code flows to execute within same parent `if` element. However `else` element cannot have `if` inline and therefore only one nested `else` element can exists per `if`. `then` and `else` child elements are always used together, it is not valid to include only `then or only `else` inside an `if` element.
+When `if` element is used, it is possible to control the execution of flow using nested `then` and `else` elements. That allows to execute a set of different commands when experssion evaluates as true and as false. `then` element can contain inline `if` property and that allows multiple code flows to execute within same parent `if` element. However `else` element cannot have `if` inline and therefore only one nested `else` element can exists per `if`. `then` and `else` child elements are always used together, it is not valid to include only `then` or only `else` inside an `if` element.
 ```xml
 <set var="a">{10}</set>
 <set var="b">{15}</set>
@@ -659,8 +659,20 @@ The class used to perform http requests. It particularly useful for integration 
 `Http.GetRaw` this method performs Get request using TcpClient.TcpClient. So the response will be provided in unchanged, literal form.There are two overloads for this method  
 1)`<set var="rawresponse">{Http.GetRaw(string url}</set>` simply perform HTTP GET request  
 2)`<set var="rawresponse">{Http.GetRaw(string url, int sendTimeout, int receiveTimeout}</set>` The same as above but allows to specify timeouts  
-```
-example todo
+```xml
+<!-- Get raw HTTP response including headers -->
+<set var="rawResponse">{Http.GetRaw('http://example.com/api/status')}</set>
+<log>{rawResponse}</log> <!-- outputs full HTTP response including headers like:
+HTTP/1.1 200 OK
+Date: Mon, 23 May 2022 22:38:34 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 23
+
+{"status":"operational"}
+-->
+
+<!-- With custom timeouts (in milliseconds) -->
+<set var="rawResponse">{Http.GetRaw('http://slowapi.example.com/data', 5000, 10000)}</set>
 ```
 
 `Http.SetCookie` set cookie for the specific URL.
@@ -820,9 +832,9 @@ line2
 ```xml
 <set var="str1">This is an example</set>
 <set var="str2">{Utils.Replace(str1,'This','Here')}</set>
-```xml  
+```  
 `Utils.IsKeyExist` method used to check whether the key/property exists in a dictionary/object, returns boolean.  
-```
+```xml
 <set var="customobject">
 	<attr name="property1">1</attr>
 	<attr name="property2">2</attr>
@@ -835,9 +847,10 @@ line2
 ```  
 `Utils.ParseGuid` method converts the string representation of a GUID to the equivalent Guid structure.
 ```xml
-<set var="newGuidVar">{Utils.ParseGuid('5dcf85ae-ca84-4718-afb8-1795db389763')</set> <!-- equivalent to new Guid('5dcf85ae-ca84-4718-afb8-1795db389763') -->
- ```  
-`Utils.TextuallyEquals` method used to compare two variables in their textual representation:  If variables are of the same type, it compares them as they are. If variables are of different types, it converts them into strings and then compares the strings. Third parameter can be used to ignore case.
+<set var="newGuidVar">{Utils.ParseGuid('5dcf85ae-ca84-4718-afb8-1795db389763')}</set> <!-- equivalent to new Guid('5dcf85ae-ca84-4718-afb8-1795db389763') -->
+```
+
+`Utils.TextuallyEquals` method used to compare two variables in their textual representation: If variables are of the same type, it compares them as they are. If variables are of different types, it converts them into strings and then compares the strings. Third parameter can be used to ignore case.
 ```xml
 <set var="var1">1</set>
 <set var="var2">{1}</set>
@@ -1113,574 +1126,261 @@ By default conditions passed to where element are grouped with `and` rule. Multi
 </select>
 <!--selects accounts from Georgia state and specific cities and any accounts that don't have either State or City -->
 ```
-Relational databases and Dynamics crm allows to perform queries referencing multiple tables, sync360 supports this via `join` child element of it. 
 
-`query` element is used to specify query in native query language of external system. When `query` element used all the details of query are specified as content of it and other child elements not used. In other words you can either use `query` child element or define the query using `attr`, `order` and `where`.
+### Join Operations
+The `join` element allows querying data from related tables. Attributes: `type` (inner/outer/left/right), `entity` (related table name), `to` (field in main table), `from` (field in related table), `as` (optional alias).
 
-The result of select operation will be array of Use4si.Core.DynamicDictionary structures.
-
-To read all names and ids of first 50 accounts where Country attribute value is equal to "US" and sort them by name attribute in descending order, you could use Select operation as follows:
 ```xml
-<!--using sync360 syntax -->
-<select from="crmserver" entity="account" var="accounts" count="50">
-    <where>
-         <condition attr="address1_country" op="eq">US</attr>
-    </where>
-    <attr name="name"/>
-    <attr name="accountid"/>
-    <order by="name" desc="true"/>
-</select>
-
-<!--same operation as above but using native query of crm system, which is fetchxml. Notice that CDATA is used to escape fecthxml as sync360 scripts are also xml -->
-<select from="crmserver" entity="account" var="accounts">
-    <query>
-<![CDATA[
-<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" count="50">
-  <entity name="account">
-    <attribute name="name" />
-    <attribute name="accountid" />
-    <order attribute="name" descending="true" />
-    <filter type="and">
-      <condition attribute="address1_country" operator="eq" value="US" />
-    </filter>
-    <link-entity name="contact" from="contactid" to="primarycontactid" visible="false" link-type="outer" alias="a_410707b195544cd984376608b1802904">
-      <attribute name="emailaddress1" />
-    </link-entity>
-  </entity>
-</fetch>
-]]>
-    </query>
+<select from="crm" entity="contact" var="contactsWithAccounts">
+    <attr name="firstname" />
+    <attr name="lastname" />
+    <join type="inner" entity="account" to="parentcustomerid" from="accountid" as="company">
+        <attr name="name" as="companyname" />
+        <join type="left" entity="systemuser" to="ownerid" from="systemuserid" as="owner">
+            <attr name="fullname" as="ownername" />
+        </join>
+    </join>
 </select>
 ```
 
-**Select** operation supports native SQL queries using query element. You can also pass parameters to the query using **attr** element. The entity element is required to be specified for the code to be valid, but with this method it's not used.
+### Using Native Queries
+The `query` element allows native system queries. When using `query`, other child elements like `attr`, `where`, `order` are not used.
+
 ```xml
-<select from="db" entity="tasks" var="tasks">
+<!--using native FetchXML for Dynamics CRM -->
+<select from="crm" entity="account" var="accounts">
+    <query><![CDATA[
+        <fetch version="1.0" mapping="logical" distinct="false" count="50">
+            <entity name="account">
+                <attribute name="name" />
+                <attribute name="accountid" />
+                <order attribute="name" descending="true" />
+                <filter type="and">
+                    <condition attribute="address1_country" operator="eq" value="US" />
+                </filter>
+            </entity>
+        </fetch>
+    ]]></query>
+</select>
+
+<!--using SQL with parameters -->
+<select from="database" entity="employees" var="activeEmployees">
     <query>
-         select Tasks.Name as 'ttt', Instances.Name, Instances.InstanceID from tasks, Instances where tasks.InstanceID = Instances.InstanceID and Instances.Title = @title
+        SELECT e.*, d.Name as DepartmentName 
+        FROM Employees e
+        JOIN Departments d ON e.DepartmentId = d.Id
+        WHERE e.Status = @status AND e.JoinDate > @minDate
     </query>
-     <attr name="@title">Main work</attr>
+    <attr name="@status">Active</attr>
+    <attr name="@minDate">2023-01-01</attr>
 </select>
 ```
 
-**Select–join** operation looks for records of specific type in accordance with the criteria applied to the entity itself and related entities.
+## Update
+The `update` element modifies existing records. Attributes: `in` (connection name, required), `entity` (table name, required), `var` (result variable, optional). Child elements: `where` (criteria, required), `attr` (fields to update, required).
 
-#### Table 8. Join operation attributes.
-
-| <b>Attribute</b> | <b>Description</b>                                                                                                                                                                             | <b>Usage</b> |
-|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
-| type             | Join type (based on used connector).<br/> For example, for CRM connector:  <https://docs.microsoft.com/en-us/previous-versions/dynamicscrm-2016/developers-guide/gg327702%28v%3dcrm.8%29>  | Required     |
-| entity           | Related entity name.                                                                                                                                                                           | Required     |
-| to               | Field name of the related entity.                                                                                                                                                              | Required     |
-| from             | Field name of the main entity.                                                                                                                                                                 | Required     |
-| as               | Attribute name for storing the result. Simplifies data<br>access.                                                                                                                              | Optional     |
-
-```
-<select from="crm" entity="contact" var="crmContacts">
-         <where>
-             <condition attr="fullname" op="ex"></condition>
-         </where>
-         <join type='inner' entity='account' to='parentcustomerid' from='accountid'>
-             <where>
-                 <condition attr="name" op="ex"></condition>
-             </where>
-             <attr name="name" as="accountname" />
-             <join entity='systemuser' to='ownerid' from='systemuserid' as='owner'>
-                 <attr name="fullname" as="userfirstname"/>
-             </join>
-         </join>
-         <attr name="firstname" />
-         <attr name="lastname" as="contactlastname"/>
-</select>
-```
-
-
-
-### Update
-
-**Update** operation updates the specified entity records corresponding with the search criteria with predefined attributes set. The operation returns an array of dictionaries.
-
-#### Table 11. Update operation attributes.
-| Attribute | Description                                           | Usage    |
-|-----------|-------------------------------------------------------|----------|
-| ın        | A server name that the update operation performs for. | Required |
-| entity    | A type of records that will be updated.               | Optional |
-
-
-#### Table 12. Update operation children elements.
-| Element | Description                                                                                | Usage    |
-|---------|--------------------------------------------------------------------------------------------|----------|
-| where   | A criteria element contains conditions set that will be used to find<br>records to update. | Required |
-| attr    | An attribute name and its value for updated records.                                       | Required |
-
-
-To update account with name "Adidas" and set new Primary Contact attribute, you could use the Update operation as follows:
-```
-<update in="crmserver" entity="account">
+```xml
+<update in="crm" entity="contact">
     <where>
-         <condition attr="name" op="eq">Adidas</condition>
+        <condition attr="emailaddress1" op="eq">old@email.com</condition>
     </where>
-    <attr name="primarycontactid">contact:{primContactId}</attr>
+    <attr name="emailaddress1">new@email.com</attr>
+    <attr name="emailstatus">Updated</attr>
+</update>
+
+<!-- Update with complex criteria -->
+<update in="crm" entity="account">
+    <where>
+        <and>
+            <condition attr="statecode" op="eq">{0}</condition>
+            <or>
+                <condition attr="revenue" op="lt">{100000}</condition>
+                <condition attr="numberofemployees" op="lt">{10}</condition>
+            </or>
+        </and>
+    </where>
+    <attr name="customertype">SmallBusiness</attr>
+    <attr name="followupdate">{Utils.Now.AddDays(7)}</attr>
 </update>
 ```
 
 ## Delete
+The `delete` element removes records. Attributes: `in` (connection name, required), `entity` (table name, required), `var` (result variable, optional). Child elements: `where` (criteria, required).
 
-**Delete** operation deletes a specified entity records satisfied to search criteria.
-
-#### Table 13. Delete operation attributes.
-| <b>Attribute</b> | <b>Description</b>                                    | <b>Usage</b> |
-|-------------------|------------------------------------------------------|--------------|
-| in           | A server name that the delete operation performs for. | Required     |
-| entity           | A type of records that will be deleted.               | Optional     |
-
-
-#### Table 14. The Delete operation child elements.
-| Element | <b>Description</b>                                                   | <b>Usage</b> |
-|-|-|-|
-| where   | A criteria element contains conditions set that will be used to find records to delete.| Required     |
-
-
-The following script deletes an Exchange contact by known EntryId:
-```
-<delete in="exchange">
-     <where>
-         <condition attr="EntryId" op="eq">{EntryId}</condition>
+```xml
+<delete in="crm" entity="task">
+    <where>
+        <condition attr="statecode" op="eq">{1}</condition>
+        <condition attr="createdon" op="lt">{Utils.Now.AddDays(-365)}</condition>
     </where>
 </delete>
 ```
 
-## **Context**
+## Context
+The `context` element executes operations under a different user context. Attributes: `for` (connection name, required), `user` (user identifier, required - email for Exchange, GUID for CRM).
 
-`context` element is used to wrap commands that must be performed under specific user context. By default all data operations are performed under user/service specified in the configuration file, the context allows to perform the operation under another user/service credential, the only requirement is for the service account to have impersonation permission in the target. The context element affects only data operation commands for specific connection specified in `for` attribute, it doesn't has any effect to any non data operation commands. `user` attribute in context element is used to specify whom it is required to impersonate. In current version of Sync360 context command can be used for Exchange and Dynamics CRM/Power Platform connections. For Exchange connection user attribute expects email address of target user, for CRM connection the user attribute should be GUID of user record.
-
-```
-<context for="exchange" user="{userEmail}">
-     <select from="exchange" entity="contact" var="contacts">
-         <where>
-             <or> <condition attr="crmLinkState" op="eq">0</condition>
-                  <condition attr="crmLinkState" op="eq">2</condition>
-            </or>
-            <condition attr="crmid" op="ne"></condition>
-         </where>
-         <attr name="EntryId"/>
-         <attr name="crmid"/>
-         <attr name="crmLinkState"/>
-         <attr name="iconindex"/>
-         <attr name="crmOwnerId"/>
-     </select>
+```xml
+<context for="exchange" user="john.doe@company.com">
+    <select from="exchange" entity="appointment" var="userAppointments">
+        <where>
+            <condition attr="start" op="ge">{Utils.Now}</condition>
+        </where>
+        <attr name="subject" />
+        <attr name="start" />
+    </select>
 </context>
 
-<context for="crm" user="{userGuid}">
-     <select from="crm" entity="contact" var="contacts">
-         <where>
-            <condition attr="contactid" op="eq">{contactId}</condition>
-         </where>
-         <attr name="fullname"/>
-         <attr name="jobtitle"/>
-         <attr name="emailaddress1"/>
-     </select>
+<context for="crm" user="{salesRepGuid}">
+    <create in="crm" entity="phonecall" var="callId">
+        <attr name="subject">Follow-up call</attr>
+        <attr name="regardingobjectid">opportunity:{opportunityId}</attr>
+    </create>
 </context>
 ```
 
 ## Batch
+The `batch` element groups multiple operations into a single request. Attributes: `for` (connection, required), `var` (results, required), `continueOnError` (true/false, required), `returnResponses` (optional, default true).
 
-**Batch** operation can be used to combine create, update, or delete operations into one batch to minimize the number of requests to target system.
-
-#### Table 15. Batch operation attributes.
-| <b>Attribute</b> | <b>Description</b>                                                                                                    | <b>Usage</b> |
-|-|-|-|
-| for              | A server name that Batch operation will run for.                                                                      | Required     |
-| continueOnError  | false – do not continue processing the next request on error.                                                         | Required     |
-| var              | The variable name that will contain the response from target system. Response is presented only for create operation. | Required     |
-| returnResponses | true—return responses from each message request  processed.<br/> false—do not return responses.                        | Optional     |
-
-```
- <set var="PageSize">{10}</set>
-      <log>Script started at {Utils.Now}</log>
-      <set var="csvContacts">{Csv.Read('c:/temp/contact lite test.txt', Encoding.GetEncoding('utf-8'), 
-';')}</set>
-      <set var="Continue">{true}</set>
-      <set var="RecordsLeft">{csvContacts.Count}</set>
-      <set var="Page">{0}</set>
-      <log>Import started at {Utils.Now}</log>
-      <log>Batch size = {PageSize}</log>
-      <while condition="Continue">
-          <set var="LastPage">{RecordsLeft lt PageSize}</set>
-          <set var="CurrentPage" if="LastPage">{RecordsLeft}</set>
-          <set var="CurrentPage" if="!LastPage">{PageSize}</set>
-          <batch for="crm" continueOnError="true" var="result" returnResponses="true">
-             <for var="iter" from="0" to="CurrentPage-1" step="1">
-                <set var="index">{(PageSize * Page) + iter}</set>
-                <set var="cnt">{csvContacts[index]}</set>
-                <sandbox>
-                   <create in="crm" entity="contact">
-                      <attr if="cnt['lastname'].isSet and cnt['lastname'] ne ''" name="lastname">{cnt['lastname']}</attr>
-                      <attr if="cnt['firstname'].isSet and cnt['firstname'] ne ''" name="firstname">{cnt['firstname']}</attr>
-                      <attr if="cnt['salutation'].isSet and cnt['salutation'] ne ''" name="salutation">{cnt['salutation']}</attr>
-                      <attr if="cnt['birthdate'].isSet and cnt['birthdate'] ne ''" name="birthdate">{cnt['birthdate']}</attr>
-                      <attr if="cnt['slaname'].isSet and cnt['slaname'] ne ''" name="slaname">{cnt['slaname']}</attr>
-                      <attr if="cnt['telephone1'].isSet and cnt['telephone1'] ne ''" name="telephone1">{cnt['telephone1']}</attr>
-                      <attr if="cnt['telephone2'].isSet and cnt['telephone2'] ne ''" name="telephone2">{cnt['telephone2']}</attr>
-                      <attr if="cnt['telephone3'].isSet and cnt['telephone3'] ne ''" name="telephone3">{cnt['telephone3']}</attr>
-                      <attr if="cnt['websiteurl'].isSet and cnt['websiteurl'] ne ''" name="websiteurl">{cnt['websiteurl']}</attr>
-                      <attr name="statecode">{1}</attr>
-                      <attr name="statuscode">{2}</attr>
-                   </create>
-                </sandbox>
-             </for>
-          </batch>
-          <log>{result}</log>
-          <set var="RecordsLeft">{RecordsLeft - CurrentPage}</set>
-          <set var="Page">{Page + 1}</set>
-          <set var="Continue" if="RecordsLeft le 0">{false}</set>
-      </while>
-      <log>Import finished at {Utils.Now}</log>
-```
-
-```
-<!-- Example: (Batch error handling) -->
-    <if condition="result.IsFaulted">
-         <log>An error occured during batch request.</log>
-         <for var="resp" in="result.Responses">
-             <if condition="resp.Fault.isSet">
-                  <log>Error on index {resp.RequestIndex} with message: {resp.Fault.Message}</log>
-             </if>
-         </for>
-   </if>
-```
-
-
-
-```
-<!- Example: (Batch response handling for create operation) -->
-<set var="newIds">{new List()}</set>
-     <for var="response" in="result.Responses">
-         <if condition="!response.Fault.isSet">
-             <then>
-                 <set var="innerResponse">{response.Response}</set>
-                 <set if="innerResponse.ResponseName eq 'Create'" var="newIds[]">{innerResponse.id}</set>
-                 <set if="innerResponse.ResponseName eq 'ExecuteTransaction'"
-var="newIds[]">{innerResponse.Responses[0].id}</set>
-             </then>
-             <else>
-                 <set var="newIds[]">{null}</set>
-             </else>
-        </if>
-</for>
-```
-
-### **Transaction**
-
-**Transaction** operation can be used to combine create, update or delete operations into one transaction to minimize the number of requests to target system.
-
-#### Table16 . Transaction operation attributes.
-| <b>Attribute</b> | <b>Description</b>                                                                                                          | <b>Usage</b> |
-|------------------|-----------------------------------------------------------------------------------------------------------------------------|--------------|
-| for              | A server name that Batch operation will run for.                                                                            | Required     |
-| var              | The variable name that will contain the response<br>from target system. Response is presented only<br>for create operation. | Required     |
-| returnResponses  | true - return responses from each message<br>request processed.<br>false - do not return responses.                         | Optional     |
-
-```
-<set var="PageSize">{10}</set>
-<log>Script started at {Utils.Now}</log>
-<set var="csvContacts">{Csv.Read('c:/temp/contact lite test.txt', Encoding.GetEncoding('utf-8'),';')}</set>
-<set var="Continue">{true}</set>
-<set var="RecordsLeft">{csvContacts.Count}</set>
-<set var="Page">{0}</set>
-<log>Import started at {Utils.Now}</log>
-<log>Batch size = {PageSize}</log>
-<while condition="Continue">
-    <set var="LastPage">{RecordsLeft lt PageSize}</set>
-    <set var="CurrentPage" if="LastPage">{RecordsLeft}</set>
-    <set var="CurrentPage" if="!LastPage">{PageSize}</set>
-    <transaction for="crm" continueOnError="true" var="result" returnResponses="true">
-        <for var="iter" from="0" to="CurrentPage-1" step="1">
-            <set var="index">{(PageSize * Page) + iter}</set>
-            <set var="cnt">{csvContacts[index]}</set>
-            <sandbox>
-                <create in="crm" entity="contact">
-                    <attr name="lastname" if="cnt['lastname'].isSet and cnt['lastname'] ne ''">{cnt['lastname']}</attr>
-                    <attr name="firstname" if="cnt['firstname'].isSet and cnt['firstname'] ne ''">{cnt['firstname']}</attr>
-                    <attr name="salutation" if="cnt['salutation'].isSet and cnt['salutation'] ne ''">{cnt['salutation']}</attr>
-                    <attr name="birthdate" if="cnt['birthdate'].isSet and cnt['birthdate'] ne ''" >{cnt['birthdate']}</attr>
-                    <attr name="slaname"  if="cnt['slaname'].isSet and cnt['slaname'] ne ''">{cnt['slaname']}</attr>
-                    <attr name="telephone1" if="cnt['telephone1'].isSet and cnt['telephone1'] ne ''">{cnt['telephone1']}</attr>
-                    <attr name="telephone2" if="cnt['telephone2'].isSet and cnt['telephone2'] ne ''">{cnt['telephone2']}</attr>
-                    <attr name="telephone3" if="cnt['telephone3'].isSet and cnt['telephone3'] ne ''" >{cnt['telephone3']}</attr>
-                    <attr name="websiteurl" if="cnt['websiteurl'].isSet and cnt['websiteurl'] ne ''">{cnt['websiteurl']}</attr>
-                    <attr name="statecode">{1}</attr>
-                    <attr name="statuscode">{2}</attr>
-                </create>
-            </sandbox>
-        </for>
-    </transaction>
-    <log>{result}</log>
-    <set var="RecordsLeft">{RecordsLeft - CurrentPage}</set>
-    <set var="Page">{Page + 1}</set>
-    <set var="Continue" if="RecordsLeft le 0">{false}</set>
-</while>
-<log>Import finished at {Utils.Now}</log>
-```
-
-
-
-### Not Operator
-
-**Not operator** inverts a result of a logical operation.
-
-The following script snippet returns identifiers of all CRM contacts that first name is not equal to "Joe" and DoNotPhone or DoNotEmail properties are not equal to true.
-
-```
-<select from="crmserver" entity="contact" var="contacts">
-     <where>
-        <not>
-           <and>
-              <condition attr="firstname" op="eq">Joe</condition>
-              <or>
-                 <condition attr="donotphone" op="eq">{true}</condition>
-                  <condition attr="donotemail" op="eq">{true}</condition>
-              </or>
-            </and>
-        </not>
-    </where>
-    <attr name="contactid"/>
-</select>
-```
-
-## And / Or Operators
-
-These operators should contain two or more conditions. **And** operator evaluates to true only if all its children conditions evaluate to true. **Or** operator evaluates to true if at least one of its children conditions evaluate to true.
-
-The following script snippet returns all identifiers of CRM contacts which first name is equal to Joe or DoNotPhone or DoNotEmail properties are equal to true.
-```
-<select from="crmserver" entity="contact" var="contacts">
-     <where>
-        <and>
-          <condition attr="firstname" op="eq">Joe</condition>
-          <or>
-            <condition attr="donotphone" op="eq">{true}</condition>
-            <condition attr="donotemail" op="eq">{true}</condition>
-          </or>
-         </and>
-    </where>
-    <attr name="contactid"/>
-</select>
-```
-
-## Exists Condition Operator
-
-**Exists** condition returns true if a specified attribute exists in an entity record. It does not matter whether the property contains a non-empty value or not.
-
-Let us imagine that there is a custom property called ShoeSize that was added to some contacts but others do not have this field.
-
-The following script snippet returns all contacts with this field:
-
-```
-<select from="exchange" entity="contact" var="contacts_with_ShoeSize">
-    <where>
-         <condition attr="ShoeSize" op="ex" />
-    </where>
-    <attr name="EntryId"/>
-</select>
-```
-
-The following scrip snippet returns all contacts without this field:
-
-```
-<select from="exchange" entity="contact" var="contacts_without_ShoeSize">
-     <where>
-          <not><condition attr="ShoeSize" op="ex"/></not>
-      </where>
-      <attr name=" EntryId "/>
-</select>
-```
-
-## In Condition Operator
-
-**In** condition operator returns true if the specified attribute matches to a value in a condition values list.
-
-The following script snippet return all identifiers of CRM contacts, which first name is Bob, Joe, or Michael.
-```
-<select from="crmserver" entity="contact" var="contacts">
-    <where>
-       <condition attr="firstname" op="in">{['Bob', 'Joe', 'Michael']}</condition>
-    </where>
-    <attr name="contactid" />
-</select>
-```
-
-### Between Condition Operator
-
-*Between* condition operator returns true if the specified attribute value is between two values in a conditions values list. There are three ways to specify the condition's value.
-
-The following two script snippets return all identifiers of CRM contacts, which were created in 2011.
-```
-<set var="dates">{[Utils.Now.AddDays(-100), Utils.Now.AddDays(-50)]}</set>
-<select from="crm" entity="contact" var="contacts">
-      <where>
-         <condition attr="createdon" op="between">{[dates[0],dates[1]]}</condition>
-      </where>
-      <attr name="contactid" />
-      <attr name="createdon" />
-</select>
-<set var="dates">{["01/01/2018", "01/01/2019"]}</set>
-<select from="crm" entity="contact" var="contacts">
-      <where>
-          <condition attr="createdon" op="between">{[dates[0],dates[1]]}</condition>
-      </where>
-      <attr name="contactid" />
-      <attr name="createdon" />
-</select>
-```
-
-## EXCEPTION HANDLING OPERATIONS
-
-### Exception
-`exception` operation is used when it is necessary to throw an exception in the process of script execution. When exception occurs in Sync360 it stops the whole script execution, which in IDE will show to the user the line where exception occured and when running by service will exit the script until the next scheduled execution.
 ```xml
-<set var="crmservers">crm,crm4,crm5</set>
-<for var="crmserver" in="crmservers">
-    <select from="{crmserver}" entity="account" var="accounts">
-         <where>
-             <condition attr="statecode" op="eq">{0}</condition>
-         </where>
-         <attr name="accountid" />
-     </select>
-     <if condition="{accounts.Count = 0}">
-         <exception>There are no active accounts in {crmserver}. </exception>
-     </if>
-</for>
+<batch for="crm" var="batchResult" continueOnError="true">
+    <for var="contact" in="contacts">
+        <create in="crm" entity="contact">
+            <attr name="firstname">{contact.FirstName}</attr>
+            <attr name="lastname">{contact.LastName}</attr>
+        </create>
+    </for>
+</batch>
+
+<!-- Error handling -->
+<if condition="batchResult.IsFaulted">
+    <for var="response" in="batchResult.Responses">
+        <if condition="response.Fault.isSet">
+            <log>Error at index {response.RequestIndex}: {response.Fault.Message}</log>
+        </if>
+    </for>
+</if>
 ```
 
-### Sandbox
+## Transaction
+The `transaction` element ensures atomicity - all operations succeed or all fail. Attributes: `for` (connection, required), `var` (results, required), `returnResponses` (optional). Does not support `continueOnError`.
 
-`sandbox` operation is used when it is necessary to hide exceptions in process of script execution from user. Sandbox operation has the **"verbose"** attribute that is used for enabling or disabling errors logging (if it is left empty, then (*true*) will be used by default).
+```xml
+<transaction for="database" var="transferResult">
+    <update in="database" entity="accounts">
+        <where>
+            <condition attr="accountid" op="eq">{sourceAccountId}</condition>
+        </where>
+        <attr name="balance">{sourceBalance - transferAmount}</attr>
+    </update>
+    <update in="database" entity="accounts">
+        <where>
+            <condition attr="accountid" op="eq">{targetAccountId}</condition>
+        </where>
+        <attr name="balance">{targetBalance + transferAmount}</attr>
+    </update>
+    <create in="database" entity="transactions">
+        <attr name="sourceaccount">{sourceAccountId}</attr>
+        <attr name="targetaccount">{targetAccountId}</attr>
+        <attr name="amount">{transferAmount}</attr>
+        <attr name="transactiondate">{Utils.Now}</attr>
+    </create>
+</transaction>
+```
 
-The following script looks for CRM contact "Joe Dow" and if a single instance of this contact found, then this contact is set as a primary contact of "Adidas" company. Logging is enabled for the sandbox.
+# EXCEPTION HANDLING OPERATIONS
+
+## Exception
+The `exception` element throws an exception to stop script execution.
+
+```xml
+<if condition="account.Count eq 0">
+    <exception>Account {accountId} not found</exception>
+</if>
+
+<if condition="account[0].totaldue gt account[0].creditlimit">
+    <exception>Account exceeded credit limit. Due: {account[0].totaldue}, Limit: {account[0].creditlimit}</exception>
+</if>
+```
+
+## Sandbox
+The `sandbox` element provides exception isolation. Attribute: `verbose` (optional, default true).
+
 ```xml
 <sandbox verbose="true">
-    <select in="crmserver" entity="contact" var="contacts">
-       <where>
-          <condition attr="firstname" op="eq">Joe</condition>
-          <condition attr="lastname" op="eq">Dow</condition>
-       </where>
-       <attr name="contactid" />
-    </select>
-    <if condition="contacts.Count = 1">
-       <update in="crmserver" entity="account">
-          <where>
-             <condition attr="name" op="eq">Adidas</condition>
-          </where>
-          <attr name="primarycontactid">contact:{contacts[0].contactid}</attr>
-       </update>
-   </if>
-</sandbox>
-```
-
-
-
-`onerror` operation is used in conjunction with **Exception** for handling specific exceptions.
-```
-<sandbox verbose="false">
-    <log>{2/0}</log>
-    <onerror of="typeof System.DivideByZeroException">
-       <log>This is DivideByZero!</log>
+    <set var="result">{Http.Get('https://api.example.com/data')}</set>
+    <set var="data">{Json.FromJson(result)}</set>
+    <onerror of="typeof System.Net.WebException">
+        <log>Network error - using cached data</log>
+        <set var="data">{cachedData}</set>
     </onerror>
 </sandbox>
 ```
 
+## OnError
+The `onerror` element handles specific exception types within a sandbox. Attribute: `of` (type expression, required).
 
+```xml
+<sandbox>
+    <set var="result">{100 / divisor}</set>
+    <onerror of="typeof System.DivideByZeroException">
+        <log>Division by zero</log>
+        <set var="result">{0}</set>
+    </onerror>
+    <onerror of="typeof System.Exception">
+        <log>Unexpected error: {Exception.Message}</log>
+    </onerror>
+</sandbox>
+```
 
 # STRUCTURAL OPERATIONS
 
 ## Include
+The `include` element incorporates external script files. Attribute: `name` (path without .xml extension, required). Search order: current directory, application Scripts folder, global Scripts folder.
 
-`include` operation is used if you want to separate some code into other script files. Sync360 will combine the main script and code from all includes on the moment of execution. This operation has the `name` attribute which value should be a path to existing script in regard to scripts folder plus filename without ".xml" extension.
-
-**NOTE: Sync360 IDE** has special order where to find script. First it tries to find specified path in a folder where a current script is situated. If the script is not found it will check Script folder in current Application folder. If after that the script is also not found it will check the standard Script folder in main Sync360 folder.
 ```xml
-<include name="Includes\Parameters"/>
-<include name="Includes\ReadUserDetails"/>
-<include name="Includes\ReadSettings"/>
-<context for="exchange" user="{User.Email}">
-    <select from="exchange" var="contacts">
-       <where>
-          <or>
-              <condition attr="crmLinkState" op="eq">0</condition>
-              <condition attr="crmLinkState" op="eq">2</condition>
-          </or>
-          <condition attr="crmid" op="ne"></condition>
-       </where>
-       <attr name="fileas"/>
-       <attr name="EntryId"/>
-       <attr name="crmid"/>
-       <attr name="crmLinkState"/>
-       <attr name="iconindex"/>
-       <attr name="crmOwnerId"/>
-    </select>
-</context>
-<log>Contacts to be considered: {contacts.Count}</log>
+<include name="Config/Settings" />
+<include name="Utils/DataValidation" />
+<include name="Modules/CustomerSync" />
 ```
 
-## Call script
+## Call
+The `call` element executes another script in isolated context. Attribute: `name` (script name, required). Additional attributes are passed as parameters.
 
-`call` operation is used when it is necessary to execute another script (that already exists) before current script. Rather than include operation, the script will be executed in own context, and it will not have access to variables in main script. The Call operator supports passing parameters into the script. Operator searches for script in `@private` folder. There are two ways to specify call operator:
-
-Call script "MyScriptHelper" and pass parameter "CallSettings"
 ```xml
-<script>
-   <var callParameters='new Object()'/>
-   <var callParameters.Param1='value1'/>
-   <MyScriptHelper CallSettings="callParameters"/>
-</script>
-<script>
-   <var callParameters='new Object()'/>
-   <var callParameters.Param1='value1'/>
-  <call name="MyScriptHelper" CallSettings="callParameters"/>
-</script>
+<call name="DataProcessor" Settings="config" SourceFile="'data.csv'" />
+
+<!-- Alternative syntax -->
+<MyScriptHelper CallSettings="parameters" />
 ```
 
 ## Script
+The `script` element is the root container for Sync360 code.
 
-`script` element is used for code blocks grouping.
-
-```
+```xml
 <script>
-    //There should be the script body
+    <!-- Script content -->
 </script>
 ```
 
 ## Log
-
-`log` operation can be used when you need to maintain history of script executions and provide some more information to the output. It also eases process of script debugging.
-
-```xml
-<script>
-    <log>Result: {2+2}</log>
-
-    <select from="crm" entity="systemuser" var="users">
-       <attr name="systemuserid"/>
-       <attr name="fullname"/>
-    </select>
-    <for var="user" in="users">
-       <log>{user.systemuserid} {user.fullname}</log>
-    </for>
-</script>
-```
-
-# EXTEND FUNCTIONALITY
-
-You can extend script engine functionality from the script, by binding to standard .NET classes or by adding custom assemblies. The assembly should be placed in Global Assembly Cache or in the Sync360 main directory.
+The `log` element outputs messages.
 
 ```xml
-<script name="StdLib">
-<!-- The following line will bind assembly to ScheduleItem operator-->
-    <set ScheduleItem="typeof 'Use4si.Infrastructure.Processing.ScheduleItem, Use4si.Infrastructure'"/>
-<!— Bind to standard .NET class-->
-    <set TimeSpan="typeof System.TimeSpan"/>
-<!— Bind static methods of standard .NET class -->
-    <set TimeSpans="static TimeSpan"/>
-</script>
+<log>Processing record {recordId} of {totalRecords}</log>
+<log>Memory usage: {GC.GetTotalMemory(false) / 1024 / 1024} MB</log>
 ```
 
+# EXTENDING FUNCTIONALITY
+
+Bind to .NET types using `typeof` and static methods using `static`. Custom assemblies must be in GAC or Sync360 directory.
+
+```xml
+<set StringBuilder="typeof System.Text.StringBuilder" />
+<set Files="static System.IO.File" />
+<set Regex="typeof System.Text.RegularExpressions.Regex" />
+<set CustomValidator="typeof MyCompany.Validator, MyCompany.Integration" />
+
+<set var="sb">{new StringBuilder()}</set>
+<set var="exists">{Files.Exists(fullPath)}</set>
+<set var="pattern">{new Regex(@"\d{3}-\d{3}-\d{4}")}</set>
+```
