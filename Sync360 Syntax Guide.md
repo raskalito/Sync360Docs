@@ -6,7 +6,7 @@ When the Sync360 engine executes a script file, each command in the script file 
 # GENERAL SCRIPT SYNTAX
 
 A Sync360 script is an XML file which must be a valid XML file and consist of Sync360-specific commands. The root element of each script file must be `<script>`. Each element under the root element represents either flow control or a command for script execution. The child elements of tags can be used as parameters of the command or, if used inside flow control elements, as commands for optional execution. There is no limitation on the levels or number of commands inside a Sync360 script. An example of a Sync360 command with child elements that act as command properties:
-```
+```xml
 <set var="CitiesAndCountries">
     <attr name="Cities">Houston,Phoenix</attr>
     <attr name="Countries">USA,UK,Canada</attr>
@@ -17,7 +17,7 @@ An attribute is a markup construct consisting of a name/value pair that exists w
 It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
 Content inside an element acts as a value. Curly braces `{ }` instruct the engine to evaluate the expression; this is a method of accessing variables or performing logical calculations. Curly braces are always used as a singular instance, meaning content inside them cannot include other curly braces. There are commands that do not require curly braces to start evaluation; it occurs by default by the nature of the command.
 
-```
+```xml
 <set var="firstname">Joe</set> <!-- assignment of text value 'Joe' to variable 'firstname' without expressions. -->
 <set var="calculatedvalue">{294+322}</set> <!-- assignment of result of expression in the element content. Notice that braces are required -->
 <set calculated="294+322" /> <!-- assignment of result of expression via property. Notice that braces are not required -->
@@ -25,31 +25,31 @@ Content inside an element acts as a value. Curly braces `{ }` instruct the engin
 ```
 An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).  
 The expression type is selected automatically based on the expression value evaluation, but it can be converted to a necessary type by using special construction 'as'. The following examples give the same result:
-```
+```xml
 <set var="counter">{2}</set>
 <set var="counter">{2 as 'int'}</set>
 ```
 
 Moreover, variable values may be a simple value, an array and a dictionary (declaration and modification of variable values are described in the clause 7).
 A value of an array item can be received by specifying the array name and index of the necessary element inside square brackets. Indexes start from zero.
-```
+```xml
 <log>First account: {account[0]}</log>
 ```
 
 The random element of an array may be selected if the name of an array is specified with empty square brackets.
-```
+```xml
 <set var="crmservers">{[crm,crm4,crm5]}</set>
 <log>Random CRM server: {crmservers[]}</log>
 ```
 
 A value of a dictionary item can be received by specifying the dictionary name and name of the necessary element in quotes and inside square brackets or by specifying name of the necessary element followed by the dictionary name with a dot.
-```
+```xml
 <log>City: {account.city}</log>
 <log>City: {account["city"]}</log>
 ```
 
 If the corresponding element is not found, search of a method with this name will be produced via Reflection and, if the method is found, then it will be applied to the dictionary. Otherwise, an exception will be thrown.
-'''
+'''xml
 <log>Contact is found: {contacts.ContainsKey(contactid)}</log>
 '''
 
@@ -85,37 +85,74 @@ There are three predefined constants in Sync360:
 In the Sync360 scripting language, an operator is a construct that can be used in expressions. The Sync360 engine doesn't provide operand coercion; operators can be used only across supported types. There are some significant differences in the semantics used for operators compared to other programming languages. For example, operators `=` and `==` in Sync360 syntax mean the same thing. The list of all available operators and their explanations is below:
 
 ### Arithmetic operators:
-Addition operator is `+`. This operator adds second operand to the first operand. Supported types: int, long, double, string. The operator is ad hoc polymorphic, for numbers it performs arithmetic operation and for strings performs concantenation.  
-Subtraction operator is `-`. This operator subtracts second operand from the first operand. Supported types: int, long, double.  
-Multiplication operator is `*`. This operator multiplies first operand by the second operand. Supported types: int, long, double.  
-Division operator is `/`. This operator divides the first operand by the second operand. Supported types: int, long, double.  
+The addition operator is `+`. This operator adds the second operand to the first operand. Supported types: int, long, double, string. The operator is ad hoc polymorphic; for numbers it performs arithmetic operations and for strings performs concatenation.
+
+The subtraction operator is `-`. This operator subtracts the second operand from the first operand. Supported types: int, long, double.
+
+The multiplication operator is `*`. This operator multiplies the first operand by the second operand. Supported types: int, long, double.
+
+The division operator is `/`. This operator divides the first operand by the second operand. Supported types: int, long, double.
 
 ### Relational operators:
-Equals operator is `=` or `==` or `eq`. This operator returns true if the first operand is equal to the second operand. Supported  types: int, long, double, string, bool, date and object.  
-Not equal operatoris `!=` or `<>` or `ne`. This operator returns true if the first operand is not equal to the second operand. Supported  types: int, long, double, string, bool, date and object.  
-Greater tha operator  is `>` or `gt`'. This operator returns true if the first operand is greater than the second operand. Supported types: int, long, double, string and date.  
-Less than is `<` or `lt`. This operator returns true if the first operand is less than the second operand. Supported types: int, long, double, string and date.  
-Greater or equal is `>=` or `ge`. This operator returns true if the first operand is greater than or equal to the second operand. Supported  types: int, long, double, string and date.  
-Less or equal is `<=` or `le`. This operator returns true if the first operand is less than or equal to the second operand. Supported  types: int, long, double, string and date.  
+The equals operator is `=` or `==` or `eq`. This operator returns true if the first operand is equal to the second operand. Supported types: int, long, double, string, bool, date and object.
+
+The not equal operator is `!=` or `<>` or `ne`. This operator returns true if the first operand is not equal to the second operand. Supported types: int, long, double, string, bool, date and object.
+
+The greater than operator is `>` or `gt`. This operator returns true if the first operand is greater than the second operand. Supported types: int, long, double, string and date.
+
+The less than operator is `<` or `lt`. This operator returns true if the first operand is less than the second operand. Supported types: int, long, double, string and date.
+
+The greater than or equal operator is `>=` or `ge`. This operator returns true if the first operand is greater than or equal to the second operand. Supported types: int, long, double, string and date.
+
+The less than or equal operator is `<=` or `le`. This operator returns true if the first operand is less than or equal to the second operand. Supported types: int, long, double, string and date.
 
 ### Logical operators:
-And is `&&` or `and`. This operator performs a logical-AND of its bool operands. Supported  types: bool.  
-Or is `||` or `or`. This operator performs a logical-OR of its bool operands. Supported types: bool.  
-Not is `!` or `not`. This operator is a unary operator that negates its operand. It returns true only if its operand is false.Supported  types: bool.  
+The and operator is `&&` or `and`. This operator performs a logical-AND of its bool operands. Supported types: bool.
+
+The or operator is `||` or `or`. This operator performs a logical-OR of its bool operands. Supported types: bool.
+
+The not operator is `!` or `not`. This operator is a unary operator that negates its operand. It returns true only if its operand is false. Supported types: bool.
 
 ### Program structure operators:
-Index, Record or Object access is  `[]` or `.`. This operator returns an array element at the specified index, a property of an object or a dictionary element with the specified string key.  
-```<log>{myDict['property1']}</log>``` or ```<log>{myDict.property1}</log>```  
+The index, record or object access operator is `[]` or `.`. This operator returns an array element at the specified index, a property of an object or a dictionary element with the specified string key.
 
-Expression validation is `.isSet`. This operator can be applied to any expression or variable  to validate that it can be evaluated. When expression can be evaluated and returns a value operator returns true otherwise it return false. This operator prevents exceptions when applied to expressions  
- ```<set var="myVar">{232}</set> <log>{myVar.isSet}</log> ``` or ```<if condition="(250+300+myVar).isSet"><log>myVar is a number</log></if>```  
+```xml
+<log>{myDict['property1']}</log>
+```
+or
+```xml
+<log>{myDict.property1}</log>
+```
 
-Collections total is `.Count`. This operator can be applied to any collection variable to get total number of items in collection.  
-```<set var="myArray">{1,2,3]}</set> <log>{myArray.Count</log>```  
+The expression validation operator is `.isSet`. This operator can be applied to any expression or variable to validate that it can be evaluated. When an expression can be evaluated and returns a value, the operator returns true; otherwise it returns false. This operator prevents exceptions when applied to expressions.
 
-### Conditional operators
-Null coalesing is `??`. This operator returns the first calculated value in chain of expressions. <br><b>Example:</b> If 'MyVar' property of 'Global' variable is not null displays property value, else display text 'MyVar was not set'. ```<log>{Globals['MyVar'] ?? 'MyVar was not set'}</log>```  
-Ternary conditional is `?` with usage of ` expression ? value if true : value if false`. This operator evaluates an expression before and if it is true 
+```xml
+<set var="myVar">{232}</set>
+<log>{myVar.isSet}</log>
+```
+or
+```xml
+<if condition="(250+300+myVar).isSet">
+    <log>myVar is a number</log>
+</if>
+```
+
+The collections total operator is `.Count`. This operator can be applied to any collection variable to get the total number of items in the collection.
+
+```xml
+<set var="myArray">{1,2,3}</set>
+<log>{myArray.Count}</log>
+```
+
+### Conditional operators:
+The null coalescing operator is `??`. This operator returns the first calculated value in a chain of expressions. 
+
+**Example:** If the 'MyVar' property of the 'Global' variable is not null, it displays the property value; otherwise it displays the text 'MyVar was not set'.
+```xml
+<log>{Globals['MyVar'] ?? 'MyVar was not set'}</log>
+```
+
+The ternary conditional operator is `?` with usage of `expression ? value if true : value if false`. This operator evaluates an expression, and if it is true, returns the first value; otherwise it returns the second value.
 
 # DECLARATION OF THE VARIABLES
 
@@ -124,7 +161,7 @@ Ternary conditional is `?` with usage of ` expression ? value if true : value if
 ## Simple variable
 
 To declare a simple variable, define a name using `var` property and provide value via element content. When value passed without curly braces it evaluated as string. Using curly braces and providing digits Sync360 engine attempts to resolve it to best matching simple types. The default behavior that numeric values are resolved as Int32 or Int64 depending on size. Any fraction numbers are resolved as Double. Because of that is there a need to use specific type it is required to use `as` operator to define a type.
-```
+```xml
 <set var="text">Hello</set>
 
 <set var="num1">{1}</set>
@@ -140,7 +177,7 @@ To declare a simple variable, define a name using `var` property and provide val
 <log>{num4.GetType()}</log> <!-- Outputs 'System.Decimal' -->
 ```
 It is possible to assign to variable a value of another variable
-```
+```xml
 <set var="accountid">{value}</set>
 
 <!-- The other way to do same operation -->
@@ -153,7 +190,7 @@ Structures are essential part of Sync360 scripting as they provide methods for m
 ### Dictionary
 
 To declare the dictionary variable use construction `<set var="myDict">{new Dictionary()}</set>` after that you can assign values by specifing string keys using `[]` index operator. 
-```
+```xml
 <set Address="new Dictionary()" />
 <set var="Address['Street']">Brookview Dr NW</set>
 <set var="Address['State']">GA</set>
@@ -167,13 +204,13 @@ Dictionaries are key structure for writing scripts in Sync360 as it is often use
 ### List
 
 List declaration is very similar to Dictionary, use construction `<set var="myList">{new List()}</set>` and then assign values to list using `[]`.
-```
+```xml
 <set Names="new List()" />
 <set var="Names[]">Michael</set>
 <set var="Names[]">Joe</set>
 ```
 List structure is particularly useful when there is no need to access individual specific elements or when there is a need to access a random elements.  List also can be used for sorting string or number values due to it default methods.
-```
+```xml
 <log>{Names[]}</log> <!-- output random element of List -->
 
 <set var="SortedList">{new List()}</set>
@@ -189,7 +226,7 @@ List structure is particularly useful when there is no need to access individual
 ### Array
 
 To declare an array variable put the values in square brackets separated by comma.
-```
+```xml
 <set var="crmserver">{["crm1","crm2"]}</set> <!-- 'crmserver' variable type will be System.String[] -->
 <set cities="['New York','Los Angeles','Chicago']"/>  <!-- 'cities' variable type will be System.String[] -->
 <set randomnumbers="[3,6,7,12]"/> <!-- 'randomnumbers' variable type will be System.In32[] -->
@@ -205,7 +242,7 @@ Arrays compared to List or Dictionary structures cannot be extended to include a
 In Sync360 an object can be created via different syntax constuctions. Since each object is  a dynamic object, it's structure after definition is not strict, you can add additional properties to an object at anytime.
 
 In the following example the same object defined using 4 different syntax schemes:
-```
+```xml
 <!--Intialize empty Object and then add properties and values -->
 <set var="Person">{new Object()}</set>
 <set var="Person.Name">Michael</set>
@@ -225,7 +262,7 @@ In the following example the same object defined using 4 different syntax scheme
 ```
 
 The object structure in Sync360 can have as many nested properties as needed, a simple example of a object which describes a house
-```
+```xml
 <set var="House">
   <attr name="Material">brick</attr>
   <attr name="Price">{300000}</attr>
@@ -250,7 +287,7 @@ The object structure in Sync360 can have as many nested properties as needed, a 
 ## IF,THEN-ELSE, UNLESS
 
 `if` element is used to wrap code block and instruct Sync360 engine to execute this code only when condition evaluates as true. `condition` is property of if element which always evaluates into boolean value, it is not required to use curly braces for this propery.
-```
+```xml
 <set var="a">{10}</set>
 <set var="b">{15}</set>
 <if condition="a gt b">
@@ -267,7 +304,7 @@ The object structure in Sync360 can have as many nested properties as needed, a 
 
 `if` elements can be nested as many times as needed to create the logic flow. However too many nested elements can make the code unreadable and therefore there are other methods to control the execution flow. 
 `if` can act as standard property that can be applied to any other element in sync360 syntax. When `if` applied to an element the value of it evaluate before execution of the command and only if it true the command will be executed. Another property that can be added to any element is `unless` it works similar to `if` property just makes an opposite evaluation - command executed only if expression doesn't evaluate as true.
-```
+```xml
 <set var="a">{5}</set>
 <set var="b">{5}</set>
 <set var="c">{10}</set>
@@ -287,7 +324,7 @@ a is not the same a c
 ```
 
 When `if` element is used, it is possible to control the execution of flow using nested `then` and `else` elements. That allows to execute a set of different commands when experssion evaluates as true and as false. `then` element can contain inline `if` property and that allows multiple code flows to execute within same parent `if` element. However `else` element cannot have `if` inline and therefore only one nested `else` element can exists per `if`. `then` and `else` child elements are always used together, it is not valid to include only `then or only `else` inside an `if` element.
-```
+```xml
 <set var="a">{10}</set>
 <set var="b">{15}</set>
 <set var="c">{10}</set>
@@ -307,7 +344,7 @@ When `if` element is used, it is possible to control the execution of flow using
 ## For, While, Break, Continue
 
 `for` element is used when a code block needs to be executed a certain amount of times. Sync360 supports iteration through enumerated structures using `for` statement as well as standard iteration by number of times, this depend on attributes supplied in the `for` element.
-```
+```xml
 <set crmservers="['crm','crm4','crm5']"/>
 <for var="i" from="0" to="crmservers.Count - 1" step="1">
     <log>{crmservers[i]}</log> <!--logs iteratively a value from array by it's index -->
@@ -320,7 +357,7 @@ When `if` element is used, it is possible to control the execution of flow using
 ```
 
 `while` element is another way to execute a code block in a loop while expression specified in the `condition` attribute evaluates as `true`.
-```
+```xml
 <set var="crmservers">{['crm','crm4','crm5']}</set>
 <set var="counter">{0}</set>
 <while condition="counter lt crmservers.Count">
@@ -331,7 +368,7 @@ When `if` element is used, it is possible to control the execution of flow using
 
 
 `break` element can be used to exit the loop. It is intended to be used in conjunction with `if` element to make a conditional end of cycle. Once break command executed, the Sync360 engine moves to the next command after end of cycle element. It can be used in both `for` and `while` cycles.
-```
+```xml
 <set var="testCycle">{['test1','test2','test3','test4','test5']}</set>
 <log>Start cycle.</log>
 <for var="t" in="testCycle">
@@ -351,7 +388,7 @@ When `if` element is used, it is possible to control the execution of flow using
 ```
 
 `continue` element can be used to skip current cycle logic that is located under this element and move on to the next cycle iteration. Also intended to use in conjunction with `if` element. It can be use in both `for` and `while` cycles
-```
+```xml
 <set var="testCycle">{['test1','test2','test3','test4']}</set>
 <log>Start cycle.</log>
 <for var="t" in="testCycle">
@@ -376,7 +413,7 @@ In Sync360 there are static instances of classes with predefined list of methods
 
 ### Class CSV
 The class provides methods to work with CSV files. It has two methods Read and Write. There are default values for parameters supplied to methods of this class:  
-```
+```xml
 DefaultEncoding = Encoding.UTF8
 DefaultDelimiter = ","
 DefaultQuote = "'"
@@ -396,7 +433,7 @@ The method has overloads and therefore number of parameters can vary, below each
 3) `<set var="records">{Csv.Read(string path, Encoding encoding, dynamic configuration)}</set>`  with this overload into last parameter it is required to pass object with properties named `Delimiter`, `Quote`, `Comment`, `Trim`, `HasHeader` and `TopLinesToSkip`. Each property is optional, if missing the default values will be used.
 4) `<set var="records">{Csv.Read(string path)}</set>` this overload uses default values.
 <b>Examples:</b>
-```
+```xml
 <set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding(1252),',','"','!",true,15)}</set>
 
 <set var="records">{Csv.Read('c:\temp\example.csv',Encoding.GetEncoding('utf-8'),';')}</set>
@@ -416,7 +453,7 @@ The method has overloads and therefore number of parameters can vary, below each
 1) `<set var="result">{Csv.Write(List<object> data, string path, Encoding encoding, string delimiter, string quote = DefaultQuote, string comment = DefaultComment, bool trim = DefaultTrim, bool append = DefaultAppend, bool writeHeader = DefaultWriteHeader)}</set>` The data provided should be a list of Dictionaries where each dictionary instance represents a row, and keys are used as columns and values are used as data which will be written into csv file. Therefore each dictionary instance must have the same keys. The other parameters are the same as for `Csv.Read` method.  
 2) `<set>{Csv.Write(List<object> data, string path)}</set>` in this overload default parameters will be used and example of invokation without returning boolean.
 <b>Examples:</b>
-```
+```xml
 <set var="csvData">{new List()}</set>
 <set var="row">{new Dictionary"></set>
 <set var="row['column1']">text1</set>
@@ -440,14 +477,15 @@ The method has overloads and therefore number of parameters can vary, below each
 <for var="record" in="records">
     <set var="values">{new Dictionary()}</set>
     <for var="key" in="record.Keys">
-        <if condition="key.ToString() eq 'parentcustomerid'>
+        <if condition="key.ToString() eq 'parentcustomerid'">
             <then>
                 <set var="values[key]">{record[key].Name ?? ''}</set>
             </then>
             <else>
                 <set var="values[key]">{record[key]}</set>
             </else>
-    <for>
+         </if>
+    </for>
 </for>
 <set>{Csv.Write(csv, 'c:\temp\crmContacts.csv'</set>
 <!--Example above dynamically forms required data structure from records retrieved from Dynamics CRM system using select operator. Notice that several flow control operators are used in this example to iterate through data and to output correct properties based on field type (parentcustomerid is a lookup field to another table and therefore to get it's text value .Name property used -->
@@ -456,13 +494,16 @@ The method has overloads and therefore number of parameters can vary, below each
 ### Class FileUtils
 The class provides methods to work with windows file system. It has various methods for manipulating with files, the methods will be described below.  
 `FileUtils.ReadFile` opens a file, reads the contents of the file into a byte array, and then closes the file. It can be useful when the file must be transfered from a file system into another system.  
-``` <set var="Bytes">{FileUtils.ReadFile("c:\temp\data.bin")}</set> ```  
-
+```xml
+<set var="Bytes">{FileUtils.ReadFile("c:\temp\data.bin")}</set>
+```  
 `FileUtils.ReadFileAsBase64` opens a file, reads the contents of the file into a byte array, converts the array into a Base64 string, and then closes the file. This method especially useful for uploading attachments into Dataverse, as the file contents are stored in base64 format inside documentbody property.  
-```<set var="Bytes">{FileUtils.ReadFileAsBase64("c:\temp\data.bin")}</set>```
+```xml
+<set var="Bytes">{FileUtils.ReadFileAsBase64("c:\temp\data.bin")}</set>
+```
 
 `FileUtils.ReadIdsFromFile` method is used to read predefined GUIDS from text file. GUIDS should be placed line by line. The result will be an array of System.Guid.  
-```
+```xml
 <set var="pathtofile">c:\temp\UserGuids.txt</set>
 <set var="Ids">{FileUtils.ReadIdsFromFile(pathtofile)}</set>
 
@@ -477,7 +518,7 @@ The class provides methods to work with windows file system. It has various meth
 
 `FileUtils.DirectoryEntries` returns the list of all files and subdirectories in a specified path. The result of method execution will be array of strings. It is an essential method for building ETL process when exchange is performed via files without a specific filename structure as it allows to detect required files in a path for processing.
 Let's say we only need to process csv files in a specified path, the following code can be used to get required file names and after that utilize the `Csv.Read` method to get file contents.
-```
+```xml
 <set var="path">c:\temp\</set>
 <set var="filenames">{FileUtils.DirectoryEntries(path)}</set>
 <for var="filename" in="filenames">
@@ -489,7 +530,7 @@ Let's say we only need to process csv files in a specified path, the following c
 ```
 
 `FileUtils.GetFiles` returns the files that match the specified search pattern in the specified path. The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (`*` and `?`) characters, but it doesn't support regular expressions. Compared to `DirectoryEntries` method `GetFiles` returns an array of `System.IO.FileInfo` structure. 
-``` 
+```xml
 <set var="path">c:\temp\</set>
 <set var="files">{FileUtils.GetFiles(path, "*.csv")}</set>
 <for var="file" in="files">
@@ -501,7 +542,7 @@ Let's say we only need to process csv files in a specified path, the following c
 ```<set>{FileUtils.WriteToFile("c:\temp\log.txt","Test", true)}</set> ```
 
 'FileUtils.MoveFile' moves a specified file to a new location, providing the option to specify a new file name.
-```
+```xml
 <set>{FileUtils.MoveFile("c:\temp\loq.txt", "c:\temp\log_moved.txt") }</set>
 
 <set var="sourcePath">c:\temp\</set>
@@ -511,12 +552,12 @@ Let's say we only need to process csv files in a specified path, the following c
 ```
 
 `FileUtils.Zip` method creates a zip archive with files from specified path
-```
+```xml
 <set>{FileUtils.Zip("C:\temp\", "C:\temp\archive.zip")}</set> <!-- archives all files in temp folder into archive.zip file -->
 ```
 
 `FileUtils.Unzip` method extracts files from a specified zip-archive into a selected folder.
-```
+```xml
 <set>{FileUtils.Zip("C:\temp\archive.zip", "C:\temp\extracted\")}</set> <!-- extract files from archive.zip into extracted folder -->
 ```
 
@@ -524,7 +565,7 @@ Let's say we only need to process csv files in a specified path, the following c
 This class provides a single method to extract text from html string or htmldocument object.
 
 `Html.ToPlainText` method converts html syntax into plain text by removing any html tags. It has two overloads, it can accept string which contains html syntax or an HtmlDocument structure.
-```
+```xml
 <set var="htmlString"><![CDATA[
 <html>
  <body>
@@ -541,17 +582,21 @@ This class provides a single method to extract text from html string or htmldocu
 The class used to perform http requests. It particularly useful for integration with REST based endpoints, however it is not limited to this. The class is using System.Net.WebClient for permorming http requests with extension to support cookies, unless other specified.
 
 `Http.SetUseDefaultCredentials` sets the use of default credentials for each subsequent http request.  
-```<set>{Http.SetUseDefaultCredentials(true)}</set>```
+```xml
+<set>{Http.SetUseDefaultCredentials(true)}</set>
+```
 
 `Http.SetClientEncoding` sets a client encoding for connections. Encoding should be provided as string.  
-```<set>{Http.SetClientEncoding('utf-8')</set>```
+```xml
+<set>{Http.SetClientEncoding('utf-8')</set>
+```
 
 `Http.Get` method performs HTTP GET web request for specified URL. The method has overloads and therefore number of parameters can vary, below each available overload  
 1) `<set var="response">{Http.Get(string url)}</set>` can be used for public websites that doesn't require authorization or specific headers. The response is retrieved as a string.
 2) `<set var="response">{Http.Get(string url, string login, string password)}</set>` using basic web authorization by username and password. The  information will be added automatically as "Authorization" header with type "Basic".
 3) `<set var="response">{Http.Get(string url, string login, string password, string domain)}</set>` can be used for websites requiring windows authentification using NetworkCredentials.
 4) `<set var="response">{Http.Get(string url, object headers)}</set>` to pass custom headers. The most commonly used overload for permorming requests as allows full control over what will be passed to request. Headers can be defined as an object or a dictionary, where property name is header name and value is header value.
- ```
+ ```xml
 <set var="response">{Http.Get('http://www.example.com')}</set>
 
 <set var="response">{Http.Get('http://www.bankaccount.com', 'user', 'password')}</set>
@@ -567,7 +612,7 @@ The class used to perform http requests. It particularly useful for integration 
  ```
 
 `Http.Put` method performs HTTP PUT request to specific URL using provided data and headers.  
-```
+```xml
 <set headers="new Dictionary()"/>
 <set var="headers['Accept']">*/*</set>
 <set var="headers['Content-Type']">application/x-www-form-urlencoded</set>
@@ -589,7 +634,7 @@ The class used to perform http requests. It particularly useful for integration 
 4) `<set var="response">{Http.Post(string url, string login, string password, string domain, string data, object headers)}</set>` can be used for websites requiring windows authentification using NetworkCredentials.
 5) `<set var="response">{Http.Post(string url, string data, object headers)}</set>` used when web service requiree a custom authentification scheme via headers.
 
-```
+```xml
 <set var="json">{Json.ToAsciiJson(listOfEmployees)}</set>
 
 <set var="response">{Http.Post('https://www.example.com', json, headers)}</set>
@@ -604,11 +649,11 @@ The class used to perform http requests. It particularly useful for integration 
 4) `<set var="response">{Http.Patch(string url, string login, string password, string domain, string data, object headers)}</set>` can be used for websites requiring windows authentification using NetworkCredentials.
 5) `<set var="response">{Http.Patch(string url, string data, object headers)}</set>` used when web service requiree a custom authentification scheme via headers.
 
-``` 
+```xml
 <set var="response">{Http.Patch('http://www.example.com', 'some data', 'headers go here')}</set>
 ```
 `Http.Download` downloads the file that URL contains, e. g. page, archive, document.
-```
+```xml
 <set var="instructionPdf">{Http.Download('http://www.example.com/docs/instruction.pdf')}</set>
 ```
 
@@ -620,20 +665,20 @@ example todo
 ```
 
 `Http.SetCookie` set cookie for the specific URL.
-```
+```xml
 <set var="cookie">id=a3fWa;Expires=Thu, 31 Oct 2021 07:28:00 GMT;</set>
 <set>{Http.SetCookie("http://example.com", cookie)}</set>
 ```
 
 `Http.GetCookie` retrieves cookie from the specified URL.
-```
+```xml
 <set var="cookie">{Http.GetCookie("http://example.com")}</set>
 ```
 
 ### Class Json
 The class provides methods to work with JSON format.  
 `Json.ToJson` method performs serialization of object to a string in JSON format. Accepts objects as parameter and indents JSON string by default. Indent can be disabled by passing false to second parameter.
-```
+```xml
 <set var="Person">
   <attr name="firstname">John</attr>
   <attr name="lastname">Doe</attr>
@@ -659,7 +704,7 @@ The class provides methods to work with JSON format.
 `Json.ToAsciiJson` method performs serialization of object to a string in ASCII JSON format and removes non-ASCII symbols. It works and used the same way as ToJson method.  
 
 `Json.FromJson` method deserializes JSON string into DynamicDictionary object.
-``` 
+```xml
 <set var="lbr">{'{'}</set>
 <set var="rbr">}</set>
 <set var="stringJson"><![CDATA[
@@ -682,7 +727,7 @@ The class provides methods to work with JSON format.
 ```
 
 `Json.GetDictionary` method deserializes JSON string into System.Dynamic.ExpandoObject object.
-```
+```xml
 <set var="lbr">{'{'}</set>
 <set var="rbr">}</set>
 <set var="stringJson"><![CDATA[
@@ -702,7 +747,7 @@ The class provides methods to work with JSON format.
 -->
 ```  
 `Json.GetArrayFromJson` method deserializes JSON string which starts as array of elements into Generic List of System.Dynamic.ExpandoObject
-```
+```xml
 <set var="lbr">{'{'}</set>
 <set var="rbr">}</set>
 <set var="stringJson"><![CDATA[
@@ -735,48 +780,48 @@ The class provides methods to work with JSON format.
 ### Class Utils
 The generic class with multiple various methods that assist with sync360 scripting.  
 `Utils.NewGuid` method returns a new random GUID.  
-```
+```xml
 <set var="newGuid">{Utils.NewGuid}</set>
 ```
 `Utils.Split` method identifies the substrings in a string value that are delimited by one or more characters provided, then places the substrings into a specified string array.  
-```
+```xml
 <set var="Names">Roman; Joe; Michael</set>
 <set var="NamesArray">{Utils.Split(Names,';')}</set>
 <log>{NamesArray[0]}</log> <!-- outputs Roman -->
  ```  
 `Utils.Join` method combines array values into string with specified delimiter. It is opposite of Split method.  
-```
+```xml
 <set var="NamesArray">{['Roman','Joe','Michael']}</set>
 <set var="NamesStr">{Utils.Join(NamesArray,';')}</set>
 <log>{NamesStr}</log> <!-- outputs Roman;Joe;Michael -->
 ```  
 `Utils.ToUpper` method returns a copy of provided string converted to uppercase.  
-```
+```xml
 <set var="text">small case</set>
 <log>{Utils.ToUpper(text)}</log> <!--outputs SMALL CASE -->
 ```
 `Utils.toLower` method returns a copy of provided string converted to lowercase.  
-```
+```xml
 <set var="text">ALL CAPS</set>
 <log>{Utils.ToLower(text)}</log> <!--outputs all caps -->
 ```
 `Utils.NewLine` method returns newline string ("\n").  
-```
+```xml
 <log>line1 {Utils.NewLine}line2 </log> <!--outputs
 line1 
 line2 
 -->
 ```
 `Utils.Now` method returns a datetime structure that is set to the current date and time based in the local timezone, which is based on the current environment configuration.  
-```
+```xml
 <set var="currentDate">{Utils.Now}</set>
 <log>{currentDate.Kind}</log> <!-- outputs local -->
 ```  
 `Utils.Replace` method returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String.  
-```
+```xml
 <set var="str1">This is an example</set>
 <set var="str2">{Utils.Replace(str1,'This','Here')}</set>
-```  
+```xml  
 `Utils.IsKeyExist` method used to check whether the key/property exists in a dictionary/object, returns boolean.  
 ```
 <set var="customobject">
@@ -790,11 +835,11 @@ line2
 <log>{Utils.IsKeyExist(myDict, "property1")}</log> <!-- equivalent to myDict.ContainsKey("property1"), outputs true -->
 ```  
 `Utils.ParseGuid` method converts the string representation of a GUID to the equivalent Guid structure.
-``` 
+```xml
 <set var="newGuidVar">{Utils.ParseGuid('5dcf85ae-ca84-4718-afb8-1795db389763')</set> <!-- equivalent to new Guid('5dcf85ae-ca84-4718-afb8-1795db389763') -->
  ```  
 `Utils.TextuallyEquals` method used to compare two variables in their textual representation:  If variables are of the same type, it compares them as they are. If variables are of different types, it converts them into strings and then compares the strings. Third parameter can be used to ignore case.
-```
+```xml
 <set var="var1">1</set>
 <set var="var2">{1}</set>
 <log>{Utils.TextuallyEquals(var1,var2)}</log> <!-- outputs true -->
@@ -812,54 +857,54 @@ line2
 <log>{Utils.TextuallyEquals(var1,var2,true)}</log> <!-- outputs false ??? why -->
 ```  
 `Utils.Right` method accepts string and a number of characters to cut from the right part of the string. Returns a substring.
-```
+```xml
 <set var="text">AmazingSync360</set>
 <log>{Utils.Right(text,7)}</log> <!--outputs Sync360 -->
 ```
 `Utils.Left` method accepts string and a number of characters to cut from the left part of the string. Returns a substring.  
-```
+```xml
 <set var="text">Sync360 Rules</set>
 <log>{Utils.Left(text,7)}</log> <!--outputs Sync360 -->
 ```
 `Utils.Encode` method encodes a provided string using System.Net.WebUtility.HtmlEncode class. Returns string.
-```
+```xml
 <set var="text"><![CDATA[Hello, <World>! How are you & your friends?]]></set>
 <log>{Utils.Encode(text)}</log> <!--outputs Hello, &lt;World&gt;! How are you &amp; your friends? -->
 ```
 `Utils.Decode` method decodes a provided string using System.Net.WebUtility.HtmlDecode class. Returns string.  
-```
+```xml
 <set var="text"><![CDATA[Hello, &lt;World&gt;! How are you &amp; your friends?]]></set>
 <log>{Utils.Decode(text)}</log> <!--outputs Hello, <World>! How are you & your friends? -->
 ```
 
 `Utils.DateToString`  method converts provided datetime structure into a string representation of specified format.
-```
+```xml
 <set var="date">{new DateTime(2020,1,1)}</set>
 <log>{Utils.DateToString(date,'yy/MM/dd')}</log> <!--outputs 20/01/01 -->
 ```
 `Utils.StringToDate`  method converts provided string into datetime structure based on provided format.  
-```
+```xml
 <set var="strDate">2020-01-01</set>
 <set var="date">{Utils.StringToDate(strDate,'yyyy-MM-dd')}</set>
 <log>{date} - {date.GetType()}</log> <!--outputs 1/1/2020 12:00:00 AM - System.DateTime -->
 ```
 `Utils.SpeecifyKindUtc`  method changes Kind of existing DateTime variable to UTC without performing actual conversion of time. 
-```
+```xml
 <set var="unspecifiedDate">{new DateTime()}</set>
 <set>{Utils.SpeecifyKindUtc(unspecifiedDate)}</set>
 ```  
 `Utils.SpecifyKindLocal`  method changes Kind of existing DateTime variable to Local without performing actual conversion of time.
-```
+```xml
 <set var="utcDate">{Utils.Now.ToUniversalTime()}</set>
 <set>{Utils.SpecifyKindLocal(utcDate)}</set>
 ```
 `Utils.SpecifyKindUnspecified` method changes Kind of existing DateTime variable to Unspecified  
-```
+```xml
 <set var="localDate">{Utils.Now}</set>
 <set>{Utils.SpecifyKindUnspecified(localDate)}</set>
 ```
 `Utils.GetRandom` method returns a random value of provided type up to provided max value.  
-```
+```xml
 <log>{Utils.GetRandom("string")}</log>
 <log>{Utils.GetRandom("bool")}</log>
 <log>{Utils.GetRandom("int", 500)}</log>
@@ -881,7 +926,7 @@ False
 ```
 
 `Utils.Eval` method invokes a provided string as an expression. It is an equivalent of expression specified in curly braces inside a `set` element, the difference that it takes a value of variable and then evaluates it. This method cannot be used for data operations, it is intended for simple expressions.  
-```
+```xml
 <set var="expression">500+600</set>
 <log>{500+600}</log> <!--outputs 1100 -->
 <log>{expression}</log> <!--outputs 500+600 -->
@@ -897,7 +942,7 @@ False
 ### Class Xml
 The class provides methods to work with xml documents.
 `Xml.Load` Loads an XElement from a file, optionally preserving white space, setting the base URI, and retaining line information  
-```
+```xml
 <set xml="Xml.Load(fileName)"/>
 ```
 `Xml.LoadEnc`  Loads an XElement from a file.
@@ -905,7 +950,7 @@ The class provides methods to work with xml documents.
 todo example
 ```
 `Xml.Parse` Load an XElement from a string that contains XML, optionally preserving white space and retaining line information.  
-``` 
+```xml
 <set var="xmlSource"><![CDATA[
  <root>
    <add name="abdc">Test data</add>
@@ -956,7 +1001,7 @@ As Sync360's main purpose is data processing, the commands to perform data opera
 `var` attribute specifies the name of variable to store uniqueidentifier of newly created record. It is an optional attribute  
 Specify values for the table/properties of new record via child `attr` element.
 
-```
+```xml
 <!-- example of create operation where all values are explicitly provided -->
 <set var="accountid">{new Guid('5862c957-b2df-4f44-adb7-429ce006d943')}</set> <!-- assuming we know a unique identifier of required record -->
 <create in="crmserver" entity="contact" var="newContactId">
@@ -969,7 +1014,7 @@ Specify values for the table/properties of new record via child `attr` element.
 </create>
 ```
 
-```
+```xml
 <!-- creating a record using flow control and predefined mapping -->
 <set var="mappings">{new List()}</set>
 <set var="mappings[]">
@@ -1009,7 +1054,7 @@ Specify values for the table/properties of new record via child `attr` element.
 `var` attribute specifies variable name that will contain the result of search operation.  
 `count` attribute specifies the number of records that will be passed to connector query to limit the returned results. This attribute is optional and can be omited.  
 `page` attribute specifies from which page return records. Works in conjuction with count attribute to set the pagesize. This attribute is optional and can be omited.  
-```
+```xml
 <!-- Retrieves second record from the crm table account, retrieves only unique identifier of the record -->
 <select from="crm" entity="account" var="records" count="1" page="2">
 </select>
@@ -1017,7 +1062,7 @@ Specify values for the table/properties of new record via child `attr` element.
 The select operation requires child elements for defininig the query structure. The following child elements are used:  
 `attr` element is used for specifiying name of fields/attribute on external table that should be retrieved. If there are no attr elements in select operation, the query will return only uniqueidentifier.  
 `order` element is used for adding sorting in the query, the sorting will be performed on the external system side.
-```
+```xml
 <!-- Retrieves all records from account table and sort them ascending. For each record retrieves only uniqueidentifer and name columns.-->
 <select from="crm" entity="account" var="records">
     <attr name="accountid" />
@@ -1032,7 +1077,7 @@ Operators that can be applied to any data type: `eq` (Equals), `ne` (Not Equals)
 Operators for numeric fields and dates: `lt` (Less Than), `le` (Less Than or Equal), `gt` (Greater Than), `ge` (Greater Than or Equal)
 Operators for strings: `co` (Contains), `sw` (Start With), `ew` (Ends with)
 
-```
+```xml
 <select from="crmserver" entity="contact" var="contacts_with_name_Joe">
     <where>
          <condition attr="firstname" op="eq">Joe</condition>
@@ -1045,7 +1090,7 @@ Operators for strings: `co` (Contains), `sw` (Start With), `ew` (Ends with)
 The result of select operation will be array of Use4si.Core.DynamicDictionary structures.
 
 To read all names and ids of first 50 accounts where Country attribute value is equal to "US" and sort them by name attribute in descending order, you could use Select operation as follows:
-```
+```xml
 <!--using sync360 syntax -->
 <select from="crmserver" entity="account" var="accounts" count="50">
     <where>
@@ -1079,7 +1124,7 @@ To read all names and ids of first 50 accounts where Country attribute value is 
 ```
 
 **Select** operation supports native SQL queries using query element. You can also pass parameters to the query using **attr** element. The entity element is required to be specified for the code to be valid, but with this method it's not used.
-```
+```xml
 <select from="db" entity="tasks" var="tasks">
     <query>
          select Tasks.Name as 'ttt', Instances.Name, Instances.InstanceID from tasks, Instances where tasks.InstanceID = Instances.InstanceID and Instances.Title = @title
