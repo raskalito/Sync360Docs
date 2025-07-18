@@ -18,16 +18,14 @@ Names of elements, as well as names of attributes, cannot contain space characte
 Attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should be always embedded in single or double quotes.
 It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above). 
 
-Content inside an element acts as a value. Curly braces { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. For some commands the properties will be evaluated without curly brackets.  
+Content inside an element acts as a value. Curly braces { } instructs the engine to evaluate the expression, this is a method of acccessing variables or performing logical calculations. Curly braces always used as a singlurar instance, meaning content inside them cannot include other curly braces. There are commands that doesn't required curly braces to start evaluation, it occurs by default by nature of the command.  
 ```
 <set var="firstname">Joe</set> <!-- assignment of text value 'Joe' to variable 'firstname' without expressions. -->
 <set var="calculatedvalue">{294+322}</set> <!-- assignment of result of expression in the element content. Notice that braces are required -->
 <set calculated="294+322" /> <!-- assignment of result of expression via property. Notice that braces are not required -->
 <if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. In this command condition attribute doesn't require braces, evaluation always occurs.-->
 ```
-
-An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).
-
+An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).  
 The expression type is selected automatically based on the expression value evaluation, but it can be converted to a necessary type by using special construction 'as'. The following examples give the same result:
 ```
 <set var="counter">{2}</set>
@@ -292,7 +290,7 @@ a is not the same a c
 -->
 ```
 
-When `if` element is used, it is possible to control the execution of flow using nested `then` and `else` elements. That allows to execute a set of different commands when experssion evaluates as true and as false. `then` element can contain inline `if` property and that allows multiple code flows to execute within same parent `if` element. However `else` element cannot have `if` inline and therefore only one nested `else` element can exists per `if`.
+When `if` element is used, it is possible to control the execution of flow using nested `then` and `else` elements. That allows to execute a set of different commands when experssion evaluates as true and as false. `then` element can contain inline `if` property and that allows multiple code flows to execute within same parent `if` element. However `else` element cannot have `if` inline and therefore only one nested `else` element can exists per `if`. `then` and `else` child elements are always used together, it is not valid to include only `then or only `else` inside an `if` element.
 ```
 <set var="a">{10}</set>
 <set var="b">{15}</set>
@@ -526,8 +524,8 @@ Let's say we only need to process csv files in a specified path, the following c
 <set>{FileUtils.Zip("C:\temp\archive.zip", "C:\temp\extracted\")}</set> <!-- extract files from archive.zip into extracted folder -->
 ```
 
-### Class Html and HtmlText
-These classes are used to work with html syntax and html document.
+### Class Html
+This class provides a single method to extract text from html string or htmldocument object.
 
 `Html.ToPlainText` method converts html syntax into plain text by removing any html tags. It has two overloads, it can accept string which contains html syntax or an HtmlDocument structure.
 ```
@@ -778,25 +776,127 @@ line2
 <set var="currentDate">{Utils.Now}</set>
 <log>{currentDate.Kind}</log> <!-- outputs local -->
 ```  
-`Utils.Replace` method returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String. <br/> <b>Parameters</b> <br/> $\bullet$ string <br/> <b>Example</b> <br/> ``` <set var="str1">This is an example</set>  <set var="str2">{Utils.Replace(str1,'This','Here')}</set> ``` |
-`Utils.IsKeyExist` <b>Description</b></br/> Checks whether the key exists in a dictionary or not.<br/> <b>Parameters</b><br/> IsKeyExist(object, string) <br/>  $\bullet$ object dict - the required dictionary. <br/>  $\bullet$   string key — the line that contains a key <br/> <b>Example</b> <br/> ``` <set>{Utils.IsKeyExist("DictionaryExample", "reg4y736")}</set> ``` |
-`Utils.ParseGUID` <b>Description</b> <br/> Converts the string representation of a GUID to the equivalent Guid structure.<br/> <b>Parameters</b><br/> ParseGuid(string) <br/>  $\bullet$ string guid - the required GUID.<br/> <b>Example</b><br/> ``` <set var="newGuidVar">{Utils.ParseGUID('5dcf85ae-ca84-4718-afb8-1795db389763')</set> ```|
-`Utils.TextualltEquals` <b>Description</b><br/> Compares two objects:  If objects are of the same type, it compares them as they are. If objects are of different types, it converts them into strings and then compares the strings.<br/> <b>Parameters</b> TextuallyEquals(object, object, bool)</br>  $\bullet$ object one - the first object in a pair. </br>  $\bullet$  object two - the second object in a pair.</br>  $\bullet$ bool ignoreCase - manages case sensitivity.<br/> <b>Example</b>|
-`Utils.Right`  
-`Utils.Left` <b>Description</b> <br/> <b>Parameters</b><br>Right(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br>Left(string, int)<br> $\bullet$ string str<br> $\bullet$ int charCount<br/> <b>Example</b>|                                                     
-`Utils.Encode`  
-`Utils.Decode` <b>Description</b><br>Encode to/Decode from the standard HTML encoding.<br/><b>Parameters</b><br>Encode(string)<br> $\bullet$ string str<br>Decode(string)<br/> $\bullet$ string str<br><b>Example</b>|                                                                 
-`Utils.DateToString`  
-`Utils.StringToDate`  <b>Description</b><br>Converts date to string and vice versa.<br/> <b>Parameters</b><br>DateToString(DateTime, string)<br> $\bullet$ DateTime date-the exact date to be converted.<br/> $\bullet$ string format.<br/> StringToDate(string, string)<br>$\bullet$ string date - the exact string to be converted.<br> $\bullet$ string format  
-`Utils.SpeecifyKindUtc`  Applies UTC timezone to DateTime  
+`Utils.Replace` method returns a new string in which all occurrences of a specified Unicode String in the current string are replaced with another specified Unicode character or String.  
+```
+<set var="str1">This is an example</set>
+<set var="str2">{Utils.Replace(str1,'This','Here')}</set>
+```  
+`Utils.IsKeyExist` method used to check whether the key/property exists in a dictionary/object, returns boolean.  
+```
+<set var="customobject">
+	<attr name="property1">1</attr>
+	<attr name="property2">2</attr>
+</set>
+<log>{Utils.IsKeyExist(customobject, "property1")}</log> <!-- outputs true -->
+
+<set var="myDict">{new Dictionary()}</set>
+<set var="myDict['property1']">1</set>
+<log>{Utils.IsKeyExist(myDict, "property1")}</log> <!-- equivalent to myDict.ContainsKey("property1"), outputs true -->
+```  
+`Utils.ParseGuid` method converts the string representation of a GUID to the equivalent Guid structure.
+``` 
+<set var="newGuidVar">{Utils.ParseGuid('5dcf85ae-ca84-4718-afb8-1795db389763')</set> <!-- equivalent to new Guid('5dcf85ae-ca84-4718-afb8-1795db389763') -->
+ ```  
+`Utils.TextuallyEquals` method used to compare two variables in their textual representation:  If variables are of the same type, it compares them as they are. If variables are of different types, it converts them into strings and then compares the strings. Third parameter can be used to ignore case.
+```
+<set var="var1">1</set>
+<set var="var2">{1}</set>
+<log>{Utils.TextuallyEquals(var1,var2)}</log> <!-- outputs true -->
+
+<set var="var1">
+  <attr name="prop1">1</attr>
+  <attr name="prop2">{2}</attr>
+</set>
+
+<set var="var2">
+  <attr name="prop1">1</attr>
+  <attr name="prop2">{2}</attr>
+</set>
+
+<log>{Utils.TextuallyEquals(var1,var2,true)}</log> <!-- outputs false ??? why -->
+```  
+`Utils.Right` method accepts string and a number of characters to cut from the right part of the string. Returns a substring.
+```
+<set var="text">AmazingSync360</set>
+<log>{Utils.Right(text,7)}</log> <!--outputs Sync360 -->
+```
+`Utils.Left` method accepts string and a number of characters to cut from the left part of the string. Returns a substring.  
+```
+<set var="text">Sync360 Rules</set>
+<log>{Utils.Left(text,7)}</log> <!--outputs Sync360 -->
+```
+`Utils.Encode` method encodes a provided string using System.Net.WebUtility.HtmlEncode class. Returns string.
+```
+<set var="text"><![CDATA[Hello, <World>! How are you & your friends?]]></set>
+<log>{Utils.Encode(text)}</log> <!--outputs Hello, &lt;World&gt;! How are you &amp; your friends? -->
+```
+`Utils.Decode` method decodes a provided string using System.Net.WebUtility.HtmlDecode class. Returns string.  
+```
+<set var="text"><![CDATA[Hello, &lt;World&gt;! How are you &amp; your friends?]]></set>
+<log>{Utils.Decode(text)}</log> <!--outputs Hello, <World>! How are you & your friends? -->
+```
+
+`Utils.DateToString`  method converts provided datetime structure into a string representation of specified format.
+```
+<set var="date">{new DateTime(2020,1,1)}</set>
+<log>{Utils.DateToString(date,'yy/MM/dd')}</log> <!--outputs 20/01/01 -->
+```
+`Utils.StringToDate`  method converts provided string into datetime structure based on provided format.  
+```
+<set var="strDate">2020-01-01</set>
+<set var="date">{Utils.StringToDate(strDate,'yyyy-MM-dd')}</set>
+<log>{date} - {date.GetType()}</log> <!--outputs 1/1/2020 12:00:00 AM - System.DateTime -->
+```
+`Utils.SpeecifyKindUtc`  method changes Kind of existing DateTime variable to UTC without performing actual conversion of time. 
 ```
 <set var="unspecifiedDate">{new DateTime()}</set>
 <set>{Utils.SpeecifyKindUtc(unspecifiedDate)}</set>
 ```  
-`Utils.SpecifyKindLocal`  
-`Utils.SpecifyKindInspecified` | <b>Description</b><br>Applies a specified timezone to date.<br/> <b>Parameters</b> SpecifyKindUtc(DateTime)<br/> $\bullet$ DateTime date <br/> SpecifyKindLocal(DateTime) <br/> $\bullet$ DateTime date <br/> SpecifyKindUnspecified(DateTime) <br/> $\bullet$ DateTime date <br/> <b>Example</b>|
-`Utils.Eval`   The function executes a provided string as a command.<br/> <b>Parameters</b><br/> Eval(string) <br/> $\bullet$ string expression<br/>  <b>Example</b><br/> ``` <set var="NeedProcess">{Utils.Eval(strExpression)}</set> ``` |
-`Utils.GetRandom`  <b>Description</b><br/> The function gets random values of random types<br/> <b>Parameters</b><br/> GetRandom(string, object)<br/> $\bullet$ string type <br/> $\bullet$ object max <br/> <b>Example</b> |
+`Utils.SpecifyKindLocal`  method changes Kind of existing DateTime variable to Local without performing actual conversion of time.
+```
+<set var="utcDate">{Utils.Now.ToUniversalTime()}</set>
+<set>{Utils.SpecifyKindLocal(utcDate)}</set>
+```
+`Utils.SpecifyKindUnspecified` method changes Kind of existing DateTime variable to Unspecified  
+```
+<set var="localDate">{Utils.Now}</set>
+<set>{Utils.SpecifyKindUnspecified(localDate)}</set>
+```
+`Utils.GetRandom` method returns a random value of provided type up to provided max value.  
+```
+<log>{Utils.GetRandom("string")}</log>
+<log>{Utils.GetRandom("bool")}</log>
+<log>{Utils.GetRandom("int", 500)}</log>
+<log>{Utils.GetRandom("long", 32464236)}</log>
+<log>{Utils.GetRandom("decimal", 2.0)}</log>
+<log>{Utils.GetRandom("double", 1.0)}</log>
+<log>{Utils.GetRandom("datetime", new DateTime(2020,1,1))}</log>
+<log>{Utils.GetRandom("date")}</log>
+<!-- Each execution of above will return different output, below is just example
+Test 1773426270
+False
+215
+6208841438142469929
+0.970704748281606
+0.956690695116618
+3/31/2015 3:36:58 PM
+2/19/2014 12:00:00 AM
+-->
+```
+
+`Utils.Eval` method invokes a provided string as an expression. It is an equivalent of expression specified in curly braces inside a `set` element, the difference that it takes a value of variable and then evaluates it. This method cannot be used for data operations, it is intended for simple expressions.  
+```
+<set var="expression">500+600</set>
+<log>{500+600}</log> <!--outputs 1100 -->
+<log>{expression}</log> <!--outputs 500+600 -->
+<log>{Utils.Eval(expression)}</log> <!--outputs 1100 -->
+
+<set var="myVar1">{200}</set>
+<set var="myVar2">{300}</set>
+<set var="strExpression">myVar1+myVar2</set>
+<log>{strExpression}</log> <!--outputs myVar1+myVar2 -->
+<log>{Utils.Eval(strExpression)}</log> <!--outputs 500 -->
+```
 
 ### Class Xml
 The class provides methods to work with xml documents.
