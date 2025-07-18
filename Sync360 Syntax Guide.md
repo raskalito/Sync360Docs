@@ -1279,8 +1279,12 @@ The `context` element executes operations under a different user context. Attrib
 ```
 
 ## Batch
-The `batch` element groups multiple operations into a single request. Attributes: `for` (connection, required), `var` (results, required), `continueOnError` (true/false, required), `returnResponses` (optional, default true).
-
+The `batch` element groups multiple operations into a single request.
+Attributes:  
+- `for` (connection, required)
+- `var` (results, required)
+- `continueOnError` (true/false, required) - **evaluates automatically, no braces needed**
+- `returnResponses` (optional, default true) - **evaluates automatically, no braces needed**
 ```xml
 <batch for="crm" var="batchResult" continueOnError="true">
     <for var="contact" in="contacts">
@@ -1424,3 +1428,16 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 <set var="exists">{Files.Exists(fullPath)}</set>
 <set var="pattern">{new Regex(@"\d{3}-\d{3}-\d{4}")}</set>
 ```
+
+
+# COMMON SYNTAX MISTAKES
+
+1. **Using braces in auto-evaluating attributes**:
+   ```xml
+   <!-- WRONG -->
+   <if condition="{a gt b}">
+   <for var="i" from="{0}" to="{10}">
+   
+   <!-- CORRECT -->
+   <if condition="a gt b">
+   <for var="i" from="0" to="10">
