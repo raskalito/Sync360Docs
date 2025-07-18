@@ -946,8 +946,7 @@ The short access to System.TimeSpan .Net structure.
 
 
 # DATA OPERATIONS
-As Sync360 main purpose is data processing the commands to perform data operations is most valuable feature of the engine. Developers can utilize the same commands in almost the same syntax to perform CRUD operations in various system (support of command is varied based on specific connector). This streamlines the development of integrations or ETL processes.
-Flow control operators can be used inside elements of data operators, the commands of flow control operators will execute prior executing the actual command, thus allowing to construct queries programatticaly using sync360 syntax logic.
+As Sync360's main purpose is data processing, the commands to perform data operations are the most valuable feature of the engine. Developers can utilize the same commands in almost the same syntax to perform CRUD operations in various systems (support of commands varies based on the specific connector). This streamlines the development of integrations or ETL processes. Flow control operators can be used inside elements of data operators; the commands of flow control operators will execute prior to executing the actual command, thus allowing developers to construct queries programmatically using Sync360 syntax logic.
 
 ### Create
 
