@@ -849,7 +849,7 @@ line2
 ```xml
 <set var="newGuidVar">{Utils.ParseGuid('5dcf85ae-ca84-4718-afb8-1795db389763')}</set> <!-- equivalent to new Guid('5dcf85ae-ca84-4718-afb8-1795db389763') -->
 ```
-
+ ```  
 `Utils.TextuallyEquals` method used to compare two variables in their textual representation: If variables are of the same type, it compares them as they are. If variables are of different types, it converts them into strings and then compares the strings. Third parameter can be used to ignore case.
 ```xml
 <set var="var1">1</set>
@@ -1127,8 +1127,7 @@ By default conditions passed to where element are grouped with `and` rule. Multi
 <!--selects accounts from Georgia state and specific cities and any accounts that don't have either State or City -->
 ```
 
-### Join Operations
-The `join` element allows querying data from related tables. Attributes: `type` (inner/outer/left/right), `entity` (related table name), `to` (field in main table), `from` (field in related table), `as` (optional alias).
+`join` element allows querying data from related tables. Attributes: `type` (inner/outer/left/right), `entity` (related table name), `to` (field in main table), `from` (field in related table), `as` (optional alias).
 
 ```xml
 <select from="crm" entity="contact" var="contactsWithAccounts">
@@ -1143,8 +1142,7 @@ The `join` element allows querying data from related tables. Attributes: `type` 
 </select>
 ```
 
-### Using Native Queries
-The `query` element allows native system queries. When using `query`, other child elements like `attr`, `where`, `order` are not used.
+`query` element allows using native query language of the external system. When using `query`, other child elements like `attr`, `where`, `order` are not used.
 
 ```xml
 <!--using native FetchXML for Dynamics CRM -->
