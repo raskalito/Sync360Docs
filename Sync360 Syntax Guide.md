@@ -1070,20 +1070,51 @@ The select operation requires child elements for defininig the query structure. 
 </select>
 ```
 
-`where` element is used to define criteria to narrow down the query. This element requires at least one child element `condition`.  
-`condition` child element must have attributes `attr` and `op` for specifiying name of attribute and operator correspondingly. If operator requires a value it is passed into content of element. The following criteria operators availalbe for `op` attribute value:  
-Operators that can be applied to any data type: `eq` (Equals), `ne` (Not Equals), `ex` (Exists)
-Operators for numeric fields and dates: `lt` (Less Than), `le` (Less Than or Equal), `gt` (Greater Than), `ge` (Greater Than or Equal)
-Operators for strings: `co` (Contains), `sw` (Start With), `ew` (Ends with)
+`where` element is used to define criteria to narrow down the query. This element requires at least one child element `condition`. 
+`condition` child element must have attributes `attr` and `op` for specifiying name of attribute and operator correspondingly. If operator requires a value it is passed into content of element. The following criteria operators available for `op` attribute value:  
+Operators that can be applied to any data type: `eq` (Equals), `ne` (Not Equals), `ex` (Exists)  
+Operators for numeric fields and dates: `lt` (Less Than), `le` (Less Than or Equal), `gt` (Greater Than), `ge` (Greater Than or Equal)  
+Operators for strings: `co` (Contains), `sw` (Start With), `ew` (Ends with)  
+Special operators: `between` (check that value is in between of two values), `in` (checks that value is one of provided values)
+By default conditions passed to where element are grouped with `and` rule. Multiple condition elements can be grouped with grouping other grouping elements `and`, `or` and `not`. This allows to construct a query of any complexity.
 
 ```xml
-<select from="crmserver" entity="contact" var="contacts_with_name_Joe">
+<select from="crm" entity="contact" var="crmContacts">
     <where>
-         <condition attr="firstname" op="eq">Joe</condition>
+         <condition attr="firstname" op="eq">John</condition>
+         <condition attr="lastname" op="eq">Doe</condition>
     </where>
     <attr name="contactid" />
 </select>
+<!-- selects all contacts with name John and surname Doe -->
+
+<select from="crm" entity="account" var="verySpecificAccounts">
+    <where>
+     <or>
+      <and>
+	<or
+         <condition attr="address1_city" op="eq">Atlanta</condition>
+         <condition attr="address1_city" op="eq">Augusta</condition>
+       </or>
+       <or>
+        <condition attr="address1_stateorprovince" op="eq">GA</condition>
+        <condition attr="address1_stateorprovince" op="eq">Georgia</condition>
+       </or>
+      </and>
+     <not>
+         <condition attr="address1_stateorprovince" op="ex" /> 
+     </not>
+     <not>
+         <condition attr="address1_city" op="ex" /> 
+     </not>
+     </or>
+    </where>
+    <attr name="accountid" />
+</select>
+<!--selects accounts from Georgia state and specific cities and any accounts that don't have either State or City -->
 ```
+Relational databases and Dynamics crm allows to perform queries referencing multiple tables, sync360 supports this via `join` child element of it. 
+
 `query` element is used to specify query in native query language of external system. When `query` element used all the details of query are specified as content of it and other child elements not used. In other words you can either use `query` child element or define the query using `attr`, `order` and `where`.
 
 The result of select operation will be array of Use4si.Core.DynamicDictionary structures.
@@ -1392,61 +1423,7 @@ var="newIds[]">{innerResponse.Responses[0].id}</set>
 <log>Import finished at {Utils.Now}</log>
 ```
 
-# SEARCH CRITERIA
 
-## Two Operands Condition Operators
-
-There are 6 types of two operands condition operators. The following table describes them in detail.
-
-#### Table 17. Two operands operation types.
-| Name | Description                                                                                          |
-|------|------------------------------------------------------------------------------------------------------|
-| eq   | Evaluates to true if an attribute has a value that is equal to the condition value.                  |
-| ne   | Evaluates to true if an attribute has a value that is not equal to the condition value.              |
-| lt   | Evaluates to true if the attribute has a value that is less than the condition value.                |
-| le   | Evaluates to true if the attribute has a value that is less than or equal to the condition value.    |
-| gt   | Evaluates to true if the attribute has a value that is greater than the condition value.             |
-| ge   | Evaluates to true if the attribute has a value that is greater than or equal to the condition value. |
-
-
-
-The following script returns all contacts with first name "Joe":
-```
-<select from="crmserver" entity="contact" var="contacts_with_name_Joe">
-    <where>
-         <condition attr="firstname" op="eq">Joe</condition>
-    </where>
-    <attr name="contactid" />
-</select>
-```
-
-## Contains Condition Operator
-
-**Contains** condition operator allow to perform text searches within string properties.Condition evaluates to true if the supplied constant value contains in the property text value.
-
-The following script returns all contacts, which first name contains "J" and mobile phone number contains "5544".
-```
-<select from="crmserver" entity="contact" var="contacts">
-     <where>
-         <condition attr="firstname" op="co">J</condition>
-         <condition attr="mobilephone" op="co">5544</condition>
-     </where>
-     <attr name="contactid"/>
-</select>
-```
-
-Contains condition *for Exchange server* doesn't support the **"%"** symbol - condition evaluates to true if the supplied constant value is contained in the property text value. Search is *case insensitive*.
-
-The following script snippet returns all contacts, which first name starts with "J" and mobile phone number containing "5544".
-```
-<select from="exchange" entity="contact" var="contacts">
-    <where>
-         <condition attr="firstname" op="co">Jo</condition>
-         <condition attr="mobilephone" op="co">5544</condition>
-    </where>
-    <attr name="EntryId"/>
-</select>
-```
 
 ### Not Operator
 
@@ -1468,36 +1445,6 @@ The following script snippet returns identifiers of all CRM contacts that first 
         </not>
     </where>
     <attr name="contactid"/>
-</select>
-```
-
-### Starts with
-
-**Starts with** condition operator allow to perform text searches within string properties.Condition evaluates to true if the property text value starts with supplied constant value.
-
-The following script snippet returns all contacts, which first name starts with "J" and mobile phone number starts with "5544".
-```
-<select from="crmserver" entity="contact" var="contacts">
-         <where>
-             <condition attr="firstname" op="sw">J</condition>
-             <condition attr="mobilephone" op="sw">5544</condition>
-         </where>
-        <attr name="contactid"/>
-</select>
-```
-
-## Ends with
-
-**Ends with** condition operator allow to perform text searches within string properties.Condition evaluates to true if the property text value ends with supplied constant value.
-
-The following script snippet returns all contacts, which first name ends with "J" and mobile phone number ends with "5544".
-```
-<select from="crmserver" entity="contact" var="contacts">
-     <where>
-         <condition attr="firstname" op="ew">J</condition>
-         <condition attr="mobilephone" op="ew">5544</condition>
-     </where>
-     <attr name="contactid"/>
 </select>
 ```
 
