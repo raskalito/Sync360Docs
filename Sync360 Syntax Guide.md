@@ -1092,7 +1092,7 @@ By default conditions passed to where element are grouped with `and` rule. Multi
     <where>
      <or>
       <and>
-	<or
+	<or>
          <condition attr="address1_city" op="eq">Atlanta</condition>
          <condition attr="address1_city" op="eq">Augusta</condition>
        </or>
