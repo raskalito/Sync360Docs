@@ -23,15 +23,14 @@ Content inside an element acts as a value. Curly braces `{ }` instruct the engin
 <set calculated="294+322" /> <!-- assignment of result of expression via property. Notice that braces are not required -->
 <if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. In this command condition attribute doesn't require braces, evaluation always occurs.-->
 ```
-An expression may include constants and variables. A variable name is case-sensitive (please see *calculatedvalue* in the example above).  
+An expression may include constants and variables. A variable name is case-sensitive. 
 The expression type is selected automatically based on the expression value evaluation, but it can be converted to a necessary type by using special construction 'as'. The following examples give the same result:
 ```xml
 <set var="counter">{2}</set>
 <set var="counter">{2 as 'int'}</set>
 ```
 
-Moreover, variable values may be a simple value, an array and a dictionary (declaration and modification of variable values are described in the clause 7).
-A value of an array item can be received by specifying the array name and index of the necessary element inside square brackets. Indexes start from zero.
+Variables can contain simple values or complex structures. A value of an array item can be received by specifying the array name and index of the necessary element inside square brackets. Indexes start from zero.
 ```xml
 <log>First account: {account[0]}</log>
 ```
