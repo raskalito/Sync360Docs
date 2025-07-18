@@ -15,7 +15,34 @@ A Sync360 script is an XML file which must be a valid XML file and consist of Sy
 Names of elements, as well as names of attributes, cannot contain space characters. The name should begin with a letter or an underscore character. The rest of the name may contain the same characters as well as digit characters.
 An attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should always be embedded in single or double quotes.
 It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
-Content inside an element acts as a value. Curly braces `{ }` instruct the engine to evaluate the expression; this is a method of accessing variables or performing logical calculations. Curly braces are always used as a singular instance, meaning content inside them cannot include other curly braces. There are commands that do not require curly braces to start evaluation; it occurs by default by the nature of the command.
+
+## EXPRESSION EVALUATION RULES
+
+Curly braces `{ }` are used to evaluate expressions, but their usage depends on the context:
+
+### Attributes that ALWAYS evaluate (no braces needed):
+- `condition` attribute in `if`, `while` elements
+- `from`, `to`, `step` attributes in `for` elements
+- `var` attribute when used with assignment operators (e.g., `var="counter"` in loops)
+- `continueOnError` attribute in `batch` elements
+
+#### Attributes that require braces for evaluation:
+- Content of elements (unless it's a command that auto-evaluates)
+- Most attribute values where you want expression evaluation
+- String interpolation within attribute values
+
+```xml
+<!-- No braces needed - these attributes auto-evaluate -->
+<if condition="a gt b">
+<for var="i" from="0" to="10" step="1">
+<while condition="counter lt maxCount">
+<batch continueOnError="Config.ContinueOnError">
+
+<!-- Braces needed - general attribute values -->
+<set var="myVar">{10 + 20}</set>
+<attr name="fullname">{firstname + ' ' + lastname}</attr>
+<log>The value is: {myVar}</log>
+```
 
 ```xml
 <set var="firstname">Joe</set> <!-- assignment of text value 'Joe' to variable 'firstname' without expressions. -->
@@ -75,12 +102,12 @@ Object (Use4si.Core.DynamicDictionary)
 Using any of these types it is possible to create an array. Sync360 automatically will use the type of elements inside array to define the type of array, however if there will be different types of elements, the array will be created as System.Object[]
 These are types which possible to declare by default. It is also possible to get different types of variables in Sync360 based on specific functions from .NET libraries.
 
-# **CONSTANTS**
+# CONSTANTS
 There are three predefined constants in Sync360:
 "true","false","null"
 
 
-# **OPERATORS**
+# OPERATORS
 In the Sync360 scripting language, an operator is a construct that can be used in expressions. The Sync360 engine doesn't provide operand coercion; operators can be used only across supported types. There are some significant differences in the semantics used for operators compared to other programming languages. For example, operators `=` and `==` in Sync360 syntax mean the same thing. The list of all available operators and their explanations is below:
 
 ### Arithmetic operators:
@@ -342,7 +369,22 @@ When `if` element is used, it is possible to control the execution of flow using
 
 ## For, While, Break, Continue
 
-`for` element is used when a code block needs to be executed a certain amount of times. Sync360 supports iteration through enumerated structures using `for` statement as well as standard iteration by number of times, this depend on attributes supplied in the `for` element.
+`for` element is used when a code block needs to be executed a certain amount of times.  
+**Important**: The `from`, `to`, and `step` attributes automatically evaluate expressions without requiring curly braces.
+```xml
+<!-- Correct - no braces needed in for attributes -->
+<for var="i" from="0" to="crmservers.Count - 1" step="1">
+    <log>{crmservers[i]}</log>
+</for>
+
+<!-- Also correct - using variables directly -->
+<set var="startIndex">{0}</set>
+<set var="endIndex">{10}</set>
+<for var="i" from="startIndex" to="endIndex" step="1">
+    <log>Index: {i}</log>
+</for>
+```
+Sync360 supports iteration through enumerated structures using `for` statement as well as standard iteration by number of times, this depend on attributes supplied in the `for` element.  
 ```xml
 <set crmservers="['crm','crm4','crm5']"/>
 <for var="i" from="0" to="crmservers.Count - 1" step="1">
