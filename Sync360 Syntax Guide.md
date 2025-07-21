@@ -5,16 +5,164 @@ When the Sync360 engine executes a script file, each command in the script file 
 
 # GENERAL SCRIPT SYNTAX
 
-A Sync360 script is an XML file which must be a valid XML file and consist of Sync360-specific commands. The root element of each script file must be `<script>`. Each element under the root element represents either flow control or a command for script execution. The child elements of tags can be used as parameters of the command or, if used inside flow control elements, as commands for optional execution. There is no limitation on the levels or number of commands inside a Sync360 script. An example of a Sync360 command with child elements that act as command properties:
+A Sync360 script is a valid XML file with Sync360-specific commands. All scripts must follow these fundamental rules:
+
+## ROOT ELEMENT REQUIREMENT
+Every script must have `<script>` as the root element:
 ```xml
-<set var="CitiesAndCountries">
-    <attr name="Cities">Houston,Phoenix</attr>
+<script>
+    <!-- All Sync360 commands go here -->
+</script>
+```
+
+## ELEMENT STRUCTURE
+Elements under the root represent either:
+- **Flow control** (if, for, while, sandbox, batch, transaction)
+- **Commands** (set, log, create, update, select, delete, include, call)
+- **Child elements** that act as parameters or nested commands
+
+```xml
+<script>
+    <set var="myVar">value</set>
+    <if condition="myVar eq 'value'">
+        <log>Condition is true</log>
+    </if>
+</script>
+```
+
+## NAMING RULES
+Element names and attribute names must follow these rules:
+- Cannot contain space characters
+- Must begin with a letter or underscore
+- May contain letters, underscores, and digits
+- Are case-sensitive
+
+```xml
+<!-- CORRECT -->
+<set var="myVariable" />
+<set var="user_name" />
+<set var="_tempValue" />
+<attr name="firstName" />
+
+<!-- WRONG -->
+<set var="my variable" />  <!-- space not allowed -->
+<set var="1stValue" />     <!-- cannot start with digit -->
+```
+
+## QUOTE USAGE RULES
+Attribute values must be wrapped in quotes. Use consistent quote types within the same element:
+
+```xml
+<!-- CORRECT - consistent single quotes -->
+<set var='Cities'>
+    <attr name='Cities'>Houston,Phoenix</attr>
+    <attr name='Countries'>USA,UK,Canada</attr>
+</set>
+
+<!-- CORRECT - consistent double quotes -->
+<set var="Cities">
+    <attr name="Cities">"Houston,Phoenix"</attr>
+    <attr name="Countries">"USA,UK,Canada"</attr>
+</set>
+
+<!-- WRONG - mixed quote types in same element -->
+<set var="Cities">
+    <attr name='Cities'>Houston,Phoenix</attr>
     <attr name="Countries">USA,UK,Canada</attr>
 </set>
 ```
-Names of elements, as well as names of attributes, cannot contain space characters. The name should begin with a letter or an underscore character. The rest of the name may contain the same characters as well as digit characters.
-An attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should always be embedded in single or double quotes.
-It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
+
+## NESTING AND HIERARCHY
+Commands can be nested without limitation. Flow control elements can contain any number of commands:
+
+```xml
+<script>
+    <for var="account" in="accounts">
+        <if condition="account.status eq 'Active'">
+            <select from="crm" entity="contact" var="contacts">
+                <where>
+                    <condition attr="parentcustomerid" op="eq">{account.id}</condition>
+                </where>
+                <for var="map" in="contactMapping">
+                    <attr name="{map.src}" />
+                </for>
+            </select>
+        </if>
+    </for>
+</script>
+```
+
+## RESERVED CHARACTERS AND ESCAPING
+Sync360 uses XML syntax, so certain characters must be escaped:
+
+```xml
+<!-- WRONG - reserved characters will cause parsing errors -->
+<set var="ampChar">&</set>
+<set var="comparison">a < b</set>
+<set var="xmlContent"><root><item>value</item></root></set>
+
+<!-- CORRECT - properly escaped -->
+<set var="ampChar">&amp;</set>
+<set var="comparison">a &lt; b</set>
+<set var="xmlContent"><![CDATA[<root><item>value</item></root>]]></set>
+
+<!-- Special case: curly braces as literal strings -->
+<set var="lbr">{'{'}</set>
+<set var="message">Use this brace: {lbr}</set>
+```
+
+## ELEMENT CONTENT VS ATTRIBUTE ASSIGNMENT
+Commands can receive values through element content or attribute assignment:
+
+```xml
+<!-- Element content assignment -->
+<set var="name">John Doe</set>
+<log>Processing user: {name}</log>
+
+<!-- Attribute assignment -->
+<set name="'John Doe'" />
+
+<!-- Child elements as parameters -->
+<set var="person">
+    <attr name="firstName">John</attr>
+    <attr name="lastName">Doe</attr>
+</set>
+```
+
+## COMMAND EXECUTION ORDER
+Commands execute sequentially, one by one, in a single thread. Flow control affects execution order:
+
+```xml
+<script>
+    <log>Step 1</log>           <!-- Always executes first -->
+    <if condition="false">
+        <log>Step 2</log>       <!-- Never executes -->
+    </if>
+    <log>Step 3</log>           <!-- Always executes third -->
+</script>
+```
+
+## CRITICAL SYNTAX REQUIREMENTS
+These rules must be followed to prevent script failures:
+
+1. **Always close XML tags properly**
+2. **Use consistent quote types within elements**
+3. **Escape reserved XML characters**
+4. **Follow proper XML nesting**
+5. **Use valid element and attribute names**
+6. **Include required attributes for each command**
+
+```xml
+<!-- This will fail -->
+<set var="test">
+    <attr name="value">unclosed element
+</set>
+
+<!-- This will work -->
+<set var="test">
+    <attr name="value">properly closed element</attr>
+</set>
+```
 
 
 # EXPRESSION EVALUATION RULES
