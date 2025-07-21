@@ -16,68 +16,154 @@ Names of elements, as well as names of attributes, cannot contain space characte
 An attribute is a markup construct consisting of a name/value pair that exists within a start-tag or empty element-tag followed by an element name. Values of attributes should always be embedded in single or double quotes.
 It is necessary to use identical types of quotes for values of attributes in the same tag (please see Cities and Countries in the example above).
 
-## EXPRESSION EVALUATION RULES
 
-Curly braces `{ }` are used to evaluate expressions, but their usage depends on the context:
+# EXPRESSION EVALUATION RULES
 
-### Attributes that ALWAYS evaluate (no braces needed):
+Curly braces `{ }` are used to evaluate expressions. The usage depends on the specific attribute or element context.
+
+## RULE 1: Attributes that NEVER need braces (auto-evaluate)
+These attributes automatically evaluate expressions without requiring curly braces:
 - `condition` attribute in `if`, `while` elements
-- `from`, `to`, `step` attributes in `for` elements
-- `var` attribute when used with assignment operators (e.g., `var="counter"` in loops)
+- `from`, `to`, `step` attributes in `for` elements  
+- `var` attribute when used for assignment (e.g., `var="counter"` in loops)
 - `continueOnError` attribute in `batch` elements
-
-#### Attributes that require braces for evaluation:
-- Content of elements (unless it's a command that auto-evaluates)
-- Most attribute values where you want expression evaluation
-- String interpolation within attribute values
+- `returnResponses` attribute in `batch` and `transaction` elements
 
 ```xml
-<!-- No braces needed - these attributes auto-evaluate -->
+<!-- CORRECT - no braces needed -->
 <if condition="a gt b">
+<if condition="contacts.Count eq 0">
 <for var="i" from="0" to="10" step="1">
+<for var="i" from="startIndex" to="arrayData.Count - 1" step="2">
 <while condition="counter lt maxCount">
 <batch continueOnError="Config.ContinueOnError">
+<batch returnResponses="true">
 
-<!-- Braces needed - general attribute values -->
+<!-- WRONG - do not use braces in these attributes -->
+<if condition="{a gt b}">
+<for var="i" from="{0}" to="{10}" step="{1}">
+<while condition="{counter lt maxCount}">
+```
+
+## RULE 2: All other contexts require braces for evaluation
+- Element content when you want expression evaluation
+- Attribute values (except those listed in Rule 1)
+- Variable assignments via element content
+- String interpolation
+
+```xml
+<!-- CORRECT - braces required -->
 <set var="myVar">{10 + 20}</set>
-<attr name="fullname">{firstname + ' ' + lastname}</attr>
 <log>The value is: {myVar}</log>
+<set calculated="{294 + 322}" />
+
+<!-- Inside set element -->
+<set var="person">
+    <attr name="fullname">{firstname + ' ' + lastname}</attr>
+    <attr name="age">{currentYear - birthYear}</attr>
+</set>
+
+<!-- Inside select element with dynamic mapping -->
+<select from="crm" entity="contact" var="records">
+    <for var="mapping" in="mappings">
+        <attr name="{mapping.CrmField}" />
+    </for>
+</select>
+
+<!-- WRONG - missing braces -->
+<set var="myVar">10 + 20</set>  <!-- This assigns the string "10 + 20" -->
+<set var="person">
+    <attr name="fullname">firstname + ' ' + lastname</attr>  <!-- This assigns the literal string -->
+</set>
 ```
 
+## RULE 3: Assignment without evaluation (literal values)
+When you want to assign literal string values without expression evaluation, do not use braces:
+
 ```xml
-<set var="firstname">Joe</set> <!-- assignment of text value 'Joe' to variable 'firstname' without expressions. -->
-<set var="calculatedvalue">{294+322}</set> <!-- assignment of result of expression in the element content. Notice that braces are required -->
-<set calculated="294+322" /> <!-- assignment of result of expression via property. Notice that braces are not required -->
-<if condition="contacts.Count eq 0"> <!-- an expression in the attribute value. In this command condition attribute doesn't require braces, evaluation always occurs.-->
+<!-- Literal string assignment -->
+<set var="firstname">Joe</set>
+<attr name="status">Active</attr>
+
+<!-- Expression evaluation -->
+<set var="calculatedvalue">{294 + 322}</set>
+<attr name="fullname">{firstname + ' ' + lastname}</attr>
 ```
-An expression may include constants and variables. A variable name is case-sensitive. 
-The expression type is selected automatically based on the expression value evaluation, but it can be converted to a necessary type by using special construction 'as'. The following examples give the same result:
+
+## RULE 4: Alternative assignment syntax
+You can assign values directly via attributes instead of element content. In this case, braces are required for expressions:
+
 ```xml
+<!-- These are equivalent -->
 <set var="counter">{2}</set>
-<set var="counter">{2 as 'int'}</set>
+<set counter="{2}" />
+
+<!-- These are equivalent -->
+<set var="name">John</set>
+<set name="'John'" />  <!-- Note: strings need quotes in attribute syntax -->
+
+<!-- These are equivalent -->
+<set var="result">{a + b}</set>
+<set result="{a + b}" />
 ```
 
-Variables can contain simple values or complex structures. A value of an array item can be received by specifying the array name and index of the necessary element inside square brackets. Indexes start from zero.
+## Examples comparing correct and incorrect usage:
+
 ```xml
-<log>First account: {account[0]}</log>
+<!-- Variable assignment -->
+<set var="firstname">Joe</set> <!-- assigns literal string 'Joe' -->
+<set var="calculatedvalue">{294+322}</set> <!-- assigns result 616 -->
+<set calculated="{294+322}" /> <!-- assigns result 616 via attribute -->
+
+<!-- Flow control -->
+<if condition="contacts.Count eq 0"> <!-- correct - no braces -->
+<for var="i" from="0" to="crmservers.Count - 1" step="1"> <!-- correct - no braces -->
+<while condition="counter lt maxCount"> <!-- correct - no braces -->
+
+<!-- Data in elements -->
+<log>Processing record {recordId}</log> <!-- correct - braces for interpolation -->
+
+<!-- attr elements inside set -->
+<set var="contact">
+    <attr name="email">{sourceData.email}</attr>
+    <attr name="phone">{sourceData.phone}</attr>
+</set>
+
+<!-- attr elements inside create with dynamic names -->
+<create in="crm" entity="contact" var="newId">
+    <for var="field" in="fieldMappings">
+        <attr name="{field.destination}">{sourceRecord[field.source]}</attr>
+    </for>
+</create>
+
+<!-- Array access -->
+<log>First account: {account[0]}</log> <!-- correct - braces required -->
+<log>Random server: {crmservers[]}</log> <!-- correct - braces required -->
+
+<!-- Dictionary/object access -->
+<log>City: {account.city}</log> <!-- correct - braces required -->
+<log>City: {account["city"]}</log> <!-- correct - braces required -->
 ```
 
-The random element of an array may be selected if the name of an array is specified with empty square brackets.
+## Common mistakes to avoid:
+
 ```xml
-<set var="crmservers">{[crm,crm4,crm5]}</set>
-<log>Random CRM server: {crmservers[]}</log>
-```
+<!-- MISTAKE 1: Adding braces to auto-evaluating attributes -->
+<if condition="{a gt b}"> <!-- WRONG -->
+<if condition="a gt b"> <!-- CORRECT -->
 
-A value of a dictionary item can be received by specifying the dictionary name and name of the necessary element in quotes and inside square brackets or by specifying name of the necessary element followed by the dictionary name with a dot.
-```xml
-<log>City: {account.city}</log>
-<log>City: {account["city"]}</log>
-```
+<!-- MISTAKE 2: Missing braces for expression evaluation -->
+<set var="result">a + b</set> <!-- WRONG - assigns literal string "a + b" -->
+<set var="result">{a + b}</set> <!-- CORRECT - evaluates expression -->
 
-If the corresponding element is not found, search of a method with this name will be produced via Reflection and, if the method is found, then it will be applied to the dictionary. Otherwise, an exception will be thrown.
-'''xml
-<log>Contact is found: {contacts.ContainsKey(contactid)}</log>
-'''
+<!-- MISTAKE 3: Inconsistent quote usage in attribute assignment -->
+<set name="John" lastname="Doe" /> <!-- WRONG - missing quotes for strings -->
+<set name="'John'" lastname="'Doe'" /> <!-- CORRECT - strings need quotes -->
+
+<!-- MISTAKE 4: Using braces in literal assignments -->
+<set var="status">{"Active"}</set> <!-- UNNECESSARY - just use: -->
+<set var="status">Active</set> <!-- CORRECT -->
+```
 
 # VARIABLE TYPES
 
