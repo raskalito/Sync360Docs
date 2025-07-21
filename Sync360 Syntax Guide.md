@@ -1036,11 +1036,16 @@ False
 The class provides methods to work with xml documents.
 `Xml.Load` Loads an XElement from a file, optionally preserving white space, setting the base URI, and retaining line information  
 ```xml
-<set xml="Xml.Load(fileName)"/>
+<set var="xmlDoc">{Xml.Load('c:\config\settings.xml')}</set>
+<log>{xmlDoc}</log>
+
+<!-- Load with specific options -->
+<set var="xmlDoc">{Xml.Load('c:\data\config.xml', 1)}</set> <!-- preserve whitespace -->
 ```
-`Xml.LoadEnc`  Loads an XElement from a file.
+`Xml.LoadEnc`  Loads an XElement from a file using encoding ISO-8859-1
 ```
-todo example
+<!-- Load XML file with specific encoding -->
+<set var="xmlDoc">{Xml.LoadEnc('c:\config\settings.xml')}</set>
 ```
 `Xml.Parse` Load an XElement from a string that contains XML, optionally preserving white space and retaining line information.  
 ```xml
@@ -1050,11 +1055,33 @@ todo example
    <add name="n2">Second text data</add>
  </root>]]>
 </set>
-<set xml="Xml.Parse(xmlSource, 1)"/>
+<set var="xmlDoc">{Xml.Parse(xmlSource)}</set>
+
+<!-- Parse with options: 1 = preserve whitespace -->
+<set var="xmlDoc">{Xml.Parse(xmlSource, 1)}</set>
 ```
 `Xml.Select` Searches and selects values from within the specified element of an XML file and returns these values as an array.  
 ```
-todo example
+<!-- First load or parse XML -->
+<set var="xmlDoc">{Xml.Parse('<![CDATA[<root>
+   <item id="1">
+     <job>CEO</job>
+     <name>John Smith</name>
+   </item>
+   <item id="2">
+     <job>CTO</job>
+     <name>Alex Parker</name>
+   </item>
+</root>]]>')}</set>
+
+<!-- Define mapping between elements and required field names -->
+<set var="fields">{new Dictionary()}</set>
+<set var="fields['jobtitle']">job</set>
+<set var="fields['fullname']">name</set>
+
+<!-- Select all item elements -->
+<set var="items">{Xml.Select(xmlDoc, '//item',fields)}</set>
+<log>{items}</log> <!--outputs [['jobtitle': 'CEO', 'fullname': 'John Smith'], ['jobtitle': 'CTO', 'fullname': 'Alex Parker']] -->
 ```
 `Xml.ToXml`  todo description  
 `Xml.FromXml` Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.<br/> Passes XML string and returns an object  
