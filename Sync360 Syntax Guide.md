@@ -930,7 +930,7 @@ line2
 ```xml
 <set var="newGuidVar">{Utils.ParseGuid('5dcf85ae-ca84-4718-afb8-1795db389763')}</set> <!-- equivalent to new Guid('5dcf85ae-ca84-4718-afb8-1795db389763') -->
 ```
- ```  
+
 `Utils.TextuallyEquals` method used to compare two variables in their textual representation: If variables are of the same type, it compares them as they are. If variables are of different types, it converts them into strings and then compares the strings. Third parameter can be used to ignore case.
 ```xml
 <set var="var1">1</set>
@@ -1061,7 +1061,7 @@ The class provides methods to work with xml documents.
 <set var="xmlDoc">{Xml.Parse(xmlSource, 1)}</set>
 ```
 `Xml.Select` Searches and selects values from within the specified element of an XML file and returns these values as an array.  
-```
+```xml
 <!-- First load or parse XML -->
 <set var="xmlDoc">{Xml.Parse('<![CDATA[<root>
    <item id="1">
@@ -1084,7 +1084,7 @@ The class provides methods to work with xml documents.
 <log>{items}</log> <!--outputs [['jobtitle': 'CEO', 'fullname': 'John Smith'], ['jobtitle': 'CTO', 'fullname': 'Alex Parker']] -->
 ```
 `Xml.ToXml` method serializes object into string representation of xml document.
-```
+```xml
 <set var="obj">
    <attr name="prop1">test</attr>
    <attr name="prop2">test2</attr>
@@ -1107,7 +1107,7 @@ The class provides methods to work with xml documents.
 ```
 
 `Xml.FromXml` method deserialize a string containing xml into dictionary object.
-```
+```xml
 <set var="xmlStr"><![CDATA[<root><prop1 id="1">value1</prop1><prop2 id="2">value2</prop2></root> ]]></set>
 	
 <set var="items">{Xml.FromXml(xmlStr)}</set>
@@ -1578,7 +1578,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 ```
 4. **Using XML or Sync360 reserved characters:**
 ```xml
-<!-- WRONG: reserved characters will cause exception 
+<!-- WRONG: reserved characters will cause exception -->
 <set var="ampChar">&</set>
 <set var="strwithbrace">Look at this character {</set>
 <set var="xmlStr"><root><prop1 id="1"></prop1></root><set>
