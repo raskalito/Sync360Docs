@@ -1083,10 +1083,35 @@ The class provides methods to work with xml documents.
 <set var="items">{Xml.Select(xmlDoc, '//item',fields)}</set>
 <log>{items}</log> <!--outputs [['jobtitle': 'CEO', 'fullname': 'John Smith'], ['jobtitle': 'CTO', 'fullname': 'Alex Parker']] -->
 ```
-`Xml.ToXml`  todo description  
-`Xml.FromXml` Passes an object (dictionary, list) to XML and a name of the root element and returns an XML string.<br/> Passes XML string and returns an object  
+`Xml.ToXml` method serializes object into string representation of xml document.
 ```
-to do example
+<set var="obj">
+   <attr name="prop1">test</attr>
+   <attr name="prop2">test2</attr>
+   <attr name="prop3">
+      <attr name="id">3</attr>
+      <attr name="value">tt</attr>
+   </attr>
+</set>
+	
+<set var="items">{Xml.ToXml(obj, 'root')}</set>
+<log>{items}</log> <!-- outputs
+<root>
+  <prop1>test</prop1>
+  <prop2>test2</prop2>
+  <prop3>
+    <id>3</id>
+    <value>tt</value>
+  </prop3>
+</root>-->
+```
+
+`Xml.FromXml` method deserialize a string containing xml into dictionary object.
+```
+<set var="xmlStr"><![CDATA[<root><prop1 id="1">value1</prop1><prop2 id="2">value2</prop2></root> ]]></set>
+	
+<set var="items">{Xml.FromXml(xmlStr)}</set>
+<log>{items}</log> <!-- outputs ['prop1': 'value1', 'prop2': 'value2'] -->
 ```
 
 ### Class Math
@@ -1550,6 +1575,19 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
     <log>Direct command 1</log>
     <log>Direct command 2</log>
 </if>
+```
+4. **Using XML or Sync360 reserved characters:**
+```xml
+<!-- WRONG: reserved characters will cause exception 
+<set var="ampChar">&</set>
+<set var="strwithbrace">Look at this character {</set>
+<set var="xmlStr"><root><prop1 id="1"></prop1></root><set>
+
+<!-- CORRECT: escape reserved characters-->
+<set var="ampChar">&amp;</set>
+<set var="lbr">{'{'}</set> <!-- the only option to use brace as string -->
+<set var="strwithbrace">Look at this character {lbr}</set>
+<set var="xmlStr"><![CDATA[ <root><prop1 id="1"></prop1></root> ]]></set>
 ```
 
 # SYNC360 QUICK REFERENCE
