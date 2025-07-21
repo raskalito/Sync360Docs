@@ -1264,7 +1264,7 @@ The `update` element modifies existing records. Attributes: `in` (connection nam
         <condition attr="emailaddress1" op="eq">old@email.com</condition>
     </where>
     <attr name="emailaddress1">new@email.com</attr>
-    <attr name="emailstatus">Updated</attr>
+    <attr name="cst_emailstatus">Updated</attr>
 </update>
 
 <!-- Update with complex criteria -->
@@ -1278,7 +1278,7 @@ The `update` element modifies existing records. Attributes: `in` (connection nam
             </or>
         </and>
     </where>
-    <attr name="customertype">SmallBusiness</attr>
+    <attr name="customertype">{1729000000}</attr>
     <attr name="followupdate">{Utils.Now.AddDays(7)}</attr>
 </update>
 ```
