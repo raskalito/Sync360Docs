@@ -2571,13 +2571,18 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
     
     <!-- Build unified list of records to sync -->
     <set var="recordsToSync">{new Dictionary()}</set>
+    <set var="systemACache">{new Dictionary()}</set>
+    <set var="systemBCache">{new Dictionary()}</set>
+    
     <for var="recordA" in="systemARecords">
         <set var="recordsToSync[recordA.systemB_id]">
             <attr name="SystemAId">{recordA.contactid}</attr>
             <attr name="SystemBId">{recordA.systemB_id}</attr>
             <attr name="XmlReference">{recordA.xml_reference}</attr>
         </set>
+        <set var="systemACache[recordA.contactid]">{recordA}</set>
     </for>
+    
     <for var="recordB" in="systemBRecords">
         <if condition="!recordsToSync.ContainsKey(recordB.contactid)">
             <set var="recordsToSync[recordB.contactid]">
@@ -2586,34 +2591,15 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
                 <attr name="XmlReference">{null}</attr>
             </set>
         </if>
+        <set var="systemBCache[recordB.contactid]">{recordB}</set>
     </for>
     
     <!-- Process each record pair using XML merge -->
     <for var="syncRecord" in="recordsToSync.Values">
         <sandbox>
-            <!-- Get current state from both systems -->
-            <select from="systemA" entity="contact" var="currentSystemA">
-                <where>
-                    <condition attr="contactid" op="eq">{syncRecord.SystemAId}</condition>
-                </where>
-                <attr name="modifiedon" />
-                <for var="mapping" in="fieldMappings">
-                    <attr name="{mapping.SystemA}" />
-                </for>
-            </select>
-            
-            <select from="systemB" entity="contact" var="currentSystemB">
-                <where>
-                    <condition attr="contactid" op="eq">{syncRecord.SystemBId}</condition>
-                </where>
-                <attr name="modifiedon" />
-                <for var="mapping" in="fieldMappings">
-                    <attr name="{mapping.SystemB}" />
-                </for>
-            </select>
-            
-            <set var="systemARecord">{currentSystemA[0]}</set>
-            <set var="systemBRecord">{currentSystemB[0]}</set>
+            <!-- Use cached records instead of additional queries -->
+            <set var="systemARecord">{systemACache[syncRecord.SystemAId]}</set>
+            <set var="systemBRecord">{systemBCache[syncRecord.SystemBId]}</set>
             
             <!-- Parse XML reference state (from last sync) -->
             <set var="xmlReference">{new Dictionary()}</set>
