@@ -2286,7 +2286,155 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 - Comparison logic optimized for different field types
 - Change detection prevents unnecessary updates
 
+## Production ETL Script Structure
 
+Production ETL scripts should use standardized orchestration patterns for proper job management, scheduling control, and execution tracking. Sync360 provides system scripts that integrate with Dynamics CRM for centralized ETL administration.
+
+### Standard ETL Script Template
+```xml
+<script>
+    <!-- Initialize Synch360 configuration object -->
+    <set var="Synch360">{new Object()}</set>
+    
+    <!-- Load system constants and global settings -->
+    <Synch360_Constants Synch360="Synch360" />
+    <include name="Synch360_GlobalSettings" />
+    
+    <!-- Job identification and configuration -->
+    <set var="Synch360.Job">ContactSync_Production</set>
+    <set var="Synch360.JobStarted">{Utils.Now}</set>
+    
+    <!-- Initialize error tracking -->
+    <set var="Synch360.FlowWarningsIdsList">{new List()}</set>
+    <set var="Synch360.FlowWarningsDictionary">{new Dictionary()}</set>
+    <set var="Synch360.ExceptionDictionary">{new Dictionary()}</set>
+    <set var="Synch360.ErrorTypeArray">[
+        'System.ServiceModel.CommunicationException',
+        'System.TimeoutException',
+        'System.InvalidOperationException'
+    ]</set>
+    
+    <!-- Test mode configuration -->
+    <set var="Synch360.Test">{new Object()}</set>
+    <set var="Synch360.Test.IsTestMode">{false}</set>
+    <if condition="Synch360.Test.IsTestMode">
+        <set var="Synch360.RunJob">{true}</set>
+        <set var="Synch360.LogCompStatus">{Synch360.Constants.LogCompStatuses.None}</set>
+        <set var="Synch360.LogExecStatus">{Synch360.Constants.LogExecStatuses.Executing}</set>
+        <set var="Synch360.LogUpdated">{0}</set>
+        <set var="Synch360.LogInserted">{0}</set>
+        <set var="Synch360.JobLastSuccessfulExecution">{Utils.Now.AddYears(-30)}</set>
+    </if>
+    
+    <!-- Initialize job execution control -->
+    <if condition="!Synch360.Test.IsTestMode">
+        <Synch360_InitializeJob Synch360="Synch360" />
+    </if>
+    
+    <!-- Main ETL execution block -->
+    <if condition="Synch360.RunJob">
+        <sandbox>
+            <log>{Synch360.Job}: Started. Last successful execution: {Synch360.JobLastSuccessfulExecution}</log>
+            
+            <!-- ETL LOGIC GOES HERE -->
+            <select from="source" entity="contact" var="sourceRecords">
+                <where>
+                    <condition attr="modifiedon" op="gt">{Synch360.JobLastSuccessfulExecution}</condition>
+                </where>
+                <attr name="contactid" />
+                <attr name="firstname" />
+                <attr name="lastname" />
+            </select>
+            
+            <set var="Synch360.LogSource">{sourceRecords.Count}</set>
+            
+            <!-- Process records with error handling -->
+            <for var="record" in="sourceRecords">
+                <sandbox>
+                    <set var="Synch360.ProcessingRecordId">{record.contactid}</set>
+                    
+                    <!-- Your ETL processing logic -->
+                    <create in="target" entity="contact">
+                        <attr name="firstname">{record.firstname}</attr>
+                        <attr name="lastname">{record.lastname}</attr>
+                    </create>
+                    
+                    <set var="Synch360.LogInserted">{Synch360.LogInserted + 1}</set>
+                    
+                    <!-- Periodic progress logging -->
+                    <sandbox>
+                        <Synch360_Log Synch360="Synch360" />
+                    </sandbox>
+                    
+                    <onerror var="ex">
+                        <Synch360_LogException Synch360="Synch360" ex="ex" SourceId="record.contactid" />
+                    </onerror>
+                </sandbox>
+            </for>
+            
+            <!-- Final progress update -->
+            <sandbox>
+                <Synch360_Log Synch360="Synch360" Force="true" />
+            </sandbox>
+            
+            <onerror var="ex">
+                <Synch360_LogException Synch360="Synch360" ex="ex" />
+            </onerror>
+        </sandbox>
+        
+        <!-- Finalize job execution -->
+        <if condition="!Synch360.Test.IsTestMode">
+            <Synch360_FinalizeJob Synch360="Synch360" />
+        </if>
+        
+        <log>{Synch360.Job}: Finished</log>
+    </if>
+</script>
+```
+
+### Job Initialization with Custom Settings
+```xml
+<script>
+    <!-- Configure job settings before initialization -->
+    <set var="Synch360.InitialJobSettings">[
+        'JobType': 1,
+        'JobExecuteOnPing': true,
+        'JobReProcessRecordsWithFlowWarnings': true,
+        'JobRestrictToWindow': true,
+        'JobWindowStartHour': 6,
+        'JobWindowStartMinute': 0,
+        'JobWindowEndHour': 22,
+        'JobWindowEndMinute': 0,
+        'JobMAXExecutionTime': 120,
+        'JobDailyExecution': true,
+        'JobDailyStartHour': 9,
+        'JobDailyStartMinute': 30,
+        'JobExecuteOnCustomSchedule': true,
+        'JobCustomScheduleStartDate': new DateTime(2024, 1, 1),
+        'JobCustomScheduleTimeZoneCode': 35,
+        'JobCustomSchedule': Json.ToJson([
+            'recurrence': [
+                'frequency': 2,
+                'interval': 1,
+                'schedule': [
+                    'onTheseDays': [1, 3, 5],
+                    'at': [
+                        ['hour': 9, 'minute': 0],
+                        ['hour': 17, 'minute': 30]
+                    ]
+                ]
+            ]
+        ])
+    ]</set>
+    
+    <Synch360_InitializeJob Synch360="Synch360" />
+    
+    <!-- Job will only run based on configured schedule -->
+    <if condition="Synch360.RunJob">
+        <!-- ETL logic here -->
+    </if>
+</script>
+```
 
 ## ERROR HANDLING AND LOGGING PATTERNS
 
