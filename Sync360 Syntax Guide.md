@@ -2538,6 +2538,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 
 ### Two-Way Synchronization with XML Merge Pattern
 ```xml
+```xml
 <script>
     <!-- MAIN SCRIPT: TwoWayContactSync.xml -->
     
@@ -2672,15 +2673,27 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
             </for>
             
             <!-- Apply changes to System A if needed -->
-            <if condition="systemAChanges.Count gt 0">
+            <if condition="systemAChanges.Count gt 0 or xmlRefChanges.Count gt 0">
                 <log>Updating System A record {syncRecord.SystemAId}: {systemAChanges.Count} fields</log>
+                
+                <!-- Update XML reference state for next sync -->
+                <if condition="xmlRefChanges.Count gt 0">
+                    <!-- Merge changes into existing reference -->
+                    <for var="change" in="xmlRefChanges.Keys">
+                        <set var="xmlReference[change]">{xmlRefChanges[change]}</set>
+                    </for>
+                </if>
+                
                 <update in="systemA" entity="contact">
                     <where>
                         <condition attr="contactid" op="eq">{syncRecord.SystemAId}</condition>
                     </where>
+                    <!-- Update data fields -->
                     <for var="field" in="systemAChanges.Keys">
                         <attr name="{field}">{systemAChanges[field]}</attr>
                     </for>
+                    <!-- Update XML reference in same operation -->
+                    <attr name="xml_reference" if="xmlRefChanges.Count gt 0">{Xml.ToXml(xmlReference, 'contact')}</attr>
                 </update>
             </if>
             
@@ -2694,21 +2707,6 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
                     <for var="field" in="systemBChanges.Keys">
                         <attr name="{field}">{systemBChanges[field]}</attr>
                     </for>
-                </update>
-            </if>
-            
-            <!-- Update XML reference state for next sync -->
-            <if condition="xmlRefChanges.Count gt 0">
-                <!-- Merge changes into existing reference -->
-                <for var="change" in="xmlRefChanges.Keys">
-                    <set var="xmlReference[change]">{xmlRefChanges[change]}</set>
-                </for>
-                
-                <update in="systemA" entity="contact">
-                    <where>
-                        <condition attr="contactid" op="eq">{syncRecord.SystemAId}</condition>
-                    </where>
-                    <attr name="xml_reference">{Xml.ToXml(xmlReference, 'contact')}</attr>
                 </update>
             </if>
             
