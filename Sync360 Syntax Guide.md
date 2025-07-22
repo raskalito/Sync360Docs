@@ -1947,7 +1947,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
     <set var="existingContactsCache">{new Dictionary()}</set>
     <for var="existing" in="existingRecords">
         <if condition="existing.emailaddress1.isSet and existing.emailaddress1 ne ''">
-            <set var="existingContactsCache[existing.emailaddress1]">{existing}</set>
+            <set var="existingContactsCache[existing.emailaddress1.ToLower()]">{existing}</set>
         </if>
     </for>
     
@@ -1955,10 +1955,10 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
     
     <!-- STEP 2: Process source records using cache -->
     <for var="sourceRecord" in="sourceRecords">
-        <if condition="existingContactsCache.ContainsKey(sourceRecord.email)">
+        <if condition="existingContactsCache.ContainsKey(sourceRecord.email.ToLower())">
             <then>
                 <!-- Record exists - detect which fields changed -->
-                <set var="existingRecord">{existingContactsCache[sourceRecord.email]}</set>
+                <set var="existingRecord">{existingContactsCache[sourceRecord.email.ToLower()]}</set>
                 <set var="changes">{new Dictionary()}</set>
                 
                 <!-- Check each field individually and add to changes if different -->
@@ -2003,6 +2003,35 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 
 ## DATA MAPPING AND TRANSFORMATION PATTERNS
 
+### Lookup and Reference Resolution
+```xml
+<script>
+    <!-- Cache lookup data for performance -->
+    <select from="target" entity="account" var="accounts">
+        <attr name="accountid" />
+        <attr name="name" />
+    </select>
+    
+    <set var="accountLookup">{new Dictionary()}</set>
+    <for var="account" in="accounts">
+        <set var="accountLookup[account.name]">{account.accountid}</set>
+    </for>
+    
+    <!-- Process contacts with account lookups -->
+    <for var="contact" in="sourceContacts">
+        <set var="accountId">{accountLookup[contact.CompanyName] ?? null}</set>
+        
+        <create in="target" entity="contact">
+            <attr name="firstname">{contact.FirstName}</attr>
+            <attr name="lastname">{contact.LastName}</attr>
+            <if condition="accountId ne null">
+                <attr name="parentcustomerid">account:{accountId}</attr>
+            </if>
+        </create>
+    </for>
+</script>
+```
+
 ### Modular Transformation with Sub-Scripts
 ```xml
 <!-- MAIN SCRIPT: ContactSync.xml -->
@@ -2018,6 +2047,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
     <set var="Synch360.Source">{360000000}</set>
     <set var="Synch360.FieldsMapping">{new List()}</set>
     <set var="Synch360.Dicts">{new Dictionary()}</set>
+    <set var="Synch360.LastSyncDate">{Utils.Now.AddDays(-1)}</set>
     
     <!-- Include field mapping configuration -->
     <mapping_Contact Synch360="Synch360" />
@@ -2028,7 +2058,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
     <!-- Get changed records from source -->
     <select from="source" entity="contact" var="sourceRecords">
         <where>
-            <condition attr="modifiedon" op="gt">{lastSyncDate}</condition>
+            <condition attr="modifiedon" op="gt">{Synch360.LastSyncDate}</condition>
         </where>
         <for var="mapping" in="Synch360.FieldsMapping">
             <attr name="{mapping.Source}" />
@@ -2233,8 +2263,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
     </set>
 </script>
 ```
-
-## Key Benefits of Modular Architecture:
+#### Key Benefits of Modular Architecture:
 
 **Separation of Concerns:**
 - **Main script** - Orchestrates the ETL process flow
@@ -2256,174 +2285,8 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 - Dictionaries loaded once and reused for all records
 - Comparison logic optimized for different field types
 - Change detection prevents unnecessary updates
-```xml
-<!-- MAIN SCRIPT: ContactSync.xml -->
-<script>
-    <!-- Initialize Synch360 configuration object -->
-    <set var="Synch360">{new Object()}</set>
-    <set var="Synch360.VisionMainTable">ContactsView</set>
-    <set var="Synch360.CrmEntityName">contact</set>
-    <set var="Synch360.FieldsMapping">{new List()}</set>
-    <set var="Synch360.Lookups">{new Dictionary()}</set>
-    
-    <!-- Include configuration files -->
-    <include name="Config/ContactFieldMapping" />
-    <include name="Config/LookupData" />
-    
-    <log>Loaded {Synch360.FieldsMapping.Count} field mappings</log>
-    
-    <!-- Extract source data -->
-    <select from="vision" entity="{Synch360.VisionMainTable}" var="sourceRecords">
-        <!-- Dynamically select all source fields from mapping -->
-        <for var="mapping" in="Synch360.FieldsMapping">
-            <attr name="{mapping.Source1}" />
-        </for>
-    </select>
-    
-    <!-- Process records using configuration-driven mapping -->
-    <for var="sourceRecord" in="sourceRecords">
-        <create in="crm" entity="{Synch360.CrmEntityName}" var="newContactId">
-            <for var="mapping" in="Synch360.FieldsMapping">
-                <set var="sourceValue">{sourceRecord[mapping.Source1]}</set>
-                
-                <!-- Apply transformation based on field type -->
-                <if condition="mapping.Type eq 'string'">
-                    <attr name="{mapping.Source2}">{sourceValue ?? ''}</attr>
-                </if>
-                
-                <if condition="mapping.Type eq 'lookup'">
-                    <!-- Resolve lookup using cached dictionary -->
-                    <set var="lookupCache">{Synch360.Lookups[mapping.DictionaryName]}</set>
-                    <set var="lookupValue">{lookupCache[sourceValue] ?? null}</set>
-                    <if condition="lookupValue ne null">
-                        <attr name="{mapping.Source2}">{mapping.CrmLookupEntityName}:{lookupValue}</attr>
-                    </if>
-                </if>
-                
-                <if condition="mapping.Type eq 'optionset'">
-                    <!-- Map option set values using dictionary -->
-                    <set var="optionSetCache">{Synch360.Lookups[mapping.DictionaryName]}</set>
-                    <set var="optionValue">{optionSetCache[sourceValue] ?? null}</set>
-                    <if condition="optionValue ne null">
-                        <attr name="{mapping.Source2}">{optionValue}</attr>
-                    </if>
-                </if>
-                
-                <if condition="mapping.Type eq 'datetime'">
-                    <attr name="{mapping.Source2}">{sourceValue}</attr>
-                </if>
-            </for>
-        </create>
-    </for>
-</script>
-```
 
-```xml
-<!-- CONFIG FILE: Config/ContactFieldMapping.xml -->
-<script>
-    <!-- Address lookup mapping -->
-    <set var="Synch360.FieldsMapping[]">
-        <attr name="Source2">vs360_accountaddressid</attr>
-        <attr name="Source1">CLAddress</attr>
-        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
-        <attr name="Type">lookup</attr>
-        <attr name="DictionaryName">companyaddresses</attr>
-        <attr name="CrmLookupEntityName">vs360_address</attr>
-    </set>
-    
-    <!-- Simple string field mappings -->
-    <set var="Synch360.FieldsMapping[]">
-        <attr name="Source2">firstname</attr>
-        <attr name="Source1">FirstName</attr>
-        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
-        <attr name="Type">string</attr>
-    </set>
-    
-    <set var="Synch360.FieldsMapping[]">
-        <attr name="Source2">middlename</attr>
-        <attr name="Source1">MiddleName</attr>
-        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
-        <attr name="Type">string</attr>
-    </set>
-    
-    <set var="Synch360.FieldsMapping[]">
-        <attr name="Source2">lastname</attr>
-        <attr name="Source1">LastName</attr>
-        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
-        <attr name="Type">string</attr>
-    </set>
-    
-    <!-- Option set mapping -->
-    <set var="Synch360.FieldsMapping[]">
-        <attr name="Source2">statecode</attr>
-        <attr name="Source1">ContactStatus</attr>
-        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
-        <attr name="Type">optionset</attr>
-        <attr name="DictionaryName">statuscode</attr>
-    </set>
-    
-    <!-- Date field mapping -->
-    <set var="Synch360.FieldsMapping[]">
-        <attr name="Source2">birthdate</attr>
-        <attr name="Source1">BirthDate</attr>
-        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
-        <attr name="Type">datetime</attr>
-    </set>
-</script>
-```
 
-```xml
-<!-- CONFIG FILE: Config/LookupData.xml -->
-<script>
-    <!-- Load and cache company addresses -->
-    <select from="crm" entity="vs360_address" var="addresses">
-        <attr name="vs360_addressid" />
-        <attr name="vs360_name" />
-    </select>
-    
-    <set var="Synch360.Lookups['companyaddresses']">{new Dictionary()}</set>
-    <for var="address" in="addresses">
-        <set var="Synch360.Lookups['companyaddresses'][address.vs360_name]">{address.vs360_addressid}</set>
-    </for>
-    
-    <!-- Load and cache status code mappings -->
-    <set var="Synch360.Lookups['statuscode']">{new Dictionary()}</set>
-    <set var="Synch360.Lookups['statuscode']['Active']">{0}</set>
-    <set var="Synch360.Lookups['statuscode']['Inactive']">{1}</set>
-    <set var="Synch360.Lookups['statuscode']['Pending']">{2}</set>
-    
-    <log>Loaded lookup caches: {Synch360.Lookups.Count} dictionaries</log>
-</script>
-```
-
-### Lookup and Reference Resolution
-```xml
-<script>
-    <!-- Cache lookup data for performance -->
-    <select from="target" entity="account" var="accounts">
-        <attr name="accountid" />
-        <attr name="name" />
-    </select>
-    
-    <set var="accountLookup">{new Dictionary()}</set>
-    <for var="account" in="accounts">
-        <set var="accountLookup[account.name]">{account.accountid}</set>
-    </for>
-    
-    <!-- Process contacts with account lookups -->
-    <for var="contact" in="sourceContacts">
-        <set var="accountId">{accountLookup[contact.CompanyName] ?? null}</set>
-        
-        <create in="target" entity="contact">
-            <attr name="firstname">{contact.FirstName}</attr>
-            <attr name="lastname">{contact.LastName}</attr>
-            <if condition="accountId ne null">
-                <attr name="parentcustomerid">account:{accountId}</attr>
-            </if>
-        </create>
-    </for>
-</script>
-```
 
 ## ERROR HANDLING AND LOGGING PATTERNS
 
@@ -2673,61 +2536,219 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 
 ## DATA SYNCHRONIZATION PATTERNS
 
-### Two-Way Synchronization
+### Two-Way Synchronization with XML Merge Pattern
 ```xml
 <script>
-    <!-- Sync from System A to System B -->
-    <select from="systemA" entity="contact" var="contactsA">
+    <!-- MAIN SCRIPT: TwoWayContactSync.xml -->
+    
+    <!-- Get records modified since last sync from both systems -->
+    <select from="systemA" entity="contact" var="systemARecords">
         <where>
             <condition attr="modifiedon" op="gt">{lastSyncDate}</condition>
+            <condition attr="systemB_id" op="ex" />  <!-- Only existing linked records -->
         </where>
         <attr name="contactid" />
-        <attr name="firstname" />
-        <attr name="lastname" />
-        <attr name="emailaddress1" />
+        <attr name="systemB_id" />
         <attr name="modifiedon" />
+        <attr name="xml_reference" />  <!-- XML state from last sync -->
+        <for var="mapping" in="fieldMappings">
+            <attr name="{mapping.SystemA}" />
+        </for>
     </select>
     
-    <for var="contactA" in="contactsA">
-        <!-- Check if contact exists in System B -->
-        <select from="systemB" entity="contact" var="existingB">
-            <where>
-                <condition attr="external_systemaid" op="eq">{contactA.contactid}</condition>
-            </where>
-            <attr name="contactid" />
-            <attr name="modifiedon" />
-        </select>
-        
-        <if condition="existingB.Count gt 0">
-            <then>
-                <!-- Update if System A record is newer -->
-                <if condition="contactA.modifiedon gt existingB[0].modifiedon">
-                    <update in="systemB" entity="contact">
-                        <where>
-                            <condition attr="contactid" op="eq">{existingB[0].contactid}</condition>
-                        </where>
-                        <attr name="firstname">{contactA.firstname}</attr>
-                        <attr name="lastname">{contactA.lastname}</attr>
-                        <attr name="emailaddress1">{contactA.emailaddress1}</attr>
-                    </update>
-                </if>
-            </then>
-            <else>
-                <!-- Create new record in System B -->
-                <create in="systemB" entity="contact">
-                    <attr name="firstname">{contactA.firstname}</attr>
-                    <attr name="lastname">{contactA.lastname}</attr>
-                    <attr name="emailaddress1">{contactA.emailaddress1}</attr>
-                    <attr name="external_systemaid">{contactA.contactid}</attr>
-                </create>
-            </else>
+    <select from="systemB" entity="contact" var="systemBRecords">
+        <where>
+            <condition attr="modifiedon" op="gt">{lastSyncDate}</condition>
+            <condition attr="systemA_id" op="ex" />  <!-- Only existing linked records -->
+        </where>
+        <attr name="contactid" />
+        <attr name="systemA_id" />
+        <attr name="modifiedon" />
+        <for var="mapping" in="fieldMappings">
+            <attr name="{mapping.SystemB}" />
+        </for>
+    </select>
+    
+    <!-- Build unified list of records to sync -->
+    <set var="recordsToSync">{new Dictionary()}</set>
+    <for var="recordA" in="systemARecords">
+        <set var="recordsToSync[recordA.systemB_id]">
+            <attr name="SystemAId">{recordA.contactid}</attr>
+            <attr name="SystemBId">{recordA.systemB_id}</attr>
+            <attr name="XmlReference">{recordA.xml_reference}</attr>
+        </set>
+    </for>
+    <for var="recordB" in="systemBRecords">
+        <if condition="!recordsToSync.ContainsKey(recordB.contactid)">
+            <set var="recordsToSync[recordB.contactid]">
+                <attr name="SystemAId">{recordB.systemA_id}</attr>
+                <attr name="SystemBId">{recordB.contactid}</attr>
+                <attr name="XmlReference">{null}</attr>
+            </set>
         </if>
     </for>
     
-    <!-- Sync from System B to System A (similar pattern) -->
-    <!-- ... -->
+    <!-- Process each record pair using XML merge -->
+    <for var="syncRecord" in="recordsToSync.Values">
+        <sandbox>
+            <!-- Get current state from both systems -->
+            <select from="systemA" entity="contact" var="currentSystemA">
+                <where>
+                    <condition attr="contactid" op="eq">{syncRecord.SystemAId}</condition>
+                </where>
+                <attr name="modifiedon" />
+                <for var="mapping" in="fieldMappings">
+                    <attr name="{mapping.SystemA}" />
+                </for>
+            </select>
+            
+            <select from="systemB" entity="contact" var="currentSystemB">
+                <where>
+                    <condition attr="contactid" op="eq">{syncRecord.SystemBId}</condition>
+                </where>
+                <attr name="modifiedon" />
+                <for var="mapping" in="fieldMappings">
+                    <attr name="{mapping.SystemB}" />
+                </for>
+            </select>
+            
+            <set var="systemARecord">{currentSystemA[0]}</set>
+            <set var="systemBRecord">{currentSystemB[0]}</set>
+            
+            <!-- Parse XML reference state (from last sync) -->
+            <set var="xmlReference">{new Dictionary()}</set>
+            <if condition="syncRecord.XmlReference.isSet">
+                <set var="xmlReference">{Xml.FromXml(syncRecord.XmlReference)}</set>
+            </if>
+            
+            <!-- Apply XML merge algorithm -->
+            <set var="mergedRecord">{new Dictionary()}</set>
+            <set var="systemAChanges">{new Dictionary()}</set>
+            <set var="systemBChanges">{new Dictionary()}</set>
+            <set var="xmlRefChanges">{new Dictionary()}</set>
+            
+            <!-- Get modification timestamps -->
+            <set var="systemAModified">{systemARecord.modifiedon}</set>
+            <set var="systemBModified">{systemBRecord.modifiedon}</set>
+            
+            <!-- Process each field mapping with three-way merge -->
+            <for var="mapping" in="fieldMappings">
+                <!-- Get current values from all three sources -->
+                <set var="systemAValue">{systemARecord[mapping.SystemA] ?? ''}</set>
+                <set var="systemBValue">{systemBRecord[mapping.SystemB] ?? ''}</set>
+                <set var="xmlRefValue">{xmlReference[mapping.SystemA] ?? ''}</set>
+                
+                <!-- Determine what changed since last sync -->
+                <set var="systemAChanged">{systemAValue ne xmlRefValue}</set>
+                <set var="systemBChanged">{systemBValue ne xmlRefValue}</set>
+                
+                <!-- Merge logic: single system wins, conflicts use timestamp -->
+                <set var="systemAWon">{systemAChanged and (systemAModified gt systemBModified or !systemBChanged)}</set>
+                <set var="systemBWon">{systemBChanged and (systemBModified gt systemAModified or !systemAChanged)}</set>
+                
+                <!-- Determine winning value -->
+                <if condition="systemAWon">
+                    <set var="mergedRecord[mapping.SystemA]">{systemAValue}</set>
+                </if>
+                <if condition="systemBWon">
+                    <set var="mergedRecord[mapping.SystemA]">{systemBValue}</set>
+                </if>
+                <if condition="!systemAWon and !systemBWon">
+                    <set var="mergedRecord[mapping.SystemA]">{systemAValue}</set>  <!-- No change -->
+                </if>
+                
+                <!-- Track changes needed in each system -->
+                <if condition="systemAValue ne mergedRecord[mapping.SystemA]">
+                    <set var="systemAChanges[mapping.SystemA]">{mergedRecord[mapping.SystemA]}</set>
+                </if>
+                <if condition="systemBValue ne mergedRecord[mapping.SystemA] and !mapping.SystemAOnly">
+                    <set var="systemBChanges[mapping.SystemB]">{mergedRecord[mapping.SystemA]}</set>
+                </if>
+                
+                <!-- Track XML reference updates -->
+                <if condition="xmlRefValue ne mergedRecord[mapping.SystemA]">
+                    <set var="xmlRefChanges[mapping.SystemA]">{mergedRecord[mapping.SystemA]}</set>
+                </if>
+            </for>
+            
+            <!-- Apply changes to System A if needed -->
+            <if condition="systemAChanges.Count gt 0">
+                <log>Updating System A record {syncRecord.SystemAId}: {systemAChanges.Count} fields</log>
+                <update in="systemA" entity="contact">
+                    <where>
+                        <condition attr="contactid" op="eq">{syncRecord.SystemAId}</condition>
+                    </where>
+                    <for var="field" in="systemAChanges.Keys">
+                        <attr name="{field}">{systemAChanges[field]}</attr>
+                    </for>
+                </update>
+            </if>
+            
+            <!-- Apply changes to System B if needed -->
+            <if condition="systemBChanges.Count gt 0">
+                <log>Updating System B record {syncRecord.SystemBId}: {systemBChanges.Count} fields</log>
+                <update in="systemB" entity="contact">
+                    <where>
+                        <condition attr="contactid" op="eq">{syncRecord.SystemBId}</condition>
+                    </where>
+                    <for var="field" in="systemBChanges.Keys">
+                        <attr name="{field}">{systemBChanges[field]}</attr>
+                    </for>
+                </update>
+            </if>
+            
+            <!-- Update XML reference state for next sync -->
+            <if condition="xmlRefChanges.Count gt 0">
+                <!-- Merge changes into existing reference -->
+                <for var="change" in="xmlRefChanges.Keys">
+                    <set var="xmlReference[change]">{xmlRefChanges[change]}</set>
+                </for>
+                
+                <update in="systemA" entity="contact">
+                    <where>
+                        <condition attr="contactid" op="eq">{syncRecord.SystemAId}</condition>
+                    </where>
+                    <attr name="xml_reference">{Xml.ToXml(xmlReference, 'contact')}</attr>
+                </update>
+            </if>
+            
+            <onerror var="ex">
+                <log>Error syncing record {syncRecord.SystemAId}: {ex.Message}</log>
+            </onerror>
+        </sandbox>
+    </for>
+    
+    <log>Two-way synchronization completed</log>
 </script>
 ```
+#### Key Benefits of XML Merge Pattern:
+
+**Intelligent Change Detection:**
+- Only fields that actually changed since last sync are considered for updates
+- Avoids unnecessary "ping-pong" updates between systems
+- Reduces conflicts by detecting true changes vs. system-generated modifications
+
+**Efficient Conflict Resolution:**
+- Timestamp comparison only used when both systems changed the same field
+- Single-system changes automatically win without timestamp checks
+- Preserves user intent by tracking actual field-level changes
+
+**State Management:**
+- XML reference maintains the "truth" state from last successful sync
+- Enables detection of which system made each specific change
+- Supports incremental synchronization over time
+
+**Scalability:**
+- Processes only records modified since last sync
+- Field-level granularity prevents unnecessary updates
+- Maintains synchronization state for reliable incremental processing
+
+**Real-World Applications:**
+- Contact synchronization between CRM and email systems
+- Employee data sync between HR and directory systems  
+- Customer data synchronization between multiple business systems
+- Any scenario requiring true bidirectional field-level synchronization
+
 
 ### Master Data Management Pattern
 ```xml
