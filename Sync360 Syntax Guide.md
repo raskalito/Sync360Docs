@@ -2538,7 +2538,6 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 
 ### Two-Way Synchronization with XML Merge Pattern
 ```xml
-```xml
 <script>
     <!-- MAIN SCRIPT: TwoWayContactSync.xml -->
     
