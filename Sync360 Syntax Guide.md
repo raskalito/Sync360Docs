@@ -31,22 +31,48 @@ Elements under the root represent either:
 ```
 
 ## NAMING RULES
-Element names and attribute names must follow these rules:
+Element names and attribute names in Sync360 XML follow specific conventions:
+
+**Standard Sync360 Elements:**
+- All built-in Sync360 elements are lowercase: `script`, `set`, `if`, `for`, `while`, `log`, `select`, `create`, `update`, `delete`, `batch`, `transaction`, etc.
+- Flow control elements are lowercase: `then`, `else`, `sandbox`, `onerror`, `break`, `continue`
+
+**Script Names and Custom Elements:**
+- Script file names can include uppercase letters: `ContactSync.xml`, `ProcessOrders.xml`
+- When using `call` command, script names can have mixed case: `<call name="ProcessData" />`
+- Custom sub-script calls can use mixed case: `<subCompareRecords />`
+
+**Attribute Names:**
+- Most standard attributes are lowercase: `var`, `condition`, `from`, `to`, `step`, `in`, `entity`
+- Database field names follow the target system convention: `firstname`, `parentcustomerid` for CRM
+- Some exceptions exist based on external system requirements
+
+**Variable Names:**
+Variable names (used with `var` attribute) must follow these rules:
 - Cannot contain space characters
 - Must begin with a letter or underscore
 - May contain letters, underscores, and digits
 - Are case-sensitive
 
 ```xml
-<!-- CORRECT -->
-<set var="myVariable" />
-<set var="user_name" />
-<set var="_tempValue" />
-<attr name="firstName" />
+<!-- CORRECT - Standard elements and attributes lowercase -->
+<script>
+    <set var="myVariable">value</set>
+    <if condition="myVariable eq 'value'">
+        <log>Condition is true</log>
+    </if>
+    <call name="ProcessData" />
+</script>
 
-<!-- WRONG -->
-<set var="my variable" />  <!-- space not allowed -->
-<set var="1stValue" />     <!-- cannot start with digit -->
+<!-- CORRECT - Variable names with proper format -->
+<set var="contactRecord">John Doe</set>
+<set var="user_name">admin</set>
+<set var="_tempValue">temporary</set>
+
+<!-- WRONG - Invalid variable names -->
+<set var="my variable">value</set>      <!-- space not allowed -->
+<set var="1stValue">value</set>         <!-- cannot start with digit -->
+<set var="contact-id">123</set>         <!-- hyphen not allowed -->
 ```
 
 ## QUOTE USAGE RULES
@@ -1822,6 +1848,1099 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 <set var="lbr">{'{'}</set> <!-- the only option to use brace as string -->
 <set var="strwithbrace">Look at this character {lbr}</set>
 <set var="xmlStr"><![CDATA[ <root><prop1 id="1"></prop1></root> ]]></set>
+```
+
+# ETL BEST PRACTICES AND COMMON PATTERNS
+
+## STANDARD ETL WORKFLOW PATTERNS
+
+### Basic Extract-Transform-Load Pattern
+```xml
+<script>
+    <!-- 1. EXTRACT: Read data from source -->
+    <select from="sourceSystem" entity="contacts" var="sourceRecords">
+        <attr name="id" />
+        <attr name="firstname" />
+        <attr name="lastname" />
+        <attr name="email" />
+        <attr name="phone" />
+    </select>
+    
+    <!-- 2. TRANSFORM: Process and clean data -->
+    <set var="transformedRecords">{new List()}</set>
+    <for var="record" in="sourceRecords">
+        <set var="cleanRecord">{new Dictionary()}</set>
+        <set var="cleanRecord['firstname']">{Utils.ToUpper(record.firstname ?? '')}</set>
+        <set var="cleanRecord['lastname']">{Utils.ToUpper(record.lastname ?? '')}</set>
+        <set var="cleanRecord['email']">{Utils.ToLower(record.email ?? '')}</set>
+        <set var="cleanRecord['phone']">{Utils.Replace(record.phone ?? '', '-', '')}</set>
+        <set var="transformedRecords[]">{cleanRecord}</set>
+    </for>
+    
+    <!-- 3. LOAD: Insert into target system -->
+    <for var="record" in="transformedRecords">
+        <create in="targetSystem" entity="contact">
+            <attr name="firstname">{record.firstname}</attr>
+            <attr name="lastname">{record.lastname}</attr>
+            <attr name="emailaddress1">{record.email}</attr>
+            <attr name="telephone1">{record.phone}</attr>
+        </create>
+    </for>
+</script>
+```
+
+### Incremental Data Processing Pattern
+```xml
+<script>
+    <!-- Get last sync timestamp -->
+    <select from="config" entity="syncstatus" var="lastSync">
+        <where>
+            <condition attr="process" op="eq">ContactSync</condition>
+        </where>
+        <attr name="lastsyncdate" />
+    </select>
+    
+    <set var="lastSyncDate">{lastSync.Count gt 0 ? lastSync[0].lastsyncdate : new DateTime(2020,1,1)}</set>
+    <set var="currentSyncDate">{Utils.Now}</set>
+    
+    <!-- Extract only changed records -->
+    <select from="source" entity="contact" var="changedRecords">
+        <where>
+            <condition attr="modifiedon" op="gt">{lastSyncDate}</condition>
+        </where>
+        <attr name="contactid" />
+        <attr name="firstname" />
+        <attr name="lastname" />
+        <attr name="modifiedon" />
+    </select>
+    
+    <log>Processing {changedRecords.Count} changed records since {lastSyncDate}</log>
+    
+    <!-- Process changed records -->
+    <for var="record" in="changedRecords">
+        <!-- ETL logic here -->
+    </for>
+    
+    <!-- Update sync timestamp -->
+    <update in="config" entity="syncstatus">
+        <where>
+            <condition attr="process" op="eq">ContactSync</condition>
+        </where>
+        <attr name="lastsyncdate">{currentSyncDate}</attr>
+    </update>
+</script>
+```
+
+### Upsert Pattern (Update or Insert)
+```xml
+<script>
+    <!-- STEP 1: Cache all existing records to minimize requests -->
+    <select from="target" entity="contact" var="existingRecords">
+        <attr name="contactid" />
+        <attr name="emailaddress1" />
+        <attr name="firstname" />
+        <attr name="lastname" />
+        <attr name="telephone1" />
+    </select>
+    
+    <!-- Build cache dictionary by email for fast lookup -->
+    <set var="existingContactsCache">{new Dictionary()}</set>
+    <for var="existing" in="existingRecords">
+        <if condition="existing.emailaddress1.isSet and existing.emailaddress1 ne ''">
+            <set var="existingContactsCache[existing.emailaddress1]">{existing}</set>
+        </if>
+    </for>
+    
+    <log>Loaded {existingContactsCache.Count} existing contacts into cache</log>
+    
+    <!-- STEP 2: Process source records using cache -->
+    <for var="sourceRecord" in="sourceRecords">
+        <if condition="existingContactsCache.ContainsKey(sourceRecord.email)">
+            <then>
+                <!-- Record exists - detect which fields changed -->
+                <set var="existingRecord">{existingContactsCache[sourceRecord.email]}</set>
+                <set var="changes">{new Dictionary()}</set>
+                
+                <!-- Check each field individually and add to changes if different -->
+                <if condition="(existingRecord.firstname ?? '') ne (sourceRecord.firstname ?? '')">
+                    <set var="changes['firstname']">{sourceRecord.firstname}</set>
+                </if>
+                <if condition="(existingRecord.lastname ?? '') ne (sourceRecord.lastname ?? '')">
+                    <set var="changes['lastname']">{sourceRecord.lastname}</set>
+                </if>
+                <if condition="(existingRecord.telephone1 ?? '') ne (sourceRecord.phone ?? '')">
+                    <set var="changes['telephone1']">{sourceRecord.phone}</set>
+                </if>
+                
+                <!-- Only update if there are actual changes -->
+                <if condition="changes.Count gt 0">
+                    <update in="target" entity="contact">
+                        <where>
+                            <condition attr="contactid" op="eq">{existingRecord.contactid}</condition>
+                        </where>
+                        <!-- Dynamically populate only changed fields -->
+                        <for var="fieldName" in="changes.Keys">
+                            <attr name="{fieldName}">{changes[fieldName]}</attr>
+                        </for>
+                    </update>
+                    <log>Updated contact {sourceRecord.email}: {changes.Count} field(s) changed</log>
+                </if>
+            </then>
+            <else>
+                <!-- Record doesn't exist - INSERT new record -->
+                <create in="target" entity="contact">
+                    <attr name="firstname">{sourceRecord.firstname}</attr>
+                    <attr name="lastname">{sourceRecord.lastname}</attr>
+                    <attr name="emailaddress1">{sourceRecord.email}</attr>
+                    <attr name="telephone1">{sourceRecord.phone}</attr>
+                </create>
+                <log>Created contact: {sourceRecord.email}</log>
+            </else>
+        </if>
+    </for>
+</script>
+```
+
+## DATA MAPPING AND TRANSFORMATION PATTERNS
+
+### Modular Transformation with Sub-Scripts
+```xml
+<!-- MAIN SCRIPT: ContactSync.xml -->
+<script>
+    <!-- Initialize Synch360 configuration object -->
+    <set var="Synch360">{new Object()}</set>
+    
+    <!-- Job configuration -->
+    <set var="Synch360.Job">ContactSync</set>
+    <set var="Synch360.Entity">contact</set>
+    <set var="Synch360.EntityIdField">contactid</set>
+    <set var="Synch360.CrmRefField">vs360_refxml</set>
+    <set var="Synch360.Source">{360000000}</set>
+    <set var="Synch360.FieldsMapping">{new List()}</set>
+    <set var="Synch360.Dicts">{new Dictionary()}</set>
+    
+    <!-- Include field mapping configuration -->
+    <mapping_Contact Synch360="Synch360" />
+    
+    <!-- Load cached dictionaries -->
+    <subLoadDictionaries Synch360="Synch360" />
+    
+    <!-- Get changed records from source -->
+    <select from="source" entity="contact" var="sourceRecords">
+        <where>
+            <condition attr="modifiedon" op="gt">{lastSyncDate}</condition>
+        </where>
+        <for var="mapping" in="Synch360.FieldsMapping">
+            <attr name="{mapping.Source}" />
+        </for>
+    </select>
+    
+    <!-- Get existing records for comparison -->
+    <select from="target" entity="contact" var="existingRecords">
+        <attr name="contactid" />
+        <attr name="modifiedon" />
+        <attr name="{Synch360.CrmRefField}" />
+        <for var="mapping" in="Synch360.FieldsMapping">
+            <attr name="{mapping.Target}" />
+        </for>
+    </select>
+    
+    <!-- Build lookup cache -->
+    <set var="existingCache">{new Dictionary()}</set>
+    <for var="existing" in="existingRecords">
+        <set var="existingCache[existing.emailaddress1]">{existing}</set>
+    </for>
+    
+    <!-- Process each source record -->
+    <for var="sourceRecord" in="sourceRecords">
+        <set var="existingRecord">{existingCache[sourceRecord.Email] ?? new Dictionary()}</set>
+        <set var="CompareResult">{new Object()}</set>
+        
+        <!-- Call comparison sub-script -->
+        <subCompareRecords 
+            Synch360="Synch360" 
+            CompareResult="CompareResult" 
+            sourceRecord="sourceRecord" 
+            existingRecord="existingRecord" />
+        
+        <!-- Apply changes based on comparison result -->
+        <if condition="CompareResult.hasChanges">
+            <if condition="existingRecord.contactid.isSet">
+                <then>
+                    <!-- Update existing record -->
+                    <update in="target" entity="contact">
+                        <where>
+                            <condition attr="contactid" op="eq">{existingRecord.contactid}</condition>
+                        </where>
+                        <for var="field" in="CompareResult.changedFields.Keys">
+                            <attr name="{field}">{CompareResult.changedFields[field]}</attr>
+                        </for>
+                    </update>
+                </then>
+                <else>
+                    <!-- Create new record -->
+                    <create in="target" entity="contact">
+                        <for var="field" in="CompareResult.transformedData.Keys">
+                            <attr name="{field}">{CompareResult.transformedData[field]}</attr>
+                        </for>
+                    </create>
+                </else>
+            </if>
+        </if>
+    </for>
+</script>
+```
+
+```xml
+<!-- SUB-SCRIPT: subCompareRecords.xml -->
+<script>
+    <!-- Input Parameters:
+         Synch360 - Configuration object
+         CompareResult - Result object to populate
+         sourceRecord - Source system record
+         existingRecord - Target system record
+    -->
+    
+    <set var="CompareResult.hasChanges">{false}</set>
+    <set var="CompareResult.changedFields">{new Dictionary()}</set>
+    <set var="CompareResult.transformedData">{new Dictionary()}</set>
+    
+    <!-- Process each field mapping -->
+    <for var="mapping" in="Synch360.FieldsMapping">
+        <set var="sourceValue">{sourceRecord[mapping.Source] ?? ''}</set>
+        <set var="existingValue">{existingRecord[mapping.Target] ?? ''}</set>
+        <set var="transformedValue">{null}</set>
+        
+        <!-- Apply field type-specific transformation -->
+        <if condition="mapping.Type eq 'string'">
+            <set var="transformedValue">{sourceValue}</set>
+        </if>
+        
+        <if condition="mapping.Type eq 'lookup'">
+            <set var="lookupCache">{Synch360.Dicts[mapping.DictionaryName]}</set>
+            <set var="lookupId">{lookupCache[sourceValue] ?? null}</set>
+            <if condition="lookupId ne null">
+                <set var="transformedValue">{mapping.LookupEntityName}:{lookupId}</set>
+            </if>
+        </if>
+        
+        <if condition="mapping.Type eq 'optionset'">
+            <set var="optionSetCache">{Synch360.Dicts[mapping.DictionaryName + '_map']}</set>
+            <set var="optionValue">{optionSetCache[sourceValue] ?? null}</set>
+            <if condition="optionValue ne null">
+                <set var="transformedValue">{optionValue}</set>
+            </if>
+        </if>
+        
+        <if condition="mapping.Type eq 'datetime'">
+            <set var="transformedValue" if="sourceValue ne ''">{Convert.ToDateTime(sourceValue)}</set>
+        </if>
+        
+        <!-- Store transformed value -->
+        <if condition="transformedValue ne null">
+            <set var="CompareResult.transformedData[mapping.Target]">{transformedValue}</set>
+            
+            <!-- Check if field changed -->
+            <if condition="transformedValue.ToString() ne existingValue.ToString()">
+                <set var="CompareResult.changedFields[mapping.Target]">{transformedValue}</set>
+                <set var="CompareResult.hasChanges">{true}</set>
+            </if>
+        </if>
+    </for>
+    
+    <log if="CompareResult.hasChanges">Record has {CompareResult.changedFields.Count} changed fields</log>
+</script>
+```
+
+```xml
+<!-- SUB-SCRIPT: subLoadDictionaries.xml -->
+<script>
+    <!-- Input Parameter: Synch360 - Configuration object -->
+    
+    <!-- Collect required dictionary names from mappings -->
+    <set var="requiredDicts">{new List()}</set>
+    <for var="mapping" in="Synch360.FieldsMapping">
+        <if condition="mapping.DictionaryName.isSet and !requiredDicts.Contains(mapping.DictionaryName)">
+            <set var="requiredDicts[]">{mapping.DictionaryName}</set>
+        </if>
+    </for>
+    
+    <!-- Load Account lookup dictionary -->
+    <if condition="requiredDicts.Contains('accounts')">
+        <select from="target" entity="account" var="accounts">
+            <attr name="accountid" />
+            <attr name="name" />
+        </select>
+        
+        <set var="accountDict">{new Dictionary()}</set>
+        <for var="account" in="accounts">
+            <set var="accountDict[account.name]">{account.accountid}</set>
+        </for>
+        <set var="Synch360.Dicts['accounts']">{accountDict}</set>
+        <log>Loaded {accountDict.Count} accounts into cache</log>
+    </if>
+    
+    <!-- Load Status option set mapping -->
+    <if condition="requiredDicts.Contains('statuscode')">
+        <set var="statusMap">{new Dictionary()}</set>
+        <set var="statusMap['Active']">{1}</set>
+        <set var="statusMap['Inactive']">{2}</set>
+        <set var="statusMap['Pending']">{3}</set>
+        <set var="Synch360.Dicts['statuscode_map']">{statusMap}</set>
+        <log>Loaded status code mappings</log>
+    </if>
+    
+    <log>Dictionary loading complete</log>
+</script>
+```
+
+```xml
+<!-- CONFIGURATION: mapping_Contact.xml -->
+<script>
+    <!-- Parameter: Synch360 - Configuration object to populate -->
+    
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source">FirstName</attr>
+        <attr name="Target">firstname</attr>
+        <attr name="Type">string</attr>
+    </set>
+    
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source">LastName</attr>
+        <attr name="Target">lastname</attr>
+        <attr name="Type">string</attr>
+    </set>
+    
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source">CompanyName</attr>
+        <attr name="Target">parentcustomerid</attr>
+        <attr name="Type">lookup</attr>
+        <attr name="DictionaryName">accounts</attr>
+        <attr name="LookupEntityName">account</attr>
+    </set>
+    
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source">Status</attr>
+        <attr name="Target">statuscode</attr>
+        <attr name="Type">optionset</attr>
+        <attr name="DictionaryName">statuscode</attr>
+    </set>
+    
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source">BirthDate</attr>
+        <attr name="Target">birthdate</attr>
+        <attr name="Type">datetime</attr>
+    </set>
+</script>
+```
+
+## Key Benefits of Modular Architecture:
+
+**Separation of Concerns:**
+- **Main script** - Orchestrates the ETL process flow
+- **Comparison sub-script** - Handles field-by-field transformation and change detection
+- **Dictionary loader** - Manages reference data caching
+- **Mapping configuration** - Defines field mappings separate from logic
+
+**Reusability:**
+- `subCompareRecords` can be used across different entity synchronizations
+- `subLoadDictionaries` can load different sets of dictionaries based on mappings
+- Mapping configurations can be easily modified without touching main logic
+
+**Maintainability:**
+- Business users can modify field mappings without touching comparison logic
+- New field types can be added to comparison script without changing main flow
+- Dictionary loading logic is centralized and consistent
+
+**Performance:**
+- Dictionaries loaded once and reused for all records
+- Comparison logic optimized for different field types
+- Change detection prevents unnecessary updates
+```xml
+<!-- MAIN SCRIPT: ContactSync.xml -->
+<script>
+    <!-- Initialize Synch360 configuration object -->
+    <set var="Synch360">{new Object()}</set>
+    <set var="Synch360.VisionMainTable">ContactsView</set>
+    <set var="Synch360.CrmEntityName">contact</set>
+    <set var="Synch360.FieldsMapping">{new List()}</set>
+    <set var="Synch360.Lookups">{new Dictionary()}</set>
+    
+    <!-- Include configuration files -->
+    <include name="Config/ContactFieldMapping" />
+    <include name="Config/LookupData" />
+    
+    <log>Loaded {Synch360.FieldsMapping.Count} field mappings</log>
+    
+    <!-- Extract source data -->
+    <select from="vision" entity="{Synch360.VisionMainTable}" var="sourceRecords">
+        <!-- Dynamically select all source fields from mapping -->
+        <for var="mapping" in="Synch360.FieldsMapping">
+            <attr name="{mapping.Source1}" />
+        </for>
+    </select>
+    
+    <!-- Process records using configuration-driven mapping -->
+    <for var="sourceRecord" in="sourceRecords">
+        <create in="crm" entity="{Synch360.CrmEntityName}" var="newContactId">
+            <for var="mapping" in="Synch360.FieldsMapping">
+                <set var="sourceValue">{sourceRecord[mapping.Source1]}</set>
+                
+                <!-- Apply transformation based on field type -->
+                <if condition="mapping.Type eq 'string'">
+                    <attr name="{mapping.Source2}">{sourceValue ?? ''}</attr>
+                </if>
+                
+                <if condition="mapping.Type eq 'lookup'">
+                    <!-- Resolve lookup using cached dictionary -->
+                    <set var="lookupCache">{Synch360.Lookups[mapping.DictionaryName]}</set>
+                    <set var="lookupValue">{lookupCache[sourceValue] ?? null}</set>
+                    <if condition="lookupValue ne null">
+                        <attr name="{mapping.Source2}">{mapping.CrmLookupEntityName}:{lookupValue}</attr>
+                    </if>
+                </if>
+                
+                <if condition="mapping.Type eq 'optionset'">
+                    <!-- Map option set values using dictionary -->
+                    <set var="optionSetCache">{Synch360.Lookups[mapping.DictionaryName]}</set>
+                    <set var="optionValue">{optionSetCache[sourceValue] ?? null}</set>
+                    <if condition="optionValue ne null">
+                        <attr name="{mapping.Source2}">{optionValue}</attr>
+                    </if>
+                </if>
+                
+                <if condition="mapping.Type eq 'datetime'">
+                    <attr name="{mapping.Source2}">{sourceValue}</attr>
+                </if>
+            </for>
+        </create>
+    </for>
+</script>
+```
+
+```xml
+<!-- CONFIG FILE: Config/ContactFieldMapping.xml -->
+<script>
+    <!-- Address lookup mapping -->
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source2">vs360_accountaddressid</attr>
+        <attr name="Source1">CLAddress</attr>
+        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
+        <attr name="Type">lookup</attr>
+        <attr name="DictionaryName">companyaddresses</attr>
+        <attr name="CrmLookupEntityName">vs360_address</attr>
+    </set>
+    
+    <!-- Simple string field mappings -->
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source2">firstname</attr>
+        <attr name="Source1">FirstName</attr>
+        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
+        <attr name="Type">string</attr>
+    </set>
+    
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source2">middlename</attr>
+        <attr name="Source1">MiddleName</attr>
+        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
+        <attr name="Type">string</attr>
+    </set>
+    
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source2">lastname</attr>
+        <attr name="Source1">LastName</attr>
+        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
+        <attr name="Type">string</attr>
+    </set>
+    
+    <!-- Option set mapping -->
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source2">statecode</attr>
+        <attr name="Source1">ContactStatus</attr>
+        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
+        <attr name="Type">optionset</attr>
+        <attr name="DictionaryName">statuscode</attr>
+    </set>
+    
+    <!-- Date field mapping -->
+    <set var="Synch360.FieldsMapping[]">
+        <attr name="Source2">birthdate</attr>
+        <attr name="Source1">BirthDate</attr>
+        <attr name="VisionTable">{Synch360.VisionMainTable}</attr>
+        <attr name="Type">datetime</attr>
+    </set>
+</script>
+```
+
+```xml
+<!-- CONFIG FILE: Config/LookupData.xml -->
+<script>
+    <!-- Load and cache company addresses -->
+    <select from="crm" entity="vs360_address" var="addresses">
+        <attr name="vs360_addressid" />
+        <attr name="vs360_name" />
+    </select>
+    
+    <set var="Synch360.Lookups['companyaddresses']">{new Dictionary()}</set>
+    <for var="address" in="addresses">
+        <set var="Synch360.Lookups['companyaddresses'][address.vs360_name]">{address.vs360_addressid}</set>
+    </for>
+    
+    <!-- Load and cache status code mappings -->
+    <set var="Synch360.Lookups['statuscode']">{new Dictionary()}</set>
+    <set var="Synch360.Lookups['statuscode']['Active']">{0}</set>
+    <set var="Synch360.Lookups['statuscode']['Inactive']">{1}</set>
+    <set var="Synch360.Lookups['statuscode']['Pending']">{2}</set>
+    
+    <log>Loaded lookup caches: {Synch360.Lookups.Count} dictionaries</log>
+</script>
+```
+
+### Lookup and Reference Resolution
+```xml
+<script>
+    <!-- Cache lookup data for performance -->
+    <select from="target" entity="account" var="accounts">
+        <attr name="accountid" />
+        <attr name="name" />
+    </select>
+    
+    <set var="accountLookup">{new Dictionary()}</set>
+    <for var="account" in="accounts">
+        <set var="accountLookup[account.name]">{account.accountid}</set>
+    </for>
+    
+    <!-- Process contacts with account lookups -->
+    <for var="contact" in="sourceContacts">
+        <set var="accountId">{accountLookup[contact.CompanyName] ?? null}</set>
+        
+        <create in="target" entity="contact">
+            <attr name="firstname">{contact.FirstName}</attr>
+            <attr name="lastname">{contact.LastName}</attr>
+            <if condition="accountId ne null">
+                <attr name="parentcustomerid">account:{accountId}</attr>
+            </if>
+        </create>
+    </for>
+</script>
+```
+
+## ERROR HANDLING AND LOGGING PATTERNS
+
+### Comprehensive Error Handling
+```xml
+<script>
+    <set var="stats">{new Object()}</set>
+    <set var="stats.Processed">{0}</set>
+    <set var="stats.Success">{0}</set>
+    <set var="stats.Errors">{0}</set>
+    <set var="errors">{new List()}</set>
+    
+    <for var="record" in="sourceRecords">
+        <set var="stats.Processed">{stats.Processed + 1}</set>
+        
+        <sandbox verbose="true">
+            <!-- Data validation -->
+            <if condition="record.email eq null or record.email eq ''">
+                <exception>Email is required for record {record.id}</exception>
+            </if>
+            
+            <!-- Process record -->
+            <create in="target" entity="contact" var="newId">
+                <attr name="firstname">{record.firstname}</attr>
+                <attr name="lastname">{record.lastname}</attr>
+                <attr name="emailaddress1">{record.email}</attr>
+            </create>
+            
+            <set var="stats.Success">{stats.Success + 1}</set>
+            <log>Successfully processed record {record.id}</log>
+            
+            <onerror of="typeof System.Exception">
+                <set var="stats.Errors">{stats.Errors + 1}</set>
+                <set var="errorInfo">{new Object()}</set>
+                <set var="errorInfo.RecordId">{record.id}</set>
+                <set var="errorInfo.Message">{Exception.Message}</set>
+                <set var="errors[]">{errorInfo}</set>
+                <log>Error processing record {record.id}: {Exception.Message}</log>
+            </onerror>
+        </sandbox>
+    </for>
+    
+    <!-- Final reporting -->
+    <log>Processing complete. Total: {stats.Processed}, Success: {stats.Success}, Errors: {stats.Errors}</log>
+    
+    <if condition="errors.Count gt 0">
+        <log>Error details:</log>
+        <for var="error" in="errors">
+            <log>Record {error.RecordId}: {error.Message}</log>
+        </for>
+    </if>
+</script>
+```
+
+### Batch Processing with Error Handling
+```xml
+<script>
+    <set var="batchSize">{100}</set>
+    <set var="totalRecords">{sourceRecords.Count}</set>
+    <set var="processedCount">{0}</set>
+    
+    <for var="i" from="0" to="totalRecords - 1" step="batchSize">
+        <set var="endIndex">{Math.Min(i + batchSize - 1, totalRecords - 1)}</set>
+        <set var="currentBatch">{new List()}</set>
+        
+        <!-- Build current batch -->
+        <for var="j" from="i" to="endIndex" step="1">
+            <set var="currentBatch[]">{sourceRecords[j]}</set>
+        </for>
+        
+        <log>Processing batch {i / batchSize + 1}: records {i + 1} to {endIndex + 1}</log>
+        
+        <batch for="target" var="batchResult" continueOnError="true">
+            <for var="record" in="currentBatch">
+                <create in="target" entity="contact">
+                    <attr name="firstname">{record.firstname}</attr>
+                    <attr name="lastname">{record.lastname}</attr>
+                    <attr name="emailaddress1">{record.email}</attr>
+                </create>
+            </for>
+        </batch>
+        
+        <!-- Check batch results -->
+        <if condition="batchResult.IsFaulted">
+            <for var="response" in="batchResult.Responses">
+                <if condition="response.Fault.isSet">
+                    <log>Error in batch at index {response.RequestIndex}: {response.Fault.Message}</log>
+                </if>
+            </for>
+        </if>
+        
+        <set var="processedCount">{processedCount + currentBatch.Count}</set>
+        <log>Batch complete. Total processed: {processedCount}/{totalRecords}</log>
+    </for>
+</script>
+```
+
+## FILE PROCESSING PATTERNS
+
+### CSV File Processing with Validation
+```xml
+<script>
+    <set var="inputPath">C:\ETL\Input\</set>
+    <set var="processedPath">C:\ETL\Processed\</set>
+    <set var="errorPath">C:\ETL\Errors\</set>
+    
+    <!-- Get all CSV files -->
+    <set var="files">{FileUtils.GetFiles(inputPath, "*.csv")}</set>
+    
+    <for var="file" in="files">
+        <log>Processing file: {file.Name}</log>
+        
+        <sandbox verbose="true">
+            <!-- Read CSV file -->
+            <set var="records">{Csv.Read(inputPath + file.Name)}</set>
+            <set var="validRecords">{new List()}</set>
+            <set var="invalidRecords">{new List()}</set>
+            
+            <!-- Validate records -->
+            <for var="record" in="records">
+                <if condition="record.Email.isSet and record.FirstName.isSet and record.LastName.isSet">
+                    <then>
+                        <set var="validRecords[]">{record}</set>
+                    </then>
+                    <else>
+                        <set var="invalidRecords[]">{record}</set>
+                    </else>
+                </if>
+            </for>
+            
+            <log>File {file.Name}: {validRecords.Count} valid, {invalidRecords.Count} invalid records</log>
+            
+            <!-- Process valid records -->
+            <if condition="validRecords.Count gt 0">
+                <for var="record" in="validRecords">
+                    <create in="crm" entity="contact">
+                        <attr name="firstname">{record.FirstName}</attr>
+                        <attr name="lastname">{record.LastName}</attr>
+                        <attr name="emailaddress1">{record.Email}</attr>
+                    </create>
+                </for>
+            </if>
+            
+            <!-- Write invalid records to error file -->
+            <if condition="invalidRecords.Count gt 0">
+                <set var="errorFileName">error_{file.Name}</set>
+                <set>{Csv.Write(invalidRecords, errorPath + errorFileName)}</set>
+            </if>
+            
+            <!-- Move processed file -->
+            <set>{FileUtils.MoveFile(inputPath + file.Name, processedPath + file.Name)}</set>
+            
+            <onerror of="typeof System.Exception">
+                <log>Error processing file {file.Name}: {Exception.Message}</log>
+                <!-- Move failed file to error directory -->
+                <set>{FileUtils.MoveFile(inputPath + file.Name, errorPath + file.Name)}</set>
+            </onerror>
+        </sandbox>
+    </for>
+</script>
+```
+
+## PERFORMANCE OPTIMIZATION PATTERNS
+
+### Efficient Data Caching
+```xml
+<script>
+    <!-- Cache reference data once at the beginning -->
+    <set var="accountCache">{new Dictionary()}</set>
+    <set var="userCache">{new Dictionary()}</set>
+    
+    <!-- Load accounts -->
+    <select from="crm" entity="account" var="accounts">
+        <attr name="accountid" />
+        <attr name="name" />
+    </select>
+    <for var="account" in="accounts">
+        <set var="accountCache[account.name]">{account.accountid}</set>
+    </for>
+    
+    <!-- Load users -->
+    <select from="crm" entity="systemuser" var="users">
+        <attr name="systemuserid" />
+        <attr name="fullname" />
+    </select>
+    <for var="user" in="users">
+        <set var="userCache[user.fullname]">{user.systemuserid}</set>
+    </for>
+    
+    <log>Loaded {accountCache.Count} accounts and {userCache.Count} users into cache</log>
+    
+    <!-- Use cached data during processing -->
+    <for var="record" in="sourceRecords">
+        <set var="accountId">{accountCache[record.AccountName] ?? null}</set>
+        <set var="ownerId">{userCache[record.OwnerName] ?? null}</set>
+        
+        <create in="crm" entity="contact">
+            <attr name="firstname">{record.FirstName}</attr>
+            <attr name="lastname">{record.LastName}</attr>
+            <if condition="accountId ne null">
+                <attr name="parentcustomerid">account:{accountId}</attr>
+            </if>
+            <if condition="ownerId ne null">
+                <attr name="ownerid">systemuser:{ownerId}</attr>
+            </if>
+        </create>
+    </for>
+</script>
+```
+
+### Bulk Operations for Large Datasets
+```xml
+<script>
+    <set var="batchSize">{200}</set>
+    <set var="totalRecords">{sourceRecords.Count}</set>
+    
+    <log>Processing {totalRecords} records in batches of {batchSize}</log>
+    
+    <for var="i" from="0" to="totalRecords - 1" step="batchSize">
+        <set var="endIndex">{Math.Min(i + batchSize - 1, totalRecords - 1)}</set>
+        <set var="batchRecords">{new List()}</set>
+        
+        <!-- Collect batch records -->
+        <for var="j" from="i" to="endIndex" step="1">
+            <set var="batchRecords[]">{sourceRecords[j]}</set>
+        </for>
+        
+        <!-- Process batch with transaction for data integrity -->
+        <transaction for="crm" var="transactionResult">
+            <for var="record" in="batchRecords">
+                <create in="crm" entity="contact">
+                    <attr name="firstname">{record.FirstName}</attr>
+                    <attr name="lastname">{record.LastName}</attr>
+                    <attr name="emailaddress1">{record.Email}</attr>
+                </create>
+            </for>
+        </transaction>
+        
+        <if condition="transactionResult.IsFaulted">
+            <log>Batch {i / batchSize + 1} failed: {transactionResult.FaultMessage}</log>
+        </if>
+        
+        <log>Completed batch {i / batchSize + 1}/{Math.Ceiling(totalRecords / batchSize)}</log>
+    </for>
+</script>
+```
+
+## DATA SYNCHRONIZATION PATTERNS
+
+### Two-Way Synchronization
+```xml
+<script>
+    <!-- Sync from System A to System B -->
+    <select from="systemA" entity="contact" var="contactsA">
+        <where>
+            <condition attr="modifiedon" op="gt">{lastSyncDate}</condition>
+        </where>
+        <attr name="contactid" />
+        <attr name="firstname" />
+        <attr name="lastname" />
+        <attr name="emailaddress1" />
+        <attr name="modifiedon" />
+    </select>
+    
+    <for var="contactA" in="contactsA">
+        <!-- Check if contact exists in System B -->
+        <select from="systemB" entity="contact" var="existingB">
+            <where>
+                <condition attr="external_systemaid" op="eq">{contactA.contactid}</condition>
+            </where>
+            <attr name="contactid" />
+            <attr name="modifiedon" />
+        </select>
+        
+        <if condition="existingB.Count gt 0">
+            <then>
+                <!-- Update if System A record is newer -->
+                <if condition="contactA.modifiedon gt existingB[0].modifiedon">
+                    <update in="systemB" entity="contact">
+                        <where>
+                            <condition attr="contactid" op="eq">{existingB[0].contactid}</condition>
+                        </where>
+                        <attr name="firstname">{contactA.firstname}</attr>
+                        <attr name="lastname">{contactA.lastname}</attr>
+                        <attr name="emailaddress1">{contactA.emailaddress1}</attr>
+                    </update>
+                </if>
+            </then>
+            <else>
+                <!-- Create new record in System B -->
+                <create in="systemB" entity="contact">
+                    <attr name="firstname">{contactA.firstname}</attr>
+                    <attr name="lastname">{contactA.lastname}</attr>
+                    <attr name="emailaddress1">{contactA.emailaddress1}</attr>
+                    <attr name="external_systemaid">{contactA.contactid}</attr>
+                </create>
+            </else>
+        </if>
+    </for>
+    
+    <!-- Sync from System B to System A (similar pattern) -->
+    <!-- ... -->
+</script>
+```
+
+### Master Data Management Pattern
+```xml
+<script>
+    <!-- Define master system priority -->
+    <set var="systemPriority">{['crm', 'erp', 'hr']}</set>
+    <set var="masterRecords">{new Dictionary()}</set>
+    
+    <!-- Collect records from all systems -->
+    <for var="system" in="systemPriority">
+        <select from="{system}" entity="contact" var="systemRecords">
+            <attr name="contactid" />
+            <attr name="firstname" />
+            <attr name="lastname" />
+            <attr name="emailaddress1" />
+            <attr name="modifiedon" />
+        </select>
+        
+        <for var="record" in="systemRecords">
+            <set var="email">{record.emailaddress1}</set>
+            
+            <if condition="masterRecords.ContainsKey(email)">
+                <then>
+                    <!-- Compare and keep the record from higher priority system -->
+                    <set var="existingSystem">{masterRecords[email].source}</set>
+                    <set var="existingPriority">{systemPriority.IndexOf(existingSystem)}</set>
+                    <set var="currentPriority">{systemPriority.IndexOf(system)}</set>
+                    
+                    <if condition="currentPriority lt existingPriority">
+                        <set var="record.source">{system}</set>
+                        <set var="masterRecords[email]">{record}</set>
+                    </if>
+                </then>
+                <else>
+                    <set var="record.source">{system}</set>
+                    <set var="masterRecords[email]">{record}</set>
+                </else>
+            </if>
+        </for>
+    </for>
+    
+    <!-- Propagate master data to all systems -->
+    <for var="email" in="masterRecords.Keys">
+        <set var="masterRecord">{masterRecords[email]}</set>
+        
+        <for var="targetSystem" in="systemPriority">
+            <if condition="targetSystem ne masterRecord.source">
+                <!-- Update or create in target system -->
+                <select from="{targetSystem}" entity="contact" var="targetRecord">
+                    <where>
+                        <condition attr="emailaddress1" op="eq">{email}</condition>
+                    </where>
+                    <attr name="contactid" />
+                </select>
+                
+                <if condition="targetRecord.Count gt 0">
+                    <then>
+                        <update in="{targetSystem}" entity="contact">
+                            <where>
+                                <condition attr="contactid" op="eq">{targetRecord[0].contactid}</condition>
+                            </where>
+                            <attr name="firstname">{masterRecord.firstname}</attr>
+                            <attr name="lastname">{masterRecord.lastname}</attr>
+                        </update>
+                    </then>
+                    <else>
+                        <create in="{targetSystem}" entity="contact">
+                            <attr name="firstname">{masterRecord.firstname}</attr>
+                            <attr name="lastname">{masterRecord.lastname}</attr>
+                            <attr name="emailaddress1">{masterRecord.emailaddress1}</attr>
+                        </create>
+                    </else>
+                </if>
+            </if>
+        </for>
+    </for>
+</script>
+```
+
+## COMMON ETL ANTI-PATTERNS TO AVOID
+
+### Do NOT use these patterns:
+
+```xml
+<!-- ANTI-PATTERN 1: Processing records one by one without batching -->
+<for var="record" in="largeDataset">
+    <create in="target" entity="contact">
+        <!-- This creates individual network calls for each record -->
+    </create>
+</for>
+
+<!-- BETTER: Use batch operations -->
+<batch for="target" var="batchResult" continueOnError="true">
+    <for var="record" in="largeDataset">
+        <create in="target" entity="contact">
+            <!-- All records processed in single network call -->
+        </create>
+    </for>
+</batch>
+
+<!-- ANTI-PATTERN 2: No error handling -->
+<for var="record" in="records">
+    <create in="target" entity="contact">
+        <!-- If one record fails, entire process stops -->
+    </create>
+</for>
+
+<!-- BETTER: Use sandbox for error isolation -->
+<for var="record" in="records">
+    <sandbox>
+        <create in="target" entity="contact">
+            <!-- Individual record failures don't stop process -->
+        </create>
+        <onerror of="typeof System.Exception">
+            <log>Failed to process record {record.id}: {Exception.Message}</log>
+        </onerror>
+    </sandbox>
+</for>
+
+<!-- ANTI-PATTERN 3: Loading lookup data repeatedly in loops -->
+<for var="record" in="records">
+    <select from="target" entity="account" var="account">
+        <where>
+            <condition attr="name" op="eq">{record.AccountName}</condition>
+        </where>
+    </select>
+    <!-- This queries the database for every record -->
+</for>
+
+<!-- BETTER: Cache lookup data once -->
+<select from="target" entity="account" var="allAccounts">
+    <attr name="accountid" />
+    <attr name="name" />
+</select>
+<set var="accountLookup">{new Dictionary()}</set>
+<for var="account" in="allAccounts">
+    <set var="accountLookup[account.name]">{account.accountid}</set>
+</for>
+
+<for var="record" in="records">
+    <set var="accountId">{accountLookup[record.AccountName] ?? null}</set>
+    <!-- Use cached data instead of querying -->
+</for>
+
+<!-- ANTI-PATTERN 4: No data validation -->
+<create in="target" entity="contact">
+    <attr name="emailaddress1">{record.email}</attr>
+    <!-- What if record.email is null or invalid? -->
+</create>
+
+<!-- BETTER: Validate before processing -->
+<if condition="record.email.isSet and record.email ne ''">
+    <create in="target" entity="contact">
+        <attr name="emailaddress1">{record.email}</attr>
+    </create>
+</if>
+
+<!-- ANTI-PATTERN 5: No progress tracking or logging -->
+<for var="record" in="records">
+    <!-- Silent processing - no way to track progress -->
+</for>
+
+<!-- BETTER: Include progress tracking -->
+<set var="totalRecords">{records.Count}</set>
+<set var="processedCount">{0}</set>
+<for var="record" in="records">
+    <set var="processedCount">{processedCount + 1}</set>
+    <if condition="processedCount % 100 eq 0">
+        <log>Processed {processedCount}/{totalRecords} records</log>
+    </if>
+</for>
+```
+
+## ETL SCRIPT STRUCTURE RECOMMENDATIONS
+
+### Recommended Script Organization
+```xml
+<script>
+    <!-- 1. INITIALIZATION: Set up variables and configuration -->
+    <set var="config">{new Object()}</set>
+    <set var="config.BatchSize">{100}</set>
+    <set var="config.MaxRetries">{3}</set>
+    <set var="stats">{new Object()}</set>
+    <set var="stats.StartTime">{Utils.Now}</set>
+    
+    <log>Starting ETL process at {stats.StartTime}</log>
+    
+    <!-- 2. VALIDATION: Check prerequisites -->
+    <select from="source" entity="contact" var="testConnection" count="1">
+        <attr name="contactid" />
+    </select>
+    <if condition="testConnection eq null">
+        <exception>Cannot connect to source system</exception>
+    </if>
+    
+    <!-- 3. EXTRACT: Get source data -->
+    <log>Extracting data from source...</log>
+    <!-- extraction logic -->
+    
+    <!-- 4. TRANSFORM: Process and clean data -->
+    <log>Transforming data...</log>
+    <!-- transformation logic -->
+    
+    <!-- 5. LOAD: Insert into target -->
+    <log>Loading data to target...</log>
+    <!-- loading logic -->
+    
+    <!-- 6. CLEANUP: Final reporting and cleanup -->
+    <set var="stats.EndTime">{Utils.Now}</set>
+    <set var="stats.Duration">{stats.EndTime - stats.StartTime}</set>
+    <log>ETL process completed in {stats.Duration}</log>
+    <log>Final statistics: {Json.ToJson(stats)}</log>
+</script>
 ```
 
 # SYNC360 QUICK REFERENCE
