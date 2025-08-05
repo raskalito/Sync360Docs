@@ -2288,7 +2288,7 @@ Bind to .NET types using `typeof` and static methods using `static`. Custom asse
 
 ## Production ETL Script Structure
 
-Production ETL scripts should use standardized orchestration patterns for proper job management, scheduling control, and execution tracking. Sync360 provides system scripts that integrate with Dynamics CRM for centralized ETL administration.
+Production ETL scripts should use standardized orchestration patterns for proper job management, scheduling control, and execution tracking. Sync360 provides system scripts that integrate with Dynamics CRM for centralized ETL administration.These scripts starts with Synch360_ and utilizes Data Jobs entity structure from CRM.
 
 ### Standard ETL Script Template
 ```xml
