@@ -3047,7 +3047,7 @@ Production ETL scripts should use standardized orchestration patterns for proper
 <set var="processedCount">{0}</set>
 <for var="record" in="records">
     <set var="processedCount">{processedCount + 1}</set>
-    <if condition="processedCount % 100 eq 0">
+    <if condition="processedCount/100*10 eq 0">
         <log>Processed {processedCount}/{totalRecords} records</log>
     </if>
 </for>
