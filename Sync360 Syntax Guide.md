@@ -137,6 +137,20 @@ Sync360 uses XML syntax, so certain characters must be escaped:
 <set var="message">Use this brace: {lbr}</set>
 ```
 
+## REMAINDER OPERATOR
+Sync360 doesn't have Remainder operator, calculate it 
+
+```xml
+<!-- WRONG - % is not existent operator -->
+<set var="num">{100}</set>
+<set var="divisor">{7}</set>
+<set var="remainder">{num % divisor}</set>
+
+<!-- CORRECT - calculate remainder manually -->
+<set var="num">{100}</set>
+<set var="divisor">{7}</set>
+<set var="remainder">{num - divisor * (num / divisor)}</set>
+
 ## ELEMENT CONTENT VS ATTRIBUTE ASSIGNMENT
 Commands can receive values through element content or attribute assignment:
 
