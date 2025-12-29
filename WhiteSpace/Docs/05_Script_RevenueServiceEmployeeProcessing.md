@@ -2,23 +2,12 @@
 
 ## Purpose
 
-RevenueServiceEmployeeProcessing creates relationships between employees and Revenue Services based on employee involvement with those services. This enables employee expertise mapping, resource planning, and talent management analytics.
-
-**Key Characteristics**:
-- **Employee-focused**: Tracks which employees work with which services
-- **Separate from company processing**: Can run independently of RevenueServiceProcessing
-- **Configuration-driven**: Uses JSON queries similar to service processing
-- **Automatic sync**: Updates employee-service relationships to current state
+RevenueServiceEmployeeProcessing creates relationships between employees and Revenue Services based on employee involvement with those services. This script enables employee expertise mapping, resource planning, and talent management analytics by tracking which employees work with which services. Unlike the main RevenueServiceProcessing script which focuses on companies, this script is employee-focused and can run independently, though the two scripts work together to provide a complete picture of both the demand side (companies purchasing services) and the supply side (employees delivering services). The script uses the same configuration-driven approach with JSON queries, and it automatically synchronizes employee-service relationships to reflect the current state of your data.
 
 
 ## When to Use This Script
 
-Run RevenueServiceEmployeeProcessing when:
-- **Employee tracking needed**: You want to map employee expertise to services
-- **Resource planning**: Need to understand which employees work on which service types
-- **Talent management**: Building competency matrices or skill inventories
-- **Capacity analysis**: Understanding employee workload across services
-- **After employee data changes**: When employee assignments are updated
+Use RevenueServiceEmployeeProcessing when you need to map employee expertise to services, enabling you to answer questions about who has experience with which service types. The script is valuable for resource planning, helping you understand which employees work on which service types and whether you have sufficient capacity. It supports talent management initiatives by building competency matrices or skill inventories, and it aids capacity analysis by revealing employee workload distribution across services. Run the script after employee data changes, such as when employee assignments are updated, new projects are staffed, or team structures are reorganized.
 
 
 ## What You Need Before Running
@@ -70,27 +59,20 @@ For this script to function, Revenue Services must have an **"employees"** secti
 ### Detailed Operations
 
 #### Phase 1: Initialization
-```xml
-<set var="Config['EnableOrders']">{false}</set>
-```
-- Explicitly disables order processing (not relevant for employee tracking)
-- Loads Configuration.xml
-- Initializes data structures for employee-service tracking
+
+The script begins by explicitly disabling order processing, as orders are not relevant for employee tracking. It loads Configuration.xml to access all necessary settings and initializes the data structures needed for employee-service tracking.
 
 #### Phase 2: Load Data
-- Loads all active Revenue Services
-- Retrieves existing employee-service relationships from `vs360_employee_vs360_revenueservice`
+
+The script loads all active Revenue Services from Dataverse and retrieves existing employee-service relationships from the `vs360_employee_vs360_revenueservice` table. This establishes the baseline against which current employee associations will be compared.
 
 #### Phase 3: Execute Employee Queries
-For each Revenue Service:
-- Parses `vs360_selectedcombinations` JSON
-- Checks if "employees" section exists
-- If yes, executes the dynamic query using DynamicQuery.xml
-- Collects employee IDs that match the criteria
+
+For each Revenue Service, the script parses the JSON configuration from the `vs360_selectedcombinations` field and checks whether an "employees" section exists. If the section is present, the script executes the dynamic query using the same DynamicQuery.xml engine used by the main processing script, collecting the employee IDs that match the specified criteria. This builds a comprehensive map of which employees are currently associated with each service.
 
 #### Phase 4: Update Relationships
-- **Add new associations**: For employees now associated with services
-- **Remove old associations**: For employees no longer associated with services
+
+The script compares the current employee-service associations (from the queries) with the existing relationships (from the database). It adds new associations for employees who are now working with services they weren't previously associated with, and it removes old associations for employees who are no longer working with services they were previously linked to. This ensures the relationship table always reflects the current state.
 
 
 ## Configuring Employee Queries
@@ -318,21 +300,19 @@ Identify dependencies:
 ## Integration with Other Scripts
 
 ### Relationship to RevenueServiceProcessing
-- **Independent**: Can run separately
-- **Complementary**: Employee data enriches company-service analysis
-- **Different questions**: Companies = "What services do they buy?", Employees = "Who delivers these services?"
+
+The two scripts are independent and can run separately, but they provide complementary insights. RevenueServiceProcessing answers "What services do companies buy?" while RevenueServiceEmployeeProcessing answers "Who delivers these services?" Together, they enable you to match supply (employee expertise) with demand (company purchases and white space opportunities).
 
 ### Relationship to Reports
-Employee-service data can be incorporated into custom reports:
-- Cross-reference employee expertise with unmatched company services (identify staffing for new opportunities)
-- Analyze employee distribution across service groups
+
+Employee-service data can be incorporated into custom reports to enhance your analysis. For example, you can cross-reference employee expertise with unmatched company services to identify whether you have the right staff to pursue new opportunities. You can also analyze employee distribution across service groups to understand whether your talent is aligned with your market opportunities.
 
 
 ## Customization Options
 
-### Adjust for Different Employee Sources
+Different organizations track employee involvement in different ways. The script supports multiple approaches through the employee query configuration.
 
-**Timesheet-based**:
+**Timesheet-based** tracking identifies employees by the time they've logged against specific service types:
 ```xml
 <!-- In Revenue Service JSON -->
 "employees": [{
@@ -347,7 +327,7 @@ Employee-service data can be incorporated into custom reports:
 }]
 ```
 
-**Role-based**:
+**Role-based** tracking associates employees with services based on their organizational role or department assignment:
 ```xml
 "employees": [{
     "entity": "vs360_employee",
@@ -361,7 +341,7 @@ Employee-service data can be incorporated into custom reports:
 }]
 ```
 
-**Certification-based**: See Scenario 3 above
+**Certification-based** tracking links employees to services based on certifications or qualifications they hold (see Scenario 3 above for a complete example).
 
 
 ## Troubleshooting
@@ -401,15 +381,11 @@ Employee-service data can be incorporated into custom reports:
 
 ## Advanced: Historical vs Current
 
-The script tracks **current** employee-service relationships. If you need historical tracking:
+The script tracks **current** employee-service relationships. If you need historical tracking, there are two approaches you can consider.
 
-### Option 1: Snapshot Approach
-- Run script periodically
-- Export results to a historical table
-- Compare snapshots over time
+The **snapshot approach** involves running the script periodically, exporting the results to a historical table, and comparing snapshots over time. This provides a historical record of how employee expertise has evolved, useful for tracking skill development and identifying trends in resource allocation.
 
-### Option 2: Date Filtering
-Include date ranges in employee queries:
+The **date filtering approach** includes date ranges in your employee queries to scope the relationships to specific time periods:
 ```json
 "conditions": [{
     "_and": [
@@ -419,4 +395,4 @@ Include date ranges in employee queries:
 }]
 ```
 
-
+This allows you to generate point-in-time views of employee expertise for specific periods, which is valuable for performance reviews or historical analysis.
