@@ -2,27 +2,14 @@
 
 ## Purpose
 
-Report_FinancialAnalysis provides revenue-based insights into service combinations, showing the financial value associated with different service groupings. This enables value-based prioritization of cross-sell opportunities and service bundling strategies.
-
-**Key Characteristics**:
-- **Revenue-weighted analysis**: Incorporates financial data into service analysis
-- **Service combination focus**: Analyzes companies with multiple services
-- **Financial metrics**: Total revenue, percentages, and distributions
-- **CSV export**: Ready for financial modeling and analysis
+Report_FinancialAnalysis provides revenue-based insights into service combinations, showing the financial value associated with different service groupings to enable value-based prioritization of cross-sell opportunities and service bundling strategies. This revenue-weighted analysis incorporates financial data directly into service analysis, focusing on companies with multiple services to understand the economic value of service combinations. The report generates financial metrics including total revenue, percentages, and distributions, all exported to CSV format for financial modeling and further analysis.
 
 **Note**: This report requires financial data to be available in your source tables (referenced as `fol_fb5ytotal` in the example script).
 
 
 ## When to Use This Report
 
-Run Report_FinancialAnalysis when:
-- **Value-based prioritization**: Need to focus on high-revenue opportunities
-- **Financial modeling**: Building revenue forecasts for service adoption
-- **ROI analysis**: Understanding revenue impact of cross-sell efforts
-- **Executive reporting**: Presenting financially-focused insights
-- **Account prioritization**: Identifying high-value accounts for service expansion
-
-**Typical usage**: Initial analysis and quarterly financial reviews
+Run Report_FinancialAnalysis when you need value-based prioritization to focus on high-revenue opportunities rather than just counting service combinations. The report is essential for financial modeling when building revenue forecasts for service adoption patterns, and for ROI analysis to understand the revenue impact of cross-sell efforts. Use it for executive reporting when presenting financially-focused insights to leadership, and for account prioritization when identifying high-value accounts for service expansion. This report is typically run during initial analysis and then revisited during quarterly financial reviews.
 
 
 ## What You Need Before Running
@@ -62,35 +49,24 @@ The script expects:
 ### Detailed Operations
 
 #### Phase 1: Load Revenue Services
-- Retrieves active Revenue Services
-- Parses `vs360_selectedcombinations` JSON
-- Extracts practice area ID from conditions
-- Maps Revenue Service → Practice Area
-- Maps Practice Area → Revenue Service
+
+The script retrieves active Revenue Services and parses the `vs360_selectedcombinations` JSON from each service to extract practice area identifiers. It builds bidirectional mappings between Revenue Services and Practice Areas, enabling efficient lookup in both directions during financial data aggregation.
 
 #### Phase 2: Load Matched Relationships
-- Loads matched company-service data
-- Groups companies by their service combinations
-- Filters to combinations with 2+ services
+
+The script loads matched company-service data and groups companies by their service combinations, filtering the results to include only combinations with two or more services since single-service scenarios don't provide cross-sell insights.
 
 #### Phase 3: Query Financial Data
-For each service combination:
-- Queries source table (e.g., vs360_job)
-- Filters by:
-  - Company ID
-  - Practice Area IDs in the combination
-- Retrieves financial field (e.g., `fol_fb5ytotal`)
-- Aggregates revenue per company per service
+
+For each service combination, the script queries the source table (such as vs360_job) and filters by company ID and the practice area IDs present in the combination. It retrieves the financial field value and aggregates revenue per company per service, building a comprehensive financial picture of each service pattern.
 
 #### Phase 4: Calculate Financial Metrics
-- **Group Total Financial**: Sum of all revenue in this service combination
-- **Group Service Financial**: Sum of revenue for one service across all companies
-- **Company Total Financial**: Total revenue for one company across all their services
-- **Service Financial Value**: Revenue for one service for one company
-- **Financial Percentage**: Service revenue / Company total
+
+The script calculates multiple levels of financial aggregation. Group Total Financial represents the sum of all revenue across all companies in a specific service combination. Group Service Financial shows the sum of revenue for one particular service across all companies in that combination. Company Total Financial provides the total revenue for an individual company across all their services. Service Financial Value captures the revenue for one specific service for one specific company. Finally, Financial Percentage expresses each service's revenue as a percentage of the company's total revenue across all services.
 
 #### Phase 5: Export to CSV
-Creates detailed financial breakdown for analysis.
+
+All calculated financial data is exported in a detailed breakdown format that enables sophisticated analysis in Excel or other analytical tools.
 
 
 ## Configuration
@@ -157,47 +133,15 @@ ServiceGroup,GroupTotalFinancial,GroupServiceFinancial,Company,Service,Financial
 
 ### Group-Level Analysis
 
-**GroupTotalFinancial**: Total revenue from all companies with this service combination
-- Indicates total value of this service pattern
-- Higher values = more valuable combinations to focus on
+GroupTotalFinancial represents the total revenue from all companies sharing a specific service combination, indicating the total economic value of that service pattern. Higher values identify more valuable combinations that warrant focused attention and resources. GroupServiceFinancial shows the total revenue for one service across all companies in the group, revealing which service drives the most revenue within each combination and helping prioritize services within bundling strategies.
 
-**GroupServiceFinancial**: Total revenue for one service across all companies in the group
-- Shows which service drives the most revenue in this combination
-- Helps prioritize services within bundles
-
-**Example**:
-```
-Service Combination: Tax + Audit + Advisory
-GroupTotalFinancial: $5,250,000
-- Tax Services: $2,100,000 (40%)
-- Audit Services: $1,890,000 (36%)
-- Advisory Services: $1,260,000 (24%)
-```
-*Tax is the highest-value service in this combination*
+For example, a service combination of Tax + Audit + Advisory might show a GroupTotalFinancial of $5,250,000 with individual service contributions of Tax at $2,100,000 (40%), Audit at $1,890,000 (36%), and Advisory at $1,260,000 (24%). This reveals that Tax is the highest-value service in this particular combination.
 
 ### Company-Level Analysis
 
-**FinancialCompanyTotal**: Total revenue from this company
-- Identifies high-value accounts
-- Prioritize cross-sell efforts to high-revenue companies
+FinancialCompanyTotal identifies high-value accounts by showing the total revenue from each company, enabling you to prioritize cross-sell efforts toward high-revenue companies where the potential impact is greatest. FinancialValue shows the revenue contribution from one service for a specific company, helping you understand which services drive each company relationship. FinancialPercentage expresses each service's revenue as a percentage of the company's total, with a dominant service showing more than 50%, a balanced portfolio showing roughly 33% each for three services, and a minor service representing less than 20%.
 
-**FinancialValue**: Revenue from one service for this company
-- Shows service contribution to company revenue
-- Understand which services drive company relationships
-
-**FinancialPercentage**: Service revenue as percentage of company total
-- Dominant service: >50%
-- Balanced portfolio: ~33% each for 3 services
-- Minor service: <20%
-
-**Example**:
-```
-Company ABC: Total $250,000
-- Tax: $150,000 (60%) - Dominant service
-- Audit: $75,000 (30%) - Secondary service
-- Advisory: $25,000 (10%) - Minor service
-```
-*Tax is the primary relationship driver for this company*
+For example, Company ABC with a total of $250,000 might show Tax at $150,000 (60%), Audit at $75,000 (30%), and Advisory at $25,000 (10%). This pattern indicates that Tax is the primary relationship driver for this company, suggesting that maintaining and growing the Tax relationship is critical to retaining this account.
 
 
 ## Using the Report Results
@@ -267,42 +211,11 @@ Advisory is underutilized → Upsell Advisory services
 
 ## Advanced Analysis Techniques
 
-### Revenue Potential Calculation
+Revenue potential calculation involves identifying gaps where companies are missing services that similar companies typically purchase. For example, if Company A has Tax ($150K) and Audit ($75K) but no Advisory, and similar companies with all three services average $50K in Advisory revenue, this represents a $50K revenue potential if Company A adds Advisory services. Aggregate this analysis across all companies with similar gaps to calculate total potential revenue from cross-sell initiatives.
 
-**Identify gaps**:
-```
-Company A: Tax ($150K), Audit ($75K), No Advisory
-Similar companies with all three average $50K in Advisory
-→ Revenue potential: $50K if Company A adds Advisory
-```
+Service bundle pricing can be informed by analyzing typical revenue splits. If the typical revenue split in a Tax+Audit+Advisory combination shows Tax at $150K (40%), Audit at $135K (36%), and Advisory at $90K (24%) for a total of $375K, you might design a bundle priced at $350K, offering a 7% discount for purchasing all three services together.
 
-**Aggregate across all gap companies**:
-- Total potential revenue from cross-sell
-
-### Service Bundle Pricing
-
-**Use financial data to design bundles**:
-```
-Typical revenue split in Tax+Audit+Advisory:
-- Tax: $150K (40%)
-- Audit: $135K (36%)
-- Advisory: $90K (24%)
-Total: $375K
-
-Bundle pricing: $350K (7% discount for all three)
-```
-
-### ROI Forecasting
-
-**Model revenue impact**:
-```
-Current state: 100 companies with Tax only
-Average Tax revenue: $100K each = $10M total
-
-If 50% add Audit (avg $75K):
-Additional revenue: 50 × $75K = $3.75M
-ROI on cross-sell campaign = ?
-```
+ROI forecasting uses the financial data to model revenue impact of cross-sell campaigns. If you currently have 100 companies with Tax only, each averaging $100K in Tax revenue for $10M total, and you expect 50% to add Audit services averaging $75K each, the additional revenue potential is 50 × $75K = $3.75M. This can then be compared to the cost of the cross-sell campaign to calculate ROI.
 
 
 ## Script Execution
@@ -397,19 +310,4 @@ Ensure:
 
 ## Integration with Business Strategy
 
-### Sales Strategy
-- High-value combinations = sales bundle priorities
-- High-revenue accounts = account management focus
-- Service mix imbalances = cross-sell opportunities
-
-### Marketing Strategy
-- Promote high-value combinations in campaigns
-- Create case studies from high-revenue multi-service accounts
-- Target segments with highest revenue potential
-
-### Financial Planning
-- Revenue forecasting based on service adoption patterns
-- Budget allocation for service development (focus on high-revenue services)
-- ROI modeling for cross-sell initiatives
-
-
+The financial analysis integrates with sales strategy by identifying high-value combinations as sales bundle priorities, focusing account management on high-revenue accounts, and targeting service mix imbalances as cross-sell opportunities. For marketing strategy, promote high-value combinations in campaigns, create case studies from high-revenue multi-service accounts, and target segments with the highest revenue potential. In financial planning, use the data for revenue forecasting based on service adoption patterns, allocate budgets for service development focusing on high-revenue services, and build ROI models for cross-sell initiatives.
