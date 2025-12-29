@@ -1,0 +1,397 @@
+<script>
+	<include name="Configuration" />
+	
+	<set var="RevenueServices">{new Dictionary()}</set>
+	<set var="RevenueServicesToGroup">{new Dictionary()}</set>
+	<set var="OrderToRevenue">{new Dictionary()}</set>
+	<set var="TableToRevenueMatched">{new Dictionary()}</set>
+	<set var="TableToRevenueUnMatched">{new Dictionary()}</set>
+	<set var="TableRecordsAtLeastOneService">{new Dictionary()}</set>
+	<set var="TableToServiceIdentified">{new Dictionary()}</set>
+	<set var="Orders">{new Dictionary()}</set>
+	<set var="OrdersIdentified">{new Dictionary()}</set>
+	<set var="OrderRecordsAtLeastOneService">{new Dictionary()}</set>
+	<set var="OrderToServiceIdentified">{new Dictionary()}</set>
+	
+	<select from="crm" entity="vs360_revenueservice" var="records">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+		</where>
+		<attr name="vs360_name"/>
+		<attr name="vs360_revenueserviceid"/>
+		<attr name="vs360_selectedcombinations"/>
+		<attr name="vs360_group" />
+	</select>
+	<for var="r" in="records">
+		<set var="gid">{r.vs360_group.ToString()}</set>
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="RevenueServicesToGroup[rid]">{gid}</set>
+		<set var="RevenueServices[gid]" if="!RevenueServices.ContainsKey(gid)">{new Dictionary()}</set>
+		<set var="RevenueServices[gid][rid]">{r}</set>
+	</for>
+	
+	<set var="selectFrom">crm</set>
+	<set var="selectFrom" if="Config['SaveMode'] eq 'SQL'">sql</set>
+	<select from="{selectFrom}" entity="{Config['MatchedNN']}" var="records">
+		<attr name="{Config['OtherTablePrimaryKey']}"/>
+		<attr name="vs360_revenueserviceid"/>
+	</select>
+	
+	<!--Extensions -->
+	<set var="IgnoreServiceUnmatched">{new Dictionary()}</set>
+	<!--<include name="LostOpportunities" />-->
+
+	<for var="r" in="records">
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="gid">{RevenueServicesToGroup[rid]}</set>
+		<set var="aid">{r[Config['OtherTablePrimaryKey']].ToString()}</set>
+		<set var="TableToRevenueMatched[gid]" if="!TableToRevenueMatched.ContainsKey(gid)">{new Dictionary()}</set>
+		<set var="TableToRevenueMatched[gid][aid]" if="!TableToRevenueMatched[gid].ContainsKey(aid)">{new Dictionary()}</set>
+		<set var="TableToRevenueMatched[gid][aid][rid]">{null}</set>
+	</for>
+
+	<select from="{selectFrom}" entity="{Config['UnmatchedNN']}" var="records">
+		<attr name="{Config['OtherTablePrimaryKey']}"/>
+		<attr name="vs360_revenueserviceid"/>
+	</select>
+	<for var="r" in="records">
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="gid">{RevenueServicesToGroup[rid]}</set>
+		<set var="aid">{r[Config['OtherTablePrimaryKey']].ToString()}</set>
+		<set var="TableToRevenueUnMatched[gid]" if="!TableToRevenueUnMatched.ContainsKey(gid)">{new Dictionary()}</set>
+		<set var="TableToRevenueUnMatched[gid][aid]" if="!TableToRevenueUnMatched[gid].ContainsKey(aid)">{new Dictionary()}</set>
+		<set var="TableToRevenueUnMatched[gid][aid][rid]">{null}</set>
+	</for>
+
+	<if condition="Config['EnableOrders']">
+		<select from="{selectFrom}" entity="{Config['OrdersTable']}" var="records">
+			<attr name="{Config['OrdersPrimaryKey']}"/>
+			<for var="map" in="OrdersMapping">
+                <attr name="{map.dst}"/>
+            </for>
+		</select>
+		<for var="r" in="records">
+            <set var="Orders[r[Config['OrdersKey']]]">{r}</set>
+        </for>
+		<select from="{selectFrom}" entity="{Config['OrdersNN']}" var="records">
+			<attr name="{Config['OrdersPrimaryKey']}"/>
+			<attr name="vs360_revenueserviceid"/>
+		</select>
+		<for var="r" in="records">
+			<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+			<set var="gid">{RevenueServicesToGroup[rid]}</set>
+			<set var="jid">{r[Config['OrdersPrimaryKey']].ToString()}</set>
+			<set var="OrderToRevenue[gid]" if="!OrderToRevenue.ContainsKey(gid)">{new Dictionary()}</set>
+			<set var="OrderToRevenue[gid][jid]" if="!OrderToRevenue[gid].ContainsKey(jid)">{new Dictionary()}</set>
+			<set var="OrderToRevenue[gid][jid][rid]">{null}</set>
+		</for>
+	</if>
+
+	
+
+	<for var="gid" in="RevenueServices.Keys">
+		<set var="TableRecordsAtLeastOneService[gid]"  if="!TableRecordsAtLeastOneService.ContainsKey(gid)">{new Dictionary()}</set>
+		<set var="TableToServiceIdentified[gid]"  if="!TableToServiceIdentified.ContainsKey(gid)">{new Dictionary()}</set>
+		<if condition="Config['EnableOrders']">
+			<set var="OrderRecordsAtLeastOneService[gid]"  if="!OrderRecordsAtLeastOneService.ContainsKey(gid)">{new Dictionary()}</set>
+			<set var="OrderToServiceIdentified[gid]"  if="!OrderToServiceIdentified.ContainsKey(gid)">{new Dictionary()}</set>
+		</if>
+		<for var="rid" in="RevenueServices[gid].Keys">
+			<set var="json">{null}</set>
+			<sandbox verbose="false">
+				<set var="json">{Json.GetDictionary(RevenueServices[gid][rid].vs360_selectedcombinations)}</set>
+			</sandbox>
+			<if condition="json.isSet">
+				<for var="rule" in="json.rules">
+					<include name="DynamicQuery" />
+					<for var="rec" in="records">
+						<if condition="rule.status eq 360000001">
+							<if condition="rec[rule.customer_field].isSet">
+								<set var="aid">{null}</set>
+								<set var="aid" if="rec[rule.customer_field].Id.isSet">{rec[rule.customer_field].Id.ToString()}</set>
+								<set var="aid" if="!aid.isSet">{rec[rule.customer_field].ToString()}</set>
+								<set var="TableRecordsAtLeastOneService[gid][aid]">{null}</set>
+								<set var="TableToServiceIdentified[gid][aid]" if="!TableToServiceIdentified[gid].ContainsKey(aid)">{new Dictionary()}</set>
+								<set var="TableToServiceIdentified[gid][aid][rid]">{null}</set>
+							</if>
+						</if>
+						<if condition="Config['EnableOrders']">
+							<set var="jid">{null}</set>
+							<set var="newRecord">{new Dictionary()}</set>
+							<for var="map" in="OrdersMapping">
+								<set var="newRecord[map.dst]">{rec[rule[map.src]]}</set>
+                            </for>
+							<set var="OrdersIdentified[rec[rule.orderid_field]]">{newRecord}</set>
+							<if condition="Orders.ContainsKey(rec[rule.orderid_field])">
+                                <then>
+									<set var="jid">{Orders[rec[rule.orderid_field]][Config['OrdersPrimaryKey']].ToString()}</set>
+								</then>
+								<else>
+									<if condition="Config['SaveMode'] eq 'Dynamics'">
+										<create in="crm" entity="{Config['OrdersTable']}" var="jid">
+											<for var="map" in="OrdersMapping">
+                                                <attr name="{map.dst}">{rec[rule[map.src]]}</attr>
+                                            </for>
+											<attr name="vs360_status">{rule.status as 'System.Int32'}</attr>
+										</create>
+										<set var="newRecord[Config['OrdersPrimaryKey']]">{jid}</set>
+										<set var="Orders[rec[rule.orderid_field]]">{newRecord}</set>
+										<set var="jid">{jid.ToString()}</set>
+									</if>
+								</else>
+                            </if>
+							
+							<set var="OrderRecordsAtLeastOneService[gid][jid]">{null}</set>
+							<set var="OrderToServiceIdentified[gid][jid]" if="!OrderToServiceIdentified[gid].ContainsKey(jid)">{new Dictionary()}</set>
+							<set var="OrderToServiceIdentified[gid][jid][rid]">{null}</set>
+						</if>
+					</for>
+				</for>
+			</if>
+		 </for>	
+	</for>
+	<for var="key" in="OrdersIdentified.Keys">
+        <set var="curRecord">{Orders[key]}</set>
+		<set var="newRecord">{OrdersIdentified[key]}</set>
+		<set var="jid">{curRecord[Config['OrdersPrimaryKey']].ToString()}</set>
+		<set var="Changes">{new Dictionary()}</set>
+		<for var="map" in="OrdersMapping">
+            <if condition="!curRecord[map.dst].isSet and newRecord[map.dst].isSet">
+                <set var="Changes[map.dst]">{newRecord[map.dst]}</set>
+            </if>
+			<if condition="curRecord[map.dst].isSet and !newRecord[map.dst].isSet">
+                <set var="Changes[map.dst]">{null}</set>
+            </if>
+			<if condition="curRecord[map.dst].isSet and newRecord[map.dst].isSet">
+				<if condition="curRecord[map.dst].Id.isSet">
+                    <then>
+						<if condition="curRecord[map.dst].Id ne newRecord[map.dst].Id">
+							<set var="Changes[map.dst]">{newRecord[map.dst]}</set>
+						</if>
+					</then>
+					<else>
+						<if condition="curRecord[map.dst] ne newRecord[map.dst]">
+							<set var="Changes[map.dst]">{newRecord[map.dst]}</set>
+						</if>
+					</else>
+                </if>
+            </if>
+        </for>
+		<if condition="Changes.Count gt 0">
+			<if condition="Config['SaveMode'] eq 'Dynamics'">
+				<update in="crm" entity="{Config['OrdersTable']}">
+					<where>
+						<condition attr="{Config['OrdersPrimaryKey']}" op="eq">{jid}</condition>
+					</where>
+					<for var="field" in="Changes.Keys">
+                        <attr name="{field}">{Changes[field]}</attr>
+                    </for>
+				</update>
+			</if>
+        </if>
+    </for>
+	<set var="RemovedOrders">{new Dictionary()}</set>
+	<for var="key" in="Orders.Keys">
+		<set var="jid">{Orders[key][Config['OrdersPrimaryKey']].ToString()}</set>
+        <if condition="!OrdersIdentified.ContainsKey(key)">
+            <if condition="Config['SaveMode'] eq 'Dynamics'">
+				<delete in="crm" entity="{Config['OrdersTable']}">
+                    <where>
+                        <condition attr="{Config['OrdersPrimaryKey']}" op="eq">{jid}</condition>
+                    </where>
+                </delete>
+			</if>
+			<set var="RemovedOrders[jid]">{null}</set>
+        </if>
+    </for>
+	<for var="gid" in="TableToRevenueMatched.Keys">
+		<for var="aid" in="TableToRevenueMatched[gid].Keys">
+			<if condition="!TableRecordsAtLeastOneService.ContainsKey(gid) or !TableRecordsAtLeastOneService[gid].ContainsKey(aid)">
+				<set var="aidGuid">{aid as 'Guid'}</set>
+				<for var="rid" in="TableToRevenueMatched[gid][aid].Keys">
+					<set var="ridGuid">{rid as 'Guid'}</set>
+					<if condition="Config['SaveMode'] eq 'Dynamics'">
+                        <set>{@crm.DisassociateEntities(Config['OtherTable'],aidGuid,"vs360_revenueservice",ridGuid,Config['MatchedNN'])}</set>
+                    </if>
+					<if condition="Config['SaveMode'] eq 'SQL'">
+						<delete in="sql" entity="{Config['MatchedNN']}">
+                            <where>
+                                <condition attr="{Config['OtherTablePrimaryKey']}" op="eq">{aidGuid}</condition>
+								<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+                            </where>
+                        </delete>
+					</if>
+				</for>
+			</if>
+		</for>
+	</for>
+	<for var="gid" in="TableToRevenueUnMatched.Keys">
+		<for var="aid" in="TableToRevenueUnMatched[gid].Keys">
+			<if condition="!TableRecordsAtLeastOneService.ContainsKey(gid) or !TableRecordsAtLeastOneService[gid].ContainsKey(aid)">
+				<set var="aidGuid">{aid as 'Guid'}</set>
+				<for var="rid" in="TableToRevenueUnMatched[gid][aid].Keys">
+					<set var="ridGuid">{rid as 'Guid'}</set>
+					<if condition="Config['SaveMode'] eq 'Dynamics'">
+						<set>{@crm.DisassociateEntities(Config['OtherTable'],aidGuid,"vs360_revenueservice",ridGuid,Config['UnmatchedNN'])}</set>
+					</if>
+					<if condition="Config['SaveMode'] eq 'SQL'">
+						<delete in="sql" entity="{Config['UnmatchedNN']}">
+                            <where>
+                                <condition attr="{Config['OtherTablePrimaryKey']}" op="eq">{aidGuid}</condition>
+								<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+                            </where>
+                        </delete>
+					</if>
+				</for>
+			</if>
+		</for>
+	</for>
+	<if condition="Config['EnableOrders']">
+		<for var="gid" in="OrderToRevenue.Keys">
+			<for var="jid" in="OrderToRevenue[gid].Keys">
+				<if condition="!OrderRecordsAtLeastOneService.ContainsKey(gid) or !OrderRecordsAtLeastOneService[gid].ContainsKey(jid)">
+					<if condition="!RemovedOrders.ContainsKey(jid)">
+						<set var="jidGuid">{jid as 'Guid'}</set>
+						<for var="rid" in="OrderToRevenue[gid][jid].Keys">
+							<set var="ridGuid">{rid as 'Guid'}</set>
+							<if condition="Config['SaveMode'] eq 'Dynamics'">
+								<set>{@crm.DisassociateEntities(Config['OrdersTable'],jidGuid,"vs360_revenueservice",ridGuid,Config['OrdersNN'])}</set>
+							</if>
+							<if condition="Config['SaveMode'] eq 'SQL'">
+								<delete in="sql" entity="{Config['OrdersNN']}">
+									<where>
+										<condition attr="{Config['OrdersPrimaryKey']}" op="eq">{jidGuid}</condition>
+										<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+									</where>
+								</delete>
+							</if>
+						</for>
+					</if>
+				</if>
+			</for>
+		</for>
+	</if>
+	<for var="gid" in="TableRecordsAtLeastOneService.Keys">
+		<for var="aid" in="TableRecordsAtLeastOneService[gid].Keys">
+			<set var="aidGuid">{aid as 'Guid'}</set>
+			
+			<for var="rid" in="TableToServiceIdentified[gid][aid].Keys">
+				
+				<if condition="!TableToRevenueMatched.ContainsKey(gid) or !TableToRevenueMatched[gid].ContainsKey(aid) or !TableToRevenueMatched[gid][aid].ContainsKey(rid)">
+					<set var="ridGuid">{rid as 'Guid'}</set>
+					<if condition="Config['SaveMode'] eq 'Dynamics'">
+						<set>{@crm.AssociateEntities(Config['OtherTable'],aidGuid,"vs360_revenueservice",ridGuid,Config['MatchedNN'])}</set>
+					</if>
+					<if condition="Config['SaveMode'] eq 'SQL'">
+						<create in="sql" entity="{Config['MatchedNN']}">
+							<where>
+								<condition attr="{Config['OtherTablePrimaryKey']}" op="eq">{aidGuid}</condition>
+								<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+							</where>
+						</create>
+					</if>
+				</if>
+			</for>
+			
+			<for var="rid" in="RevenueServices[gid].Keys">
+				<if condition="!IgnoreServiceUnmatched.ContainsKey(gid) or !IgnoreServiceUnmatched[gid].ContainsKey(rid) or !IgnoreServiceUnmatched[gid][rid].ContainsKey(aid)">
+					<if condition="!TableToServiceIdentified[gid][aid].ContainsKey(rid)">
+						<if condition="!TableToRevenueUnMatched.ContainsKey(gid) or !TableToRevenueUnMatched[gid].ContainsKey(aid) or !TableToRevenueUnMatched[gid][aid].ContainsKey(rid)">
+							<set var="ridGuid">{rid as 'Guid'}</set>
+							<if condition="Config['SaveMode'] eq 'Dynamics'">
+								<set>{@crm.AssociateEntities(Config['OtherTable'],aidGuid,"vs360_revenueservice",ridGuid,Config['UnmatchedNN'])}</set>
+							</if>
+							<if condition="Config['SaveMode'] eq 'SQL'">
+								<create in="sql" entity="{Config['UnmatchedNN']}">
+									<where>
+										<condition attr="{Config['OtherTablePrimaryKey']}" op="eq">{aidGuid}</condition>
+										<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+									</where>
+								</create>
+							</if>
+						</if>
+					</if>
+				</if>
+			</for>
+			<if condition="TableToRevenueMatched.ContainsKey(gid) and TableToRevenueMatched[gid].ContainsKey(aid)">
+				<for var="rid" in="TableToRevenueMatched[gid][aid].Keys">
+					<if condition="!TableToServiceIdentified[gid][aid].ContainsKey(rid)">
+						<set var="ridGuid">{rid as 'Guid'}</set>
+						<if condition="Config['SaveMode'] eq 'Dynamics'">
+							<set>{@crm.DisassociateEntities(Config['OtherTable'],aidGuid,"vs360_revenueservice",ridGuid,Config['MatchedNN'])}</set>
+						</if>
+						<if condition="Config['SaveMode'] eq 'SQL'">
+							<delete in="sql" entity="{Config['MatchedNN']}">
+								<where>
+									<condition attr="{Config['OtherTablePrimaryKey']}" op="eq">{aidGuid}</condition>
+									<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+								</where>
+							</delete>
+						</if>
+					</if>
+				</for>
+			</if>
+			<if condition="TableToRevenueUnMatched.ContainsKey(gid) and TableToRevenueUnMatched[gid].ContainsKey(aid)">
+				<for var="rid" in="TableToRevenueUnMatched[gid][aid].Keys">
+					<if condition="TableToServiceIdentified[gid][aid].ContainsKey(rid)">
+						<set var="ridGuid">{rid as 'Guid'}</set>
+						<if condition="Config['SaveMode'] eq 'Dynamics'">
+							<set>{@crm.DisassociateEntities(Config['OtherTable'],aidGuid,"vs360_revenueservice",ridGuid,Config['UnmatchedNN'])}</set>
+						</if>
+						<if condition="Config['SaveMode'] eq 'SQL'">
+							<delete in="sql" entity="{Config['MatchedNN']}">
+								<where>
+									<condition attr="{Config['OtherTablePrimaryKey']}" op="eq">{aidGuid}</condition>
+									<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+								</where>
+							</delete>
+						</if>
+					</if>
+				</for>
+			</if>
+		</for>
+	</for>
+
+	<if condition="Config['EnableOrders']">
+		<for var="gid" in="OrderRecordsAtLeastOneService.Keys">
+			<for var="jid" in="OrderRecordsAtLeastOneService[gid].Keys">
+				<set var="jidGuid">{jid as 'Guid'}</set>
+				<for var="rid" in="OrderToServiceIdentified[gid][jid].Keys">
+				
+					<if condition="!OrderToRevenue.ContainsKey(gid) or !OrderToRevenue[gid].ContainsKey(jid) or !OrderToRevenue[gid][jid].ContainsKey(rid)">
+						<set var="ridGuid">{rid as 'Guid'}</set>
+						<if condition="Config['SaveMode'] eq 'Dynamics'">
+							<set>{@crm.AssociateEntities(Config['OrdersTable'],jidGuid,"vs360_revenueservice",ridGuid,Config['OrdersNN'])}</set>
+						</if>
+						<if condition="Config['SaveMode'] eq 'SQL'">
+							<create in="sql" entity="{Config['OrdersNN']}">
+								<where>
+									<condition attr="{Config['OrdersPrimaryKey']}" op="eq">{jidGuid}</condition>
+									<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+								</where>
+							</create>
+						</if>
+					</if>
+				</for>
+				<if condition="OrderToRevenue.ContainsKey(gid) and OrderToRevenue[gid].ContainsKey(jid)">
+					<for var="rid" in="OrderToRevenue[gid][jid].Keys">
+						<if condition="!OrderToServiceIdentified[gid][jid].ContainsKey(rid)">
+							<set var="ridGuid">{rid as 'Guid'}</set>
+							<if condition="Config['SaveMode'] eq 'Dynamics'">
+								<set>{@crm.DisassociateEntities(Config['OrdersTable'],jidGuid,"vs360_revenueservice",ridGuid,Config['OrdersNN'])}</set>
+							</if>
+							<if condition="Config['SaveMode'] eq 'SQL'">
+								<delete in="sql" entity="{Config['OrdersNN']}">
+									<where>
+										<condition attr="{Config['OrdersPrimaryKey']}" op="eq">{jidGuid}</condition>
+										<condition attr="vs360_revenueserviceid" op="eq">{ridGuid}</condition>
+									</where>
+								</delete>
+							</if>
+						</if>
+					</for>
+				</if>
+			</for>
+		</for>
+	</if>
+</script>

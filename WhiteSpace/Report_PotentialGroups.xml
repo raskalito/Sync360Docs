@@ -1,0 +1,75 @@
+<script>
+	<set var="dumpFile">C:\temp\dump.csv</set>
+	<select from="crm" entity="vs360_revenueservice" var="records">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+		</where>
+		<attr name="vs360_name"/>
+		<attr name="vs360_revenueserviceid"/>
+		<attr name="vs360_selectedcombinations"/>
+		<attr name="vs360_group" />
+	</select>
+	<set var="RevenueServices">{new Dictionary()}</set>
+	<set var="maxGroup">{0}</set>
+	<for var="r" in="records">
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="RevenueServices[rid]">{r}</set>
+		<set var="maxGroup" if="maxGroup lt (r.vs360_group as 'int')">{r.vs360_group as 'int'}</set>
+	</for>
+	<select from="crm" entity="vs360_account_vs360_revenueservice_matched" var="records">
+		<attr name="accountid"/>
+		<attr name="vs360_revenueserviceid"/>
+		<order by="vs360_revenueserviceid" />
+	</select>
+	<set var="dictGrouping">{new Dictionary()}</set>
+	<for var="r" in="records">
+        <set var="aid">{r.accountid.ToString()}</set>
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="dictGrouping[aid]" if="!dictGrouping.ContainsKey(aid)">{new List()}</set>
+		<set var="dictGrouping[aid][]">{rid}</set>
+    </for>
+	<set var="nowGroups">{new Dictionary()}</set>
+	<for var="aid" in="dictGrouping.Keys">
+        <set var="key"></set>
+		<if condition="dictGrouping[aid].Count gt 1">
+            <for var="rid" in="dictGrouping[aid]">
+				<set var="key">{key}{rid}</set>
+			</for>
+			<set var="nowGroups[key]" if="!nowGroups.ContainsKey(key)">{new Dictionary()}</set>
+			<set var="nowGroups[key]['l']" if="!nowGroups[key].ContainsKey('l')">{new List()}</set>
+			<set var="nowGroups[key]['l'][]">{aid}</set>
+			<set var="nowGroups[key]['d']" if="!nowGroups[key].ContainsKey('d')">{dictGrouping[aid]}</set>
+        </if>
+		
+    </for>
+	
+	<set var="csvData">{new List()}</set>
+	<set var="uniqueGRP">{maxGroup+1}</set>
+	<for var="key" in="nowGroups.Keys">
+        <if condition="nowGroups[key]['l'].Count gt 1">
+		
+			<set var="csvRow">{new Dictionary()}</set>
+			<set var="services"></set>
+			<set var="objects">{new List()}</set>
+			<for var="rid" in="nowGroups[key]['d']">
+				<set var="newService">
+					<attr name="name">({uniqueGRP}) {RevenueServices[rid].vs360_name}</attr>
+					<attr name="vs360_selectedcombinations">{RevenueServices[rid].vs360_selectedcombinations}</attr>
+					<attr name="vs360_group">{uniqueGRP}</attr>
+				</set>
+                <set var="services">{services}{RevenueServices[rid].vs360_name};</set>
+				<set var="objects[]">{newService}</set>
+            </for>
+			<set var="csvRow['GroupCount']">{nowGroups[key]['l'].Count}</set>
+			<set var="csvRow['Services']">{services}</set>
+			<set var="csvRow['ServicesCount']">{nowGroups[key]['d'].Count}</set>
+			<set var="csvRow['UseThisGroup']">{nowGroups[key]['l'].Count ge 100}</set>
+			<set var="csvRow['NewRecords']">{Json.ToJson(objects)}</set>
+			
+            <log>{nowGroups[key]['l'].Count}|{services}</log>
+			<set var="csvData[]">{csvRow}</set>
+			<set var="uniqueGRP">{uniqueGRP+1}</set>
+        </if>
+    </for>
+	<set var="result">{Csv.Write(csvData, dumpFile, Encoding.UTF8, ',', '"','#',true,false)}</set>
+</script>

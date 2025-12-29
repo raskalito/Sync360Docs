@@ -1,0 +1,70 @@
+<script>
+	<select from="crm" entity="{rule.entity}" var="records">
+		<if condition="rule.conditions.isSet">
+			<where>
+				<for var="cond" in="rule.conditions">
+					<include name="Conditions"/>
+				</for>
+			</where>
+		</if>
+		<attr name="{rule.customer_field}"/>
+		<if condition="Config['EnableOrders']">
+			<attr name="{rule.startdate_field}"/>
+			<attr name="{rule.enddate_field}"/>
+			<attr name="{rule.revenue_field}"/>
+			<attr name="{rule.orderid_field}"/>
+		</if>
+		<if condition="rule.links.isSet">
+			<for var="link1" in="rule.links">
+				<join type="{link1.type}" entity="{link1.relationship}" to="{link1.to}" from="{link1.from}">
+					<if condition="link1.conditions.isSet">
+						<where>
+							<for var="cond" in="link1.conditions">
+								<include name="Conditions"/>
+							</for>
+						</where>
+					</if>
+					<if condition="link1.links.isSet">
+						<for var="link2" in="link1.links">
+							<join type="{link2.type}" entity="{link2.relationship}" to="{link2.to}" from="{link2.from}">
+								<if condition="link2.conditions.isSet">
+									<where>
+										<for var="cond" in="link2.conditions">
+											<include name="Conditions"/>
+										</for>
+									</where>
+								</if>
+								<if condition="link2.links.isSet">
+									<for var="link3" in="link2.links">
+										<join type="{link3.type}" entity="{link3.relationship}" to="{link3.to}" from="{link3.from}">
+											<if condition="link3.conditions.isSet">
+												<where>
+													<for var="cond" in="link3.conditions">
+														<include name="Conditions"/>
+													</for>
+												</where>
+												<if condition="link3.links.isSet">
+													<for var="link4" in="link3.links">
+														<join type="{link4.type}" entity="{link4.relationship}" to="{link4.to}" from="{link4.from}">
+															<if condition="link4.conditions.isSet">
+																<where>
+																	<for var="cond" in="link4.conditions">
+																		<include name="Conditions"/>
+																	</for>
+																</where>
+															</if>
+														</join>
+													</for>
+												</if>
+											</if>
+										</join>
+									</for>
+								</if>
+							</join>
+						</for>
+					</if>
+				</join>
+			</for>
+		</if>
+	</select>
+</script>

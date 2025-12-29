@@ -1,0 +1,79 @@
+<script>
+	<include name="Configuration" />
+	
+	<set var="Config['EnableOrders']">{false}</set>
+	<set var="RevenueServices">{new Dictionary()}</set>
+	<set var="RevenueServicesToGroup">{new Dictionary()}</set>
+	<set var="exEmployeeServices">{new Dictionary()}</set>
+	<set var="curEmployeeServices">{new Dictionary()}</set>
+	
+	<select from="crm" entity="vs360_revenueservice" var="records">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+		</where>
+		<attr name="vs360_name"/>
+		<attr name="vs360_group"/>
+		<attr name="vs360_revenueserviceid"/>
+		<attr name="vs360_selectedcombinations"/>
+	</select>
+	<for var="r" in="records">
+		<set var="gid">{r.vs360_group.ToString()}</set>
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="RevenueServicesToGroup[rid]">{gid}</set>
+		<set var="RevenueServices[gid]" if="!RevenueServices.ContainsKey(gid)">{new Dictionary()}</set>
+		<set var="RevenueServices[gid][rid]">{r}</set>
+	</for>
+	
+	<select from="crm" entity="vs360_employee_vs360_revenueservice" var="records">
+		<attr name="vs360_revenueserviceid"/>
+		<attr name="vs360_employeeid"/>
+	</select>
+	
+	<for var="r" in="records">
+		<set var="eid">{r.vs360_employeeid.ToString()}</set>
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="exEmployeeServices[rid]" if="!exEmployeeServices.ContainsKey(rid)">{new Dictionary()}</set>
+		<set var="exEmployeeServices[rid][eid]">{null}</set>
+	</for>
+	
+
+	
+
+	<for var="gid" in="RevenueServices.Keys">
+		<for var="rid" in="RevenueServices[gid].Keys">
+			<set var="json">{null}</set>
+			<sandbox verbose="false">
+				<set var="json">{Json.GetDictionary(RevenueServices[gid][rid].vs360_selectedcombinations)}</set>
+			</sandbox>
+			<if condition="json.isSet">
+				<for var="rule" in="json.employees">
+					<include name="DynamicQuery" />
+					<for var="rec" in="records">
+						<set var="eid">{rec[rule.customer_field].ToString()}</set>
+						<set var="curEmployeeServices[rid]" if="!curEmployeeServices.ContainsKey(rid)">{new Dictionary()}</set>
+						<set var="curEmployeeServices[rid][eid]">{null}</set>
+					</for>
+				</for>
+			</if>
+		 </for>	
+	</for>
+	<for var="rid" in="curEmployeeServices.Keys">
+		<set var="ridGuid">{rid as 'Guid'}</set>
+		<for var="eid" in="curEmployeeServices[rid].Keys">
+			<set var="eidGuid">{eid as 'Guid'}</set>
+            <if condition="!exEmployeeServices.ContainsKey(rid) or !exEmployeeServices[rid].ContainsKey(eid)">
+                <set>{@crm.AssociateEntities("vs360_revenueservice",ridGuid,"vs360_employee",eidGuid,"vs360_employee_vs360_revenueservice")}</set>
+            </if>
+        </for> 
+    </for>
+	<for var="rid" in="exEmployeeServices.Keys">
+		<set var="ridGuid">{rid as 'Guid'}</set>
+		<for var="eid" in="exEmployeeServices[rid].Keys">
+			<set var="eidGuid">{eid as 'Guid'}</set>
+            <if condition="!curEmployeeServices.ContainsKey(rid) or !curEmployeeServices[rid].ContainsKey(eid)">
+                <set>{@crm.DisassociateEntities("vs360_revenueservice",ridGuid,"vs360_employee",eidGuid,"vs360_employee_vs360_revenueservice")}</set>
+            </if>
+        </for> 
+    </for>
+	
+</script>

@@ -1,0 +1,205 @@
+<script>
+	<include name="Configuration" />
+	
+	<set var="RevenueServices">{new Dictionary()}</set>
+	<set var="RevenueSegments">{new Dictionary()}</set>
+	<set var="RSValues">{new Dictionary()}</set>
+	<set var="RSDispersions">{new Dictionary()}</set>
+	<set var="RevenueServicesToGroup">{new Dictionary()}</set>
+	<set var="Configuration">{new Dictionary()}</set>
+	
+	<select from="crm" entity="vs360_revenueservice" var="records">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+		</where>
+		<attr name="vs360_name"/>
+		<attr name="vs360_revenueserviceid"/>
+		<attr name="vs360_group" />
+	</select>
+	<for var="r" in="records">
+		<set var="gid">{r.vs360_group.ToString()}</set>
+		<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+		<set var="RevenueServicesToGroup[rid]">{gid}</set>
+		<set var="RevenueServices[gid]" if="!RevenueServices.ContainsKey(gid)">{new Dictionary()}</set>
+		<set var="RevenueServices[gid][rid]">{r}</set>
+	</for>
+	
+	<select from="crm" entity="vs360_revenuesegment" var="records">
+        <attr name="vs360_name"/>
+		<attr name="vs360_revenuesegmentid"/>
+		<attr name="vs360_group" />
+		<attr name="vs360_query" />
+		<attr name="vs360_total" />
+		<attr name="vs360_hasvalue" />
+    </select>
+	<for var="r" in="records">
+		<set var="gid">{r.vs360_group.ToString()}</set>
+		<set var="rsid">{r.vs360_revenuesegmentid.ToString()}</set>
+		<set var="RevenueSegments[gid]" if="!RevenueSegments.ContainsKey(gid)">{new Dictionary()}</set>
+		<set var="RevenueSegments[gid][rsid]">{r}</set>
+	</for>
+	
+	<select from="crm" entity="vs360_rsvalue" var="records">
+        <attr name="vs360_name"/>
+		<attr name="vs360_total"/>
+		<attr name="vs360_rsvalueid" />
+		<attr name="vs360_revenuesegmentid" />
+    </select>
+	<for var="r" in="records">
+        <set var="rsid">{r.vs360_revenuesegmentid.Id.ToString()}</set>
+		<set var="RSValues[rsid]" if="!RSValues.ContainsKey(rsid)">{new Dictionary()}</set>
+		<set var="RSValues[rsid][r.vs360_name]">{r}</set>
+    </for>
+	
+	<select from="crm" entity="vs360_rsdispersion" var="records">
+        <attr name="vs360_matched"/>
+		<attr name="vs360_unmatched"/>
+		<attr name="vs360_matchedpercent"/>
+		<attr name="vs360_unmatchedpecent"/>
+		<attr name="vs360_rsvalueid" />
+		<attr name="vs360_rsdispersionid" />
+		<attr name="vs360_revenueserviceid" />
+    </select>
+	<for var="r" in="records">
+        <set var="valid">{r.vs360_rsvalueid.Id.ToString()}</set>
+		<set var="rid">{r.vs360_revenueserviceid.Id.ToString()}</set>
+		<set var="RSDispersions[valid]" if="!RSDispersions.ContainsKey(valid)">{new Dictionary()}</set>
+		<set var="RSDispersions[valid][rid]">{r}</set>
+    </for>
+	
+	<for var="gid" in="RevenueSegments.Keys">
+        <if condition="!Configuration.ContainsKey(gid)">
+            <set var="Configuration[gid]">{new Dictionary()}</set>
+			<set var="Configuration[gid]['fields']">{new Dictionary()}</set>
+        </if>
+		<for var="rsid" in="RevenueSegments[gid].Keys">
+            <set var="json">{null}</set>
+			<sandbox verbose="false">
+				<set var="json">{Json.GetDictionary(RevenueSegments[gid][rsid].vs360_query)}</set>
+			</sandbox>
+			<if condition="json.isSet">
+				<if condition="json.rules.isSet">
+					<if condition="json.rules.field.isSet">
+						<set var="Configuration[gid]['fields'][json.rules.field]">{rsid}</set>
+					</if>
+				</if>
+			</if>
+        </for>
+    </for>
+	<for var="gid" in="Configuration.Keys">
+		
+        <select from="crm" entity="{Config['OtherTable']}" var="records">
+            <where>
+                <condition attr="statecode" op="eq">{0}</condition>
+            </where>
+			<join type="inner" entity="{Config['MatchedNN']}" to="{Config['OtherTablePrimaryKey']}" from="{Config['OtherTablePrimaryKey']}">
+                <where>
+					<or>
+						<for var="rid" in="RevenueServices[gid].Keys">
+							<condition attr="vs360_revenueserviceid" op="eq">{rid}</condition>
+						</for>
+					</or>
+                </where>
+				<attr name="vs360_revenueserviceid" as="vs360_revenueserviceid" />
+            </join>
+            <attr name="{Config['OtherTablePrimaryKey']}"/>
+			<for var="field" in="Configuration[gid]['fields'].Keys">
+                <attr name="{field}" />
+            </for>
+        </select>
+		<set var="results">{new Dictionary()}</set>
+		<for var="field" in="Configuration[gid]['fields'].Keys">
+			<set var="rsid">{Configuration[gid]['fields'][field]}</set>
+            <set var="results[rsid]">{new Dictionary()}</set>
+			<set var="results[rsid]['total']">{records.Count}</set>
+			<set var="results[rsid]['hasValue']">{new Dictionary()}</set>
+			<set var="results[rsid]['values']">{new Dictionary()}</set>
+        </for>
+		<log>Processing Group ({gid}) and found {records.Count}</log>
+		<for var="r" in="records">
+			<for var="field" in="Configuration[gid]['fields'].Keys">
+				<set var="rsid">{Configuration[gid]['fields'][field]}</set>
+				<set var="aid">{r[Config['OtherTablePrimaryKey']].ToString()}</set>
+				<set var="rid">{r.vs360_revenueserviceid.ToString()}</set>
+                <if condition="r[field].isSet">
+                    <set var="results[rsid]['hasValue'][aid]">{null}</set>
+					<set var="value">{r[field].ToLower().Trim()}</set>
+					<if condition="!results[rsid]['values'].ContainsKey(value)">
+                        <set var="results[rsid]['values'][value]">{new Dictionary()}</set>
+						<set var="results[rsid]['values'][value]['records']">{new Dictionary()}</set>
+						<set var="results[rsid]['values'][value]['services']">{new Dictionary()}</set>
+                    </if>
+					<set var="results[rsid]['values'][value]['records'][aid]">{null}</set>
+					<set var="results[rsid]['values'][value]['services'][rid]" if="!results[rsid]['values'][value]['services'].ContainsKey(rid)">{new Dictionary()}</set>
+					<set var="results[rsid]['values'][value]['services'][rid][aid]">{null}</set>
+                </if>
+            </for>
+        </for>
+		<for var="rsid" in="results.Keys">
+			<set var="rs">{RevenueSegments[gid][rsid]}</set>
+			<set var="Changes">{new Dictionary()}</set>
+			<set var="Changes['vs360_total']" if="!rs.vs360_total.isSet or (rs.vs360_total.isSet and rs.vs360_total ne results[rsid]['total'])">{results[rsid]['total']}</set>
+			<set var="Changes['vs360_hasvalue']" if="!rs.vs360_hasvalue.isSet or (rs.vs360_hasvalue.isSet and rs.vs360_hasvalue ne results[rsid]['hasValue'].Count)">{results[rsid]['hasValue'].Count}</set>
+
+			<if condition="Changes.Count gt 0">
+                <update in="crm" entity="vs360_revenuesegment">
+					<where>
+						<condition attr="vs360_revenuesegmentid" op="eq">{rsid}</condition>
+					</where>
+					<for var="field" in="Changes.Keys">
+                        <attr name="{field}">{Changes[field]}</attr>
+                    </for>
+				</update>
+            </if>
+			<for var="value" in="results[rsid]['values'].Keys">
+				<set var="total">{results[rsid]['values'][value]['records'].Count}</set>
+				<if condition="!RSValues.ContainsKey(rsid) or !RSValues[rsid].ContainsKey(value)">
+					<then>
+						<create in="crm" entity="vs360_rsvalue" var="rsValueId">
+							<attr name="vs360_name">{value}</attr>
+							<attr name="vs360_total">{total}</attr>
+							<attr name="vs360_revenuesegmentid">{rsid}</attr>
+						</create>
+					</then>
+					<else>
+						<set var="rsValueId">{RSValues[rsid][value].vs360_rsvalueid}</set>
+						<if condition="RSValues[rsid][value].vs360_total ne total">
+                            <update in="crm" entity="vs360_rsvalue">
+                                <where>
+                                    <condition attr="vs360_rsvalueid" op="eq">{rsValueId}</condition>
+                                </where>
+                                <attr name="vs360_total">{total}</attr>
+                            </update>
+                        </if>
+					</else>
+                </if>
+				<for var="rid" in="results[rsid]['values'][value]['services'].Keys">
+					<set var="matched">{results[rsid]['values'][value]['services'][rid].Count}</set>
+					<set var="unmatched">{total-matched}</set>
+					<set var="mdec">{matched as 'decimal'}</set>
+					<set var="udec">{unmatched as 'decimal'}</set>
+					<set var="tdec">{total as 'decimal'}</set>
+					<set var="hundred">{100 as 'decimal'}</set>
+					<set var="matchedpercent">{(mdec/tdec * hundred) as 'decimal'}</set>
+					<set var="unmatchedpecent">{(udec/tdec * hundred) as 'decimal'}</set>
+					<if condition="!RSDispersions.ContainsKey(rsValueId.ToString()) or !RSDispersions[rsValueId.ToString()].ContainsKey(rid)">
+						<then>
+							<create in="crm" entity="vs360_rsdispersion" var="rsdId">
+                                <attr name="vs360_matched">{matched}</attr>
+								<attr name="vs360_unmatched">{unmatched}</attr>
+								<attr name="vs360_matchedpercent">{matchedpercent}</attr>
+								<attr name="vs360_unmatchedpecent">{unmatchedpecent}</attr>
+								<attr name="vs360_rsvalueid">{rsValueId}</attr>
+								<attr name="vs360_revenueserviceid">{rid}</attr>
+                            </create>
+						</then>
+						<else>
+						</else>
+					</if>
+                </for>
+                
+            </for>
+        </for>
+    </for>
+	
+</script>
