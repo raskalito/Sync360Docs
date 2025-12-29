@@ -2,25 +2,12 @@
 
 ## Purpose
 
-Report_ServicesMatrix creates a correlation matrix showing the percentage of companies that have both Service A and Service B for all service combinations. This reveals which services are most commonly purchased together, enabling targeted cross-selling and upselling strategies.
-
-**Key Characteristics**:
-- **Correlation analysis**: Shows service-to-service relationships
-- **Percentage-based**: Calculates adoption rates for service pairs
-- **Matrix format**: Easy-to-read cross-reference table
-- **CSV export**: Ready for Excel pivot tables and visualization
+Report_ServicesMatrix creates a correlation matrix showing the percentage of companies that have both Service A and Service B for all service combinations. This reveals which services are most commonly purchased together, enabling targeted cross-selling and upselling strategies. The report provides correlation analysis showing service-to-service relationships with percentage-based calculations of adoption rates for service pairs. The output is formatted as an easy-to-read cross-reference matrix and exported to CSV for Excel pivot tables and visualization.
 
 
 ## When to Use This Report
 
-Run Report_ServicesMatrix when:
-- **After RevenueServiceProcessing**: Matched company-service data must exist
-- **Cross-sell analysis**: Identifying which services to offer together
-- **Service bundling**: Designing service packages based on data
-- **Sales enablement**: Providing reps with "next best service" guidance
-- **Product strategy**: Understanding service dependencies and affinities
-
-**Typical usage**: Initial analysis phase and periodic reviews (quarterly/annually)
+Run Report_ServicesMatrix after RevenueServiceProcessing has completed, as matched company-service data must exist first. The report is valuable for cross-sell analysis when identifying which services to offer together, and for service bundling when designing service packages based on actual data rather than assumptions. Use it for sales enablement by providing sales representatives with "next best service" guidance informed by patterns in your customer base. From a product strategy perspective, the matrix helps you understand service dependencies and affinities, revealing which services naturally complement each other in customer purchasing behavior. This is typically run during the initial analysis phase and then periodically reviewed on a quarterly or annual basis.
 
 
 ## What You Need Before Running
@@ -57,31 +44,24 @@ For meaningful results:
 ### Detailed Operations
 
 #### Phase 1: Load Data
-- Retrieves all active Revenue Services
-- Loads matched relationships from `vs360_account_vs360_revenueservice_matched`
-- Orders by Revenue Service ID for consistency
+
+The script retrieves all active Revenue Services from Dataverse and loads matched relationships from the `vs360_account_vs360_revenueservice_matched` table, ordering them by Revenue Service ID for consistency in the output matrix.
 
 #### Phase 2: Build Company Mappings
-Creates dictionary of which services each company has:
-```
-Company-123: [Service-A, Service-B, Service-D]
-Company-456: [Service-A, Service-C]
-Company-789: [Service-B, Service-C, Service-D]
-```
+
+The script creates a comprehensive dictionary mapping each company to all the services they have. For example, Company-123 might map to [Service-A, Service-B, Service-D], while Company-456 maps to [Service-A, Service-C], and Company-789 to [Service-B, Service-C, Service-D]. This complete mapping enables efficient correlation calculations.
 
 #### Phase 3: Build Service-to-Service Matrices
-For each service, creates dictionaries tracking:
-- Which other services co-occur
-- Which companies have both services
+
+For each service, the script creates dictionaries tracking which other services co-occur and which specific companies have both services. This allows the script to answer questions like "Which companies have both Tax and Audit services?"
 
 #### Phase 4: Calculate Correlations
-For each service pair:
-- Count companies with Service A
-- Count companies with both A and B
-- Calculate percentage: (Both ÷ Total A) × 100
+
+For each service pair, the script counts how many companies have Service A, counts how many companies have both A and B, and calculates the percentage as (Both ÷ Total A) × 100. This percentage reveals how likely it is that a company with Service A also has Service B.
 
 #### Phase 5: Generate CSV
-Creates one row per service with columns for all services showing correlation percentages.
+
+The script creates one row per service with columns for all services showing correlation percentages, resulting in a complete matrix that's easy to visualize in Excel or other tools.
 
 
 ## Configuration
@@ -128,88 +108,26 @@ Service C,58.88% (63),62.62% (67),100.00% (107),107
 
 ### Reading the Matrix
 
-**Row perspective** (Service A row):
-- 100% of companies with Service A have Service A (always 100%)
-- 65.33% of companies with Service A also have Service B (98 companies)
-- 42.00% of companies with Service A also have Service C (63 companies)
-- Total companies with Service A: 150
-
-**Key insight**: "If a company has Service A, there's a 65% chance they also have Service B"
+From Service A's row perspective, 100% of companies with Service A have Service A (always 100% for the diagonal), 65.33% of companies with Service A also have Service B (98 companies), and 42% of companies with Service A also have Service C (63 companies), with a total of 150 companies having Service A. The key insight here is that if a company has Service A, there's a 65% chance they also have Service B, making Service B a strong cross-sell candidate for Service A customers.
 
 
 ## Interpreting Results
 
 ### High Correlation (70%+ overlap)
 
-**Meaning**: Services are strongly linked
-- Often purchased together
-- May be complementary offerings
-- Part of a natural bundle
-
-**Action**:
-- Create service packages/bundles
-- Train sales to present together
-- Consider group consolidation
-- Upsell one when other is purchased
-
-**Example**:
-```
-Tax Services → Audit Services: 85%
-```
-*85% of companies with Tax also have Audit → Strong bundle opportunity*
+High correlation means services are strongly linked, often purchased together, suggesting they may be complementary offerings or part of a natural bundle. When you see this pattern, consider creating service packages or bundles, training sales teams to present these services together, evaluating whether group consolidation makes sense, and developing upsell campaigns to offer one service when the other is purchased. For example, if Tax Services correlates with Audit Services at 85%, this indicates that 85% of companies with Tax also have Audit, presenting a strong bundle opportunity.
 
 ### Medium Correlation (30-70% overlap)
 
-**Meaning**: Moderate association
-- Sometimes purchased together
-- Situational relationship
-- Potential cross-sell opportunity
-
-**Action**:
-- Targeted cross-sell campaigns
-- Understand why some buy both, others don't
-- Identify company characteristics that predict both
-
-**Example**:
-```
-Consulting → Advisory: 55%
-```
-*Some companies buy both, some just one → Investigate patterns*
+Medium correlation indicates a moderate association where services are sometimes purchased together but the relationship is situational. This suggests potential cross-sell opportunities that require more targeting. Focus on understanding why some companies buy both while others don't, identify company characteristics that predict purchasing both services, and develop targeted cross-sell campaigns. For instance, if Consulting correlates with Advisory at 55%, investigate what patterns distinguish the 55% who buy both from the 45% who buy only one.
 
 ### Low Correlation (<30% overlap)
 
-**Meaning**: Weak or no association
-- Typically purchased separately
-- Different use cases
-- Different customer segments
-
-**Action**:
-- Understand why these are separate
-- Don't force bundling
-- May serve different segments
-
-**Example**:
-```
-Tax Services → IT Consulting: 15%
-```
-*Different services for different needs → Keep separate*
+Low correlation signals a weak or non-existent association where services are typically purchased separately, likely serving different use cases or different customer segments. In these cases, understand why these services are separate, avoid forcing bundling that doesn't make sense, and recognize that they may serve fundamentally different customer needs. If Tax Services only correlates with IT Consulting at 15%, this reflects genuinely different services for different needs that should remain separate offerings.
 
 ### Asymmetric Correlations
 
-Note that correlations can be asymmetric:
-```
-Service A → Service B: 80%
-Service B → Service A: 40%
-```
-
-**Meaning**:
-- Most companies with A also have B
-- But only some companies with B have A
-- B has a broader customer base than A
-
-**Action**:
-- Upsell B to A customers (high probability)
-- Selective upsell of A to B customers (need targeting)
+Correlations can be asymmetric, revealing important market dynamics. If Service A → Service B shows 80% but Service B → Service A shows only 40%, this means most companies with A also have B, but only some companies with B have A, indicating that B has a broader customer base than A. In this situation, you should aggressively upsell B to A customers (high probability of success) but be more selective when upselling A to B customers, perhaps using targeting to identify which B customers are most likely to also need A.
 
 
 ## Using the Report Results
@@ -268,38 +186,15 @@ Most likely to buy next:
 
 ### Segmented Correlation Analysis
 
-Run the report for different company segments:
-1. Filter companies by segment (e.g., industry)
-2. Modify script to only include filtered companies
-3. Compare correlations across segments
-
-**Insight**: Service correlations may differ by segment
-- Technology companies: Different pattern than Healthcare
-- Large companies: Different than small companies
+Run the report for different company segments by filtering companies by segment (e.g., industry), modifying the script to only include filtered companies, and comparing correlations across segments. Service correlations may differ by segment - technology companies might show different patterns than healthcare companies, and large companies different patterns than small ones.
 
 ### Time-Based Analysis
 
-Run the report at different time periods:
-- Initial implementation
-- 6 months later
-- Annual comparison
-
-**Track**:
-- Are correlations increasing (successful bundling)?
-- Are new patterns emerging?
-- Are cross-sell efforts working?
+Run the report at different time periods to track how correlations evolve. Compare initial implementation to six months later to annual comparisons. Track whether correlations are increasing (indicating successful bundling efforts), identify new patterns emerging over time, and measure whether cross-sell efforts are working.
 
 ### Gap Analysis
 
-Identify the biggest gaps:
-```
-Service A has 200 companies
-Service B has 180 companies
-A → B correlation: 60% (120 companies have both)
-Gap: 80 companies with A but not B
-```
-
-Prioritize cross-sell efforts by gap size.
+Identify the biggest gaps by examining high correlations to find the largest absolute numbers of companies that could be cross-sold. For example, if Service A has 200 companies and Service B has 180 companies with a 60% correlation (120 companies have both), the gap is 80 companies with A but not B. Prioritize cross-sell efforts by gap size to maximize impact.
 
 
 ## Script Execution
@@ -431,5 +326,3 @@ Prioritize cross-sell efforts by gap size.
 1. Select a service row
 2. Create bar chart of correlations
 3. Visualize "If customer has X, probability of Y"
-
-
