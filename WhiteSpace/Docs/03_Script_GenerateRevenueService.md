@@ -2,20 +2,12 @@
 
 ## Purpose
 
-The GenerateRevenueService script is a **client-specific template** that creates initial Revenue Service records in Dataverse. This script must be customized for each client implementation to match their specific data model, services, and business logic.
-
-**Key Characteristics**:
-- **One-time or infrequent use**: Typically run once during initial setup, or when adding new services
-- **Requires customization**: The provided script is a template/example that must be adapted to your client's needs
-- **Idempotent**: Can be safely re-run; only creates records that don't already exist
+The GenerateRevenueService script is a client-specific template that creates initial Revenue Service records in Dataverse. Unlike the other scripts in the White Space Solution which are generally reusable, this script must be customized for each client implementation to match their specific data model, services, and business logic. This is typically a one-time or infrequent use script, run during initial setup or when adding new services to the system. The script is designed to be idempotent, meaning it can be safely re-run without creating duplicate records, as it checks for existing services before creating new ones.
 
 
 ## When to Use This Script
 
-Use GenerateRevenueService when:
-- **Initial implementation**: Setting up Revenue Service records for the first time
-- **Adding new services**: Creating additional service definitions after initial setup
-- **Bulk updates**: Need to update query definitions across multiple services
+You'll use GenerateRevenueService during initial implementation when setting up Revenue Service records for the first time. This is a critical step in deploying the White Space Solution, as it establishes the foundational service definitions that all subsequent processing and reporting will reference. The script is also useful when adding new services to an existing implementation, whether you're expanding your service catalog or refining your service definitions. Additionally, if you need to perform bulk updates to query definitions across multiple services, running a modified version of this script can be more efficient than manually editing individual Revenue Service records in Dataverse.
 
 
 ## What You Need Before Running
@@ -68,7 +60,7 @@ Iterates through service definitions, creates JSON configurations, and generates
 
 ### Step 1: Customize the Query Template
 
-The template defines how to identify if a company has purchased a service. The provided example:
+The template defines how to identify if a company has purchased a service. This is the heart of the Revenue Service definition and must accurately reflect your client's data model. The provided example uses a query against a job table with practice area and revenue criteria:
 
 ```xml
 <set var="template"><![CDATA[{
@@ -117,18 +109,9 @@ The template defines how to identify if a company has purchased a service. The p
 }]]></set>
 ```
 
-**What This Example Does**:
-- Queries the `vs360_job` table
-- Returns the `vs360_accountid` (company) field
-- Conditions:
-  - Practice area matches a specific ID (replaced dynamically with "GGGGGGGG" placeholder)
-  - Total revenue is >= 500
-- Joins to `vs360_accountdata` table
-- Additional condition: Client end date is null (active clients)
+This example queries the `vs360_job` table and returns the `vs360_accountid` (company) field. It applies two conditions: the practice area must match a specific ID (represented by the "GGGGGGGG" placeholder which will be replaced dynamically), and the total revenue must be greater than or equal to 500. The query also joins to the `vs360_accountdata` table with an additional condition that the client end date must be null, ensuring only active clients are included.
 
-**Your Customization**:
-
-Replace with your client's logic:
+When customizing this for your client, replace it with logic that matches their specific data structure:
 
 ```xml
 <set var="template"><![CDATA[{
@@ -159,32 +142,28 @@ Replace with your client's logic:
 }]]></set>
 ```
 
-**Important**: Use a placeholder value (like "GGGGGGGG" or "PLACEHOLDER") that will be replaced dynamically in the processing loop.
+It's important to use a placeholder value (like "GGGGGGGG" or "PLACEHOLDER") in your template. This placeholder will be replaced with actual service-specific values during the processing loop, allowing you to use one template for all services while customizing the specific identifiers.
 
 
 ### Step 2: Define Your Service Data
 
-The Data dictionary organizes services by group:
+The Data dictionary organizes services by group number, with each group containing a list of service definitions:
 
 ```xml
 <set var="Data">{new Dictionary()}</set>
 <set var="Data['0']">{new List()}</set>
 ```
 
-**Key**: Group number (as string)
-**Value**: List of service definitions
+The key is the group number (as a string), and the value is a list of service definitions. Each service definition contains a `code` attribute (a unique identifier used to look up service details) and a `grp` attribute (a category or prefix for service naming).
 
-Each service definition contains:
-- `code`: Unique identifier used to look up service details
-- `grp`: Category/prefix for service naming
+The example script uses numeric codes and abbreviations:
 
-**Example from Script**:
 ```xml
 <set var="Data['0'][]"><attr name="code">0424</attr><attr name="grp">BL</attr></set>
 <set var="Data['0'][]"><attr name="code">0415</attr><attr name="grp">BL</attr></set>
 ```
 
-**Your Customization**:
+For your implementation, customize this to reflect your service structure:
 
 ```xml
 <set var="Data">{new Dictionary()}</set>
@@ -204,7 +183,7 @@ Each service definition contains:
 
 ### Step 3: Customize the Lookup Logic
 
-The script looks up services based on the `code` field. In the example:
+The script needs to retrieve service details based on the code you defined in the previous step. The example looks up services from a practice area table:
 
 ```xml
 <select from="crm" entity="vs360_practicearea" var="rec">
@@ -216,14 +195,9 @@ The script looks up services based on the `code` field. In the example:
 </select>
 ```
 
-**This Section**:
-- Queries a lookup table (`vs360_practicearea`)
-- Matches by code
-- Retrieves the ID and name
+This queries a lookup table (`vs360_practicearea`), matches records by code, and retrieves the ID and name for use in subsequent processing.
 
-**Your Customization**:
-
-Replace with your service lookup logic:
+For your implementation, replace this with your service lookup logic. If you have a service catalog table, query it:
 
 ```xml
 <select from="crm" entity="your_service_catalog_table" var="rec">
@@ -235,7 +209,7 @@ Replace with your service lookup logic:
 </select>
 ```
 
-If you don't have a lookup table and want to hard-code service names:
+Alternatively, if you don't have a lookup table and want to hard-code service names, skip the select statement and define the values manually:
 
 ```xml
 <!-- Skip the select, define manually -->
@@ -247,14 +221,14 @@ If you don't have a lookup table and want to hard-code service names:
 
 ### Step 4: Customize the Template Replacement
 
-The script dynamically replaces the placeholder with actual values:
+The script dynamically replaces placeholders in the template with actual service-specific values. The example replaces "GGGGGGGG" with the practice area ID:
 
 ```xml
 <set var="tx">{template}</set>
 <set var="tx">{tx.Replace('GGGGGGGG',p.vs360_practiceareaid.ToString())}</set>
 ```
 
-**Your Customization**:
+Customize this to match your placeholder and field names:
 
 ```xml
 <set var="tx">{template}</set>
@@ -264,16 +238,20 @@ The script dynamically replaces the placeholder with actual values:
 <set var="tx">{tx.Replace('PLACEHOLDER2',p.another_field.ToString())}</set>
 ```
 
+If your template includes multiple placeholders that need different values for each service, add multiple replacement operations as shown above.
+
 
 ### Step 5: Customize the Service Name Format
+
+The service name format determines how Revenue Services appear in Dataverse and in reports. The example creates names with a category prefix:
 
 ```xml
 <set var="name">({val.grp}) {p.vs360_name}</set>
 ```
 
-This creates names like: "(BL) Business Law"
+This creates names like "(BL) Business Law", where "BL" is the category and "Business Law" is the service name retrieved from the lookup.
 
-**Your Customization**:
+Customize the format to match your naming conventions:
 
 ```xml
 <!-- Format: (Category) Service Name -->
@@ -307,30 +285,14 @@ This creates names like: "(BL) Business Law"
 
 ## What the Script Does
 
-1. **Initializes** the query template and service data structures
-2. **Loops through each group** in the Data dictionary
-3. **For each service in the group**:
-   - Looks up service details from your source table
-   - Creates a customized JSON query by replacing placeholders
-   - Formats the service name
-   - Checks if a Revenue Service already exists with this name
-   - If not, creates a new Revenue Service record with:
-     - `vs360_name`: Formatted service name
-     - `vs360_group`: Group number
-     - `vs360_selectedcombinations`: JSON query configuration
+The script follows a systematic process to create Revenue Service records. It begins by initializing the query template and service data structures that you've customized. It then loops through each group in the Data dictionary, processing the services within that group one by one.
+
+For each service, the script looks up service details from your source table (or uses hard-coded values if you've configured it that way). It creates a customized JSON query by taking the template and replacing placeholders with service-specific values, then formats the service name according to your naming convention. Before creating anything, it checks whether a Revenue Service already exists with this name to prevent duplicates. If the service doesn't already exist, it creates a new Revenue Service record with the formatted name, group number, and the customized JSON query configuration.
 
 
 ## Expected Results
 
-After running the script successfully:
-
-- Revenue Service records created in Dataverse
-- Each record has:
-  - Unique name in format "(GRP) Service Name"
-  - Group number assigned
-  - JSON query configuration stored
-- Active state (ready for processing)
-- No duplicate records (script checks before creating)
+After running the script successfully, you'll see new Revenue Service records created in Dataverse. Each record will have a unique name formatted according to your specification (such as "(GRP) Service Name"), an assigned group number, and a JSON query configuration stored in the `vs360_selectedcombinations` field. All created services will be in an active state and ready for processing. The script's duplicate checking ensures that no duplicate records are created, even if you run it multiple times.
 
 **Example Results**:
 
@@ -429,5 +391,3 @@ Different services need different query structures:
 4. **Version control**: Track changes to this script as it evolves with your client
 5. **Validate JSON**: Use a JSON validator on your template before running
 6. **Incremental changes**: Add services over time rather than trying to create everything at once
-
-

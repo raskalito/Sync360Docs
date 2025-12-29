@@ -2,24 +2,12 @@
 
 ## Purpose
 
-RevenueServiceProcessing is the **core processing script** that executes all Revenue Service queries and classifies companies into matched (purchased) and unmatched (not purchased) buckets. This script should be run after Revenue Services are defined and is typically scheduled to run automatically on an ongoing basis.
-
-**Key Characteristics**:
-- **Main processing engine**: Executes the business logic for the entire solution
-- **Data-driven**: Uses Revenue Service definitions to determine what to process
-- **Idempotent**: Can be run repeatedly; updates relationships to current state
-- **Automatic cleanup**: Removes outdated associations when data changes
-- **Configurable**: Behavior controlled by Configuration.xml
+RevenueServiceProcessing is the core processing script of the White Space Solution, responsible for executing all Revenue Service queries and classifying companies into matched (purchased) and unmatched (not purchased) buckets. This script serves as the main processing engine that executes the business logic for the entire solution, reading Revenue Service definitions to determine what to process. The script is designed to be idempotent, meaning it can be run repeatedly and will update relationships to reflect the current state of your data. It automatically cleans up outdated associations when data changes, ensuring your analysis always reflects the most current information. The script's behavior is controlled by Configuration.xml, allowing you to adjust processing without modifying the script itself.
 
 
 ## When to Use This Script
 
-Run RevenueServiceProcessing when:
-- **Initial data load**: First time processing after creating Revenue Services
-- **Data updates**: After source data changes (new sales, updated records)
-- **Schedule-based**: Regular automated runs (daily, weekly, etc.)
-- **On-demand analysis**: When you need current matched/unmatched data
-- **After service definition changes**: When Revenue Service queries are modified
+You'll run RevenueServiceProcessing during your initial data load, the first time you're processing data after creating your Revenue Services. This establishes the baseline of matched and unmatched relationships. After that, run it whenever your source data changes due to new sales, updated records, or other modifications. For ongoing operations, the script is typically scheduled to run automatically on a daily, weekly, or monthly basis depending on how frequently your data changes and how current you need your insights to be. You should also run it on-demand whenever you need current matched and unmatched data for analysis, and after making changes to Revenue Service query definitions to ensure the new criteria are applied to your data.
 
 
 ## What You Need Before Running
@@ -60,69 +48,35 @@ Run RevenueServiceProcessing when:
 ### Detailed Operations
 
 #### Phase 1: Load Configuration and Existing Data
-- Includes Configuration.xml
-- Loads all active Revenue Services (`statecode = 0`)
-- Organizes services by group number
-- Loads existing matched/unmatched company-service relationships
-- Loads existing order records (if orders enabled)
+
+The script begins by including Configuration.xml to load all necessary settings, then loads all active Revenue Services from Dataverse (those with `statecode = 0`). It organizes these services by their group number to enable group-based processing. The script also loads existing matched and unmatched company-service relationships, as well as existing order records if orders are enabled. This initial data loading phase ensures the script has a complete picture of the current state before making any changes.
 
 #### Phase 2: Execute Queries
-For each Revenue Service:
-- Parses the JSON from `vs360_selectedcombinations`
-- Executes the dynamic query against source tables
-- Identifies companies that meet the criteria
-- Tracks services found for each company
 
-If orders enabled:
-- Creates or updates Revenue Service Order records
-- Maps fields based on OrdersMapping configuration
-- Links orders to Revenue Services
+For each Revenue Service, the script parses the JSON configuration from the `vs360_selectedcombinations` field and executes the dynamic query against your source tables. This identifies which companies meet the criteria defined for each service. The script tracks which services are found for each company, building a comprehensive map of the service landscape.
+
+If orders are enabled in your configuration, the script creates or updates Revenue Service Order records during this phase. It maps fields from your source data to the order records based on the OrdersMapping configuration, and links these orders to the appropriate Revenue Services and companies. This provides the detailed temporal and financial tracking that enables more sophisticated analysis.
 
 #### Phase 3: Create/Update Relationships
-For each company with at least one service:
-- **Matched relationships**: Creates associations for services the company has
-- **Unmatched relationships**: Creates associations for services in the same group that the company doesn't have
+
+For each company that has at least one service in a group, the script creates or updates relationships. Matched relationships are created for services the company has, establishing the positive associations. Unmatched relationships are created for services in the same group that the company doesn't have, identifying the white space opportunities where cross-selling or upselling could occur.
 
 #### Phase 4: Cleanup
-- **Remove stale matched**: Companies that previously matched but no longer do
-- **Remove stale unmatched**: Companies that were unmatched but now match
-- **Update orders**: Modify order records if source data changed
-- **Delete orders**: Remove orders for services that no longer match
+
+The final phase ensures data accuracy by removing stale information. The script removes matched relationships for companies that previously qualified but no longer do based on current data. It also removes unmatched relationships for companies that were previously unmatched but now match the service criteria. If orders are enabled, the script updates order records if source data has changed and deletes orders for services that no longer match for a particular company.
 
 
 ## Configuration Impact
 
-The script behavior varies based on Configuration.xml settings:
+The script's behavior varies significantly based on your Configuration.xml settings, particularly the SaveMode and EnableOrders options.
 
 ### SaveMode: Dynamics vs SQL
 
-**Dynamics Mode** (`Config['SaveMode'] = 'Dynamics'`):
-- Writes directly to Dataverse
-- Uses standard API operations
-- Slower but simpler setup
-- No additional infrastructure needed
-
-**SQL Mode** (`Config['SaveMode'] = 'SQL'`):
-- Writes to SQL database
-- Requires matching table structure
-- Faster for high-volume processing
-- Requires SQL connection in Sync360
+Dynamics mode writes directly to Dataverse using standard API operations. This approach is slower than SQL mode but requires simpler setup with no additional infrastructure needed. It's the recommended starting point for most implementations. SQL mode, in contrast, writes to a SQL database with a matching table structure. This provides faster performance for high-volume processing scenarios but requires a SQL connection configured in Sync360 and matching many-to-many tables in your SQL database.
 
 ### EnableOrders: True vs False
 
-**Orders Enabled** (`Config['EnableOrders'] = true`):
-- Creates/updates Revenue Service Order records
-- Tracks temporal data (start date, end date)
-- Captures revenue amounts
-- Links orders to services and companies
-- More detailed data, slower processing
-
-**Orders Disabled** (`Config['EnableOrders'] = false`):
-- Only creates matched/unmatched relationships
-- No order records created
-- Faster processing
-- Simpler data model
-- Sufficient for correlation analysis only
+When orders are enabled, the script creates and updates Revenue Service Order records, tracking temporal data such as start and end dates, capturing revenue amounts, and linking orders to services and companies. This provides more detailed data but results in slower processing. When orders are disabled, the script only creates matched and unmatched relationships without creating any order records. This results in faster processing with a simpler data model that's sufficient for correlation analysis when you don't need the granular details about individual service engagements.
 
 
 ## Script Execution
@@ -214,92 +168,51 @@ The `vs360_revenueserviceorder` table contains:
 
 ## Important Behaviors
 
-### Group-Based Processing
-- Companies are only processed if they have at least one service in a group
-- A company with no services in a group won't appear in matched or unmatched tables
-- This ensures analysis focuses on relevant companies
+Understanding how the script processes data is critical for interpreting results correctly. The processing is group-based, meaning companies are only included if they have at least one service in a particular group. A company with no services in a group won't appear in the matched or unmatched tables for that group. This ensures that analysis focuses on companies that are relevant to each service grouping.
 
-### Automatic Synchronization
-- Re-running the script updates relationships to match current data
-- If source data changes, matched/unmatched associations update accordingly
-- Stale data is automatically cleaned up
+The script provides automatic synchronization between your source data and the matched/unmatched relationships. Re-running the script updates relationships to match the current state of your data. If source data changes, the matched and unmatched associations update accordingly, and stale data is automatically cleaned up without manual intervention.
 
-### Order Lifecycle
-- Orders are created when a service is first identified
-- Orders are updated if source data changes (e.g., end date added)
-- Orders are deleted if the service no longer matches for that company
+For orders, the script manages a complete lifecycle. Orders are created when a service is first identified for a company. They're updated if source data changes, such as when an end date is added to an ongoing engagement. Orders are deleted if the service no longer matches for that company, ensuring the order table always reflects current reality.
 
-### Dynamic Query Execution
-- Queries are read from JSON at runtime
-- No code changes needed to modify service criteria
-- Complex queries with joins and conditions are supported
+The dynamic query execution capability means that queries are read from JSON at runtime, so no code changes are needed to modify service criteria. You can update the query definition in a Revenue Service record and the next script run will use the new criteria. The script supports complex queries with joins and conditions, providing flexibility to match your business logic.
 
 
 ## Included Scripts
 
-The script includes additional private scripts from `@private` folder:
+The script includes additional private scripts from the `@private` folder that provide essential functionality:
 
-### Configuration.xml
-Provides all configuration variables (required).
+**Configuration.xml** provides all configuration variables and is required for the script to run. This is where SaveMode, table names, orders settings, and field mappings are defined.
 
-### DynamicQuery.xml
-Handles parsing and execution of JSON queries. Supports:
-- Complex conditions (_and, _or operators)
-- Table joins (inner, left)
-- Multiple rules per service
-- Field mapping for orders
+**DynamicQuery.xml** handles the parsing and execution of JSON queries. It supports complex conditions with _and and _or operators, table joins (both inner and left), multiple rules per service, and field mapping for orders. This is the engine that makes the JSON-based query definitions work.
 
-### Conditions.xml
-Additional condition processing logic.
+**Conditions.xml** provides additional condition processing logic that supports the dynamic query execution.
 
 
 ## Advanced Features
 
 ### Extension Point: LostOpportunities
-The script includes a commented extension:
+
+The script includes a commented extension point that allows for custom logic:
 ```xml
 <!--Extensions -->
 <set var="IgnoreServiceUnmatched">{new Dictionary()}</set>
 <!--<include name="LostOpportunities" />-->
 ```
 
-You can create custom extension logic by:
-1. Creating a script in `@private/YourExtension.xml`
-2. Including it at this point
-3. Using `IgnoreServiceUnmatched` to exclude certain services from unmatched processing
-
-**Use case**: If you want to mark some service combinations as "not applicable" rather than "unmatched opportunity"
+You can create custom extension logic by creating a script in `@private/YourExtension.xml`, including it at this extension point, and using the `IgnoreServiceUnmatched` dictionary to exclude certain services from unmatched processing. This is useful when you want to mark some service combinations as "not applicable" rather than treating them as "unmatched opportunity." For example, you might determine that certain services are never sold to certain types of companies, and you don't want these appearing as cross-sell opportunities.
 
 ### Multi-Status Support
-The script supports status tracking for orders:
-- Status can be set based on rules
-- Different statuses can drive different behaviors
-- Useful for workflow integration
+
+The script supports status tracking for orders, allowing status to be set based on rules defined in your Revenue Service queries. Different statuses can drive different behaviors in subsequent processing or reporting. This is particularly useful for workflow integration where you need to track services in different lifecycle stages.
 
 
 ## Scheduling for Ongoing Operations
 
-After initial setup and analysis, schedule this script to run automatically:
+After initial setup and analysis, schedule this script to run automatically to keep your data current.
 
-### Daily Schedule
-Recommended when:
-- Source data updates daily
-- Timely insights are critical
-- Service adoption changes frequently
+A daily schedule is recommended when your source data updates daily, timely insights are critical to your business operations, and service adoption changes frequently. Weekly scheduling works well when source data is relatively stable, you have performance considerations due to large datasets, or the analysis is not time-critical and weekly updates are sufficient. Some implementations work best with on-demand execution only, particularly when source data changes infrequently, manual control is preferred for organizational reasons, or you're conducting one-time or periodic analysis rather than ongoing monitoring.
 
-### Weekly Schedule
-Recommended when:
-- Source data is relatively stable
-- Performance considerations (large datasets)
-- Analysis is not time-critical
-
-### On-Demand Only
-Recommended when:
-- Source data changes infrequently
-- Manual control preferred
-- One-time or periodic analysis
-
-**Sync360 Scheduling**: Refer to Sync360 documentation for setting up scheduled script execution.
+Refer to Sync360 documentation for details on setting up scheduled script execution within your environment.
 
 
 ## Troubleshooting
@@ -365,5 +278,3 @@ Recommended when:
 3. **Disable orders**: If you don't need temporal/revenue data, disable orders
 4. **Process by group**: If you have many groups, consider separate scheduled runs per group
 5. **Index source tables**: Ensure source tables have proper indexes on fields used in queries
-
-
