@@ -10,7 +10,6 @@ RevenueSegmentProcessing analyzes service adoption patterns across different com
 - **Flexible segmentation**: Can analyze any field on the company record
 - **Automatic calculations**: Updates counts and percentages based on current data
 
----
 
 ## When to Use This Script
 
@@ -23,7 +22,6 @@ Run RevenueSegmentProcessing when:
 
 **Typical frequency**: Weekly or monthly (less frequent than RevenueServiceProcessing)
 
----
 
 ## What You Need Before Running
 
@@ -55,7 +53,6 @@ Before running this script, you must manually create Revenue Segment records in 
 
 This tells the script to segment companies by their "industrycode" field.
 
----
 
 ## What the Script Does
 
@@ -113,7 +110,6 @@ For each unique segment value:
 - Creates/updates Revenue Segment Values
 - Creates Revenue Segment Dispersions with statistics
 
----
 
 ## Revenue Segment Configuration
 
@@ -164,7 +160,6 @@ You can create multiple segments for the same group:
 
 The script will analyze all segments for the group.
 
----
 
 ## Expected Results
 
@@ -199,7 +194,6 @@ For each value and each service, statistics are calculated:
 - Only 23.5% of healthcare companies have Consulting services
 - Manufacturing has high adoption (80.6%)
 
----
 
 ## Using Segment Data
 
@@ -236,7 +230,6 @@ Healthcare companies have only 23.5% adoption of Consulting
 - Should certain services be marketed differently per segment?
 - Are there segment-specific needs?
 
----
 
 ## Script Execution
 
@@ -266,7 +259,6 @@ Moderate processing time:
 
 **Expected**: 1-5 minutes for typical datasets
 
----
 
 ## Output Data Structure
 
@@ -293,7 +285,6 @@ Moderate processing time:
 | healthcare | Service A | 20 | 65 | 23.5% | 76.5% |
 | healthcare | Service B | 40 | 45 | 47.1% | 52.9% |
 
----
 
 ## Advanced Usage
 
@@ -324,7 +315,6 @@ Create multiple segments to analyze from different angles:
 - Size × Industry matrix
 - Compare results across dimensions
 
----
 
 ## Integration with Reports
 
@@ -336,7 +326,6 @@ Use segment data to:
 - Perform statistical analysis
 - Visualize adoption patterns
 
----
 
 ## Troubleshooting
 
@@ -379,7 +368,6 @@ If case matters in your analysis, this is by design for consistency.
 - Create "Unknown" default value
 - Filter out nulls in reporting
 
----
 
 ## Best Practices
 
@@ -390,7 +378,6 @@ If case matters in your analysis, this is by design for consistency.
 5. **Regular updates**: Schedule if segment field values change frequently
 6. **Validate statistics**: Spot-check percentages against actual data
 
----
 
 ## Common Segment Examples
 
@@ -418,6 +405,4 @@ If case matters in your analysis, this is by design for consistency.
 ```
 **Use**: Different strategies for prospects, customers, advocates
 
----
 
-**Next**: Run Report scripts to export and analyze the segment data, or proceed to PostRevenueGAGroupCreation if creating new service groups.

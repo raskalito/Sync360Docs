@@ -10,7 +10,6 @@ PostRevenueGAGroupCreation reads the CSV output from Report_PotentialGroups and 
 - **Duplicate prevention**: Checks if Revenue Service already exists before creating
 - **Batch processing**: Creates all recommended groups in one execution
 
----
 
 ## When to Use This Script
 
@@ -22,7 +21,6 @@ Run PostRevenueGAGroupCreation when:
 
 **Typical usage**: One-time after initial analysis, or when restructuring service groups
 
----
 
 ## What You Need Before Running
 
@@ -41,7 +39,6 @@ This script is part of a workflow:
 5. RevenueServiceProcessing → Process with new groups
 ```
 
----
 
 ## What the Script Does
 
@@ -98,7 +95,6 @@ For each service in the JSON array:
 - Checks if service with same `group + name` already exists
 - If not: Creates new Revenue Service record with all attributes
 
----
 
 ## Configuration
 
@@ -117,7 +113,6 @@ For each service in the JSON array:
 
 Ensure the CSV file exists at this location before running.
 
----
 
 ## Preparing the CSV File
 
@@ -166,7 +161,6 @@ In this example:
 ### Step 5: Save CSV
 Save the edited CSV file (ensure it remains UTF-8 encoded CSV format).
 
----
 
 ## Script Execution
 
@@ -192,7 +186,6 @@ Typically very fast:
 - Depends on number of groups marked TRUE
 - Usually <1 minute
 
----
 
 ## Expected Results
 
@@ -216,7 +209,6 @@ After successful execution:
 - **New names**: Include new group prefix "(5) Service Name"
 - **Active state**: Ready for processing
 
----
 
 ## What Happens Next
 
@@ -239,7 +231,6 @@ After successful execution:
    - Keep original services active, OR
    - Deactivate original services (if replaced by new groups)
 
----
 
 ## Important Considerations
 
@@ -269,7 +260,6 @@ Group numbers are auto-assigned by Report_PotentialGroups based on:
 
 Each new group combination gets a unique incrementing number.
 
----
 
 ## Advanced Usage
 
@@ -299,7 +289,6 @@ To merge multiple service combinations into one group:
 2. All will be created in the same group
 3. Useful for consolidating related patterns
 
----
 
 ## Troubleshooting
 
@@ -338,7 +327,6 @@ To merge multiple service combinations into one group:
 - CSV wasn't edited to change group numbers inadvertently
 - No other services created between report and this script
 
----
 
 ## Best Practices
 
@@ -349,7 +337,6 @@ To merge multiple service combinations into one group:
 5. **Document decisions**: Note why certain groups were/weren't created
 6. **Verify before processing**: Check created services before running RevenueServiceProcessing
 
----
 
 ## Example Workflow
 
@@ -400,7 +387,6 @@ Run: Report_ServicesMatrix.xml (view correlations within new groups)
 Run: Report_SegmentsData.xml (segment analysis for new groups)
 ```
 
----
 
 ## Integration with Overall Workflow
 
@@ -424,6 +410,4 @@ Phase 4: Ongoing
 - Periodic analysis with new groups
 ```
 
----
 
-**Next**: After creating new groups, run RevenueServiceProcessing to process companies with the new structure, then re-run analytics reports to validate improvements.

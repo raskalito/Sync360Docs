@@ -10,7 +10,6 @@ RevenueServiceEmployeeProcessing creates relationships between employees and Rev
 - **Configuration-driven**: Uses JSON queries similar to service processing
 - **Automatic sync**: Updates employee-service relationships to current state
 
----
 
 ## When to Use This Script
 
@@ -21,7 +20,6 @@ Run RevenueServiceEmployeeProcessing when:
 - **Capacity analysis**: Understanding employee workload across services
 - **After employee data changes**: When employee assignments are updated
 
----
 
 ## What You Need Before Running
 
@@ -51,7 +49,6 @@ For this script to function, Revenue Services must have an **"employees"** secti
 
 **Important**: If a Revenue Service doesn't have an "employees" section, this script will skip it for employee processing (but won't error).
 
----
 
 ## What the Script Does
 
@@ -95,7 +92,6 @@ For each Revenue Service:
 - **Add new associations**: For employees now associated with services
 - **Remove old associations**: For employees no longer associated with services
 
----
 
 ## Configuring Employee Queries
 
@@ -244,7 +240,6 @@ When creating Revenue Service records, include an "employees" section in the tem
 ```
 *Finds employees with active certifications for a service*
 
----
 
 ## Script Execution
 
@@ -274,7 +269,6 @@ Typically faster than RevenueServiceProcessing:
 
 **Expected**: Seconds to a few minutes depending on employee count and query complexity
 
----
 
 ## Expected Results
 
@@ -292,7 +286,6 @@ After successful execution, the `vs360_employee_vs360_revenueservice` table will
 - Employee 002 works with Service A
 - Employee 003 works with Service C
 
----
 
 ## Use Cases for Employee-Service Data
 
@@ -321,7 +314,6 @@ Identify dependencies:
 - "If Employee X leaves, which services are at risk?"
 - "Which services have only one expert?"
 
----
 
 ## Integration with Other Scripts
 
@@ -335,7 +327,6 @@ Employee-service data can be incorporated into custom reports:
 - Cross-reference employee expertise with unmatched company services (identify staffing for new opportunities)
 - Analyze employee distribution across service groups
 
----
 
 ## Customization Options
 
@@ -372,7 +363,6 @@ Employee-service data can be incorporated into custom reports:
 
 **Certification-based**: See Scenario 3 above
 
----
 
 ## Troubleshooting
 
@@ -399,7 +389,6 @@ Employee-service data can be incorporated into custom reports:
 - Check permissions to write to relationship table
 - Re-run script after verifying configuration
 
----
 
 ## Best Practices
 
@@ -409,7 +398,6 @@ Employee-service data can be incorporated into custom reports:
 4. **Regular updates**: Run periodically to keep expertise mapping current
 5. **Validate results**: Spot-check employee associations to ensure accuracy
 
----
 
 ## Advanced: Historical vs Current
 
@@ -431,6 +419,4 @@ Include date ranges in employee queries:
 }]
 ```
 
----
 
-**Next Script**: Proceed to RevenueSegmentProcessing for segment-based analysis, or run Report scripts to analyze results.

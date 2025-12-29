@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-Before using the Revenue Service Analytics Solution, ensure you have the following in place:
+Before using the White Space Solution, ensure you have the following in place:
 
 ### 1. Dataverse Environment
 - Active Microsoft Dataverse environment
@@ -31,7 +31,6 @@ Before using the Revenue Service Analytics Solution, ensure you have the followi
 - Understanding of which fields indicate service purchases
 - Sample queries to identify service adoption
 
----
 
 ## Configuration File Setup
 
@@ -43,7 +42,6 @@ WhiteSpace/@private/Configuration.xml
 
 **IMPORTANT**: You must configure this file before running any processing scripts. This file is included by most scripts and defines how the solution interacts with your Dataverse environment.
 
----
 
 ## Configuration.xml - Detailed Guide
 
@@ -65,7 +63,6 @@ WhiteSpace/@private/Configuration.xml
 
 **Recommendation**: Start with `Dynamics` mode. Only use `SQL` if you have specific performance requirements and SQL infrastructure in place.
 
----
 
 ### Table Configuration
 
@@ -91,7 +88,6 @@ WhiteSpace/@private/Configuration.xml
 <set var="Config['OtherTablePrimaryKey']">contactid</set>
 ```
 
----
 
 #### Relationship Table Configuration
 
@@ -110,7 +106,6 @@ WhiteSpace/@private/Configuration.xml
 
 **Important**: These table names must match the actual relationship table names created in your Dataverse solution.
 
----
 
 ### Revenue Service Orders Configuration
 
@@ -149,7 +144,6 @@ WhiteSpace/@private/Configuration.xml
 
 **`Config['OrdersKey']`**: Unique identifier field used to match orders (typically the name field)
 
----
 
 ### Orders Field Mapping
 
@@ -235,7 +229,6 @@ If you have additional fields to track:
 
 Then update your Revenue Service JSON to include these field references.
 
----
 
 ## Configuration Validation Checklist
 
@@ -251,7 +244,6 @@ Before running any processing scripts, verify:
 - [ ] `OrdersMapping` includes all fields you want to track
 - [ ] Field mappings in `OrdersMapping` match your Revenue Service JSON structure
 
----
 
 ## Environment-Specific Configuration
 
@@ -276,7 +268,6 @@ Before running any processing scripts, verify:
 <!-- Simplified for correlation analysis only -->
 ```
 
----
 
 ## Common Configuration Scenarios
 
@@ -295,7 +286,6 @@ Before running any processing scripts, verify:
 - Skip detailed order tracking
 - Focus on service correlation patterns only
 
----
 
 ## Troubleshooting Configuration Issues
 
@@ -314,10 +304,7 @@ Before running any processing scripts, verify:
 - Disable orders if not needed
 - Review service query complexity
 
----
 
-**Next Step**: Once configuration is complete, proceed to script-specific documentation starting with GenerateRevenueService.
 
----
 
 **Configuration Best Practice**: Keep a backup copy of your Configuration.xml before making changes. Document any customizations for future reference.

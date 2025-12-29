@@ -10,7 +10,6 @@ Report_ServicesMatrix creates a correlation matrix showing the percentage of com
 - **Matrix format**: Easy-to-read cross-reference table
 - **CSV export**: Ready for Excel pivot tables and visualization
 
----
 
 ## When to Use This Report
 
@@ -23,7 +22,6 @@ Run Report_ServicesMatrix when:
 
 **Typical usage**: Initial analysis phase and periodic reviews (quarterly/annually)
 
----
 
 ## What You Need Before Running
 
@@ -38,7 +36,6 @@ For meaningful results:
 - Multiple companies with 2+ services
 - Sufficient variation in service combinations
 
----
 
 ## What the Script Does
 
@@ -86,7 +83,6 @@ For each service pair:
 #### Phase 5: Generate CSV
 Creates one row per service with columns for all services showing correlation percentages.
 
----
 
 ## Configuration
 
@@ -103,7 +99,6 @@ Creates one row per service with columns for all services showing correlation pe
 
 Ensure directory exists and is writable.
 
----
 
 ## CSV Output Structure
 
@@ -141,7 +136,6 @@ Service C,58.88% (63),62.62% (67),100.00% (107),107
 
 **Key insight**: "If a company has Service A, there's a 65% chance they also have Service B"
 
----
 
 ## Interpreting Results
 
@@ -217,7 +211,6 @@ Service B → Service A: 40%
 - Upsell B to A customers (high probability)
 - Selective upsell of A to B customers (need targeting)
 
----
 
 ## Using the Report Results
 
@@ -270,7 +263,6 @@ Most likely to buy next:
 3. Advisory (58%)
 ```
 
----
 
 ## Advanced Analysis Techniques
 
@@ -309,7 +301,6 @@ Gap: 80 companies with A but not B
 
 Prioritize cross-sell efforts by gap size.
 
----
 
 ## Script Execution
 
@@ -332,7 +323,6 @@ Prioritize cross-sell efforts by gap size.
    - Apply formatting and create visualizations
    - Identify opportunities
 
----
 
 ## Example Use Cases
 
@@ -384,7 +374,6 @@ Prioritize cross-sell efforts by gap size.
 
 **Example**: Tax services drives Audit and Compliance adoption → Focus on Tax growth
 
----
 
 ## Troubleshooting
 
@@ -414,7 +403,6 @@ Prioritize cross-sell efforts by gap size.
 - Matched data is current
 - Manually verify a few examples against Dataverse data
 
----
 
 ## Best Practices
 
@@ -425,7 +413,6 @@ Prioritize cross-sell efforts by gap size.
 5. **Act on insights**: Use data to drive actual cross-sell and bundling efforts
 6. **Track over time**: Monitor how correlations change as strategies are implemented
 
----
 
 ## Visualization Tips
 
@@ -445,6 +432,4 @@ Prioritize cross-sell efforts by gap size.
 2. Create bar chart of correlations
 3. Visualize "If customer has X, probability of Y"
 
----
 
-**Next**: Run Report_FinancialAnalysis for revenue-based insights, or Report_SegmentsData for segment breakdowns.

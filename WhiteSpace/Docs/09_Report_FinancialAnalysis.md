@@ -12,7 +12,6 @@ Report_FinancialAnalysis provides revenue-based insights into service combinatio
 
 **Note**: This report requires financial data to be available in your source tables (referenced as `fol_fb5ytotal` in the example script).
 
----
 
 ## When to Use This Report
 
@@ -25,7 +24,6 @@ Run Report_FinancialAnalysis when:
 
 **Typical usage**: Initial analysis and quarterly financial reviews
 
----
 
 ## What You Need Before Running
 
@@ -42,7 +40,6 @@ The script expects:
 - **Source table** (e.g., vs360_job) with financial data (e.g., `fol_fb5ytotal`)
 - **Companies** with multiple matched services for meaningful analysis
 
----
 
 ## What the Script Does
 
@@ -95,7 +92,6 @@ For each service combination:
 #### Phase 5: Export to CSV
 Creates detailed financial breakdown for analysis.
 
----
 
 ## Configuration
 
@@ -130,7 +126,6 @@ The script queries a specific financial field. In the example:
 
 Ensure field is of type Decimal or Currency.
 
----
 
 ## CSV Output Structure
 
@@ -157,7 +152,6 @@ ServiceGroup,GroupTotalFinancial,GroupServiceFinancial,Company,Service,Financial
 "(0) Tax;(0) Audit;(0) Advisory",5250000,2100000,GUID-DEF,"(0) Tax Services",180000,0.45,400000
 ```
 
----
 
 ## Interpreting Results
 
@@ -205,7 +199,6 @@ Company ABC: Total $250,000
 ```
 *Tax is the primary relationship driver for this company*
 
----
 
 ## Using the Report Results
 
@@ -271,7 +264,6 @@ Company has Tax (70%), Audit (20%), Advisory (10%)
 Advisory is underutilized → Upsell Advisory services
 ```
 
----
 
 ## Advanced Analysis Techniques
 
@@ -312,7 +304,6 @@ Additional revenue: 50 × $75K = $3.75M
 ROI on cross-sell campaign = ?
 ```
 
----
 
 ## Script Execution
 
@@ -336,7 +327,6 @@ ROI on cross-sell campaign = ?
    - Create pivot tables
    - Calculate opportunity sizes
 
----
 
 ## Important Notes
 
@@ -369,7 +359,6 @@ Ensure:
 - Currency is consistent
 - Null values are handled (script sums only where data exists)
 
----
 
 ## Troubleshooting
 
@@ -396,7 +385,6 @@ Ensure:
 - Currency/units match expectations
 - Date filters if applicable (script doesn't filter by date)
 
----
 
 ## Best Practices
 
@@ -406,7 +394,6 @@ Ensure:
 4. **Segmented analysis**: Filter by time period, region, etc. for targeted insights
 5. **Act on insights**: Use to prioritize actual sales and marketing efforts
 
----
 
 ## Integration with Business Strategy
 
@@ -425,6 +412,4 @@ Ensure:
 - Budget allocation for service development (focus on high-revenue services)
 - ROI modeling for cross-sell initiatives
 
----
 
-**Next**: Run Report_SegmentsData for segment-based analysis, or use insights from this report to prioritize business development efforts.

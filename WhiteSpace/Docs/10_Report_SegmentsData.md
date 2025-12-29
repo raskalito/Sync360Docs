@@ -10,7 +10,6 @@ Report_SegmentsData exports the segment analysis data calculated by RevenueSegme
 - **Comprehensive metrics**: Includes matched, unmatched, totals, and percentages
 - **Simple execution**: No configuration needed
 
----
 
 ## When to Use This Report
 
@@ -23,7 +22,6 @@ Run Report_SegmentsData when:
 
 **Typical usage**: After running RevenueSegmentProcessing, one-time or periodic exports
 
----
 
 ## What You Need Before Running
 
@@ -33,7 +31,6 @@ Run Report_SegmentsData when:
 3. **Segment data populated**: Revenue Segment Values and Dispersions exist
 4. **Write access to output directory**: Default C:\temp\
 
----
 
 ## What the Script Does
 
@@ -61,7 +58,6 @@ vs360_rsdispersion (dispersion statistics)
 
 **Result**: One row per combination of Segment + Value + Service with all statistics
 
----
 
 ## Configuration
 
@@ -76,7 +72,6 @@ vs360_rsdispersion (dispersion statistics)
 <set var="dumpFile">D:\Reports\SegmentAnalysis.csv</set>
 ```
 
----
 
 ## CSV Output Structure
 
@@ -105,7 +100,6 @@ Region,northeast,200,(0) Consulting Services,150,75.00,50,25.00
 Region,southeast,120,(0) Consulting Services,60,50.00,60,50.00
 ```
 
----
 
 ## Interpreting Results
 
@@ -163,7 +157,6 @@ Unmatched%: 20.00
 - Target unmatched with campaigns
 - Learn from matched companies what drives adoption
 
----
 
 ## Using the Report Results
 
@@ -226,7 +219,6 @@ Opportunity: 60 companies to target for Advisory services
 - Total addressable market for each service
 - Prioritize by segment with largest unmatched counts
 
----
 
 ## Advanced Analysis Techniques
 
@@ -278,7 +270,6 @@ Service A performs best in Segment X
 → Use Segment X as benchmark for others
 ```
 
----
 
 ## Script Execution
 
@@ -301,7 +292,6 @@ Service A performs best in Segment X
    - Create pivot tables
    - Generate insights
 
----
 
 ## Excel Analysis Examples
 
@@ -333,7 +323,6 @@ Service A performs best in Segment X
 **Rule 2**: Unmatched count
 - Larger numbers = larger opportunity = darker shading
 
----
 
 ## Integration with Business Strategy
 
@@ -362,7 +351,6 @@ Healthcare companies: 25% adoption of Consulting
 - Should we develop segment-specific variants?
 - Where is product-market fit strongest?
 
----
 
 ## Troubleshooting
 
@@ -388,7 +376,6 @@ Healthcare companies: 25% adoption of Consulting
 - If not, data calculation issue in RevenueSegmentProcessing
 - Re-run RevenueSegmentProcessing
 
----
 
 ## Best Practices
 
@@ -399,7 +386,6 @@ Healthcare companies: 25% adoption of Consulting
 5. **Use pivot tables**: Excel pivot tables unlock the most insights
 6. **Share with teams**: Marketing, sales, and product teams can all benefit
 
----
 
 ## Common Use Cases
 
@@ -434,6 +420,4 @@ Healthcare companies: 25% adoption of Consulting
 3. **Insight**: "Consulting has 70%+ across all segments"
 4. **Action**: Consulting is core offering, invest more
 
----
 
-**Next**: Use insights from this report to drive targeted campaigns, or proceed to PostRevenueGAGroupCreation to create new service groups based on previous analysis.

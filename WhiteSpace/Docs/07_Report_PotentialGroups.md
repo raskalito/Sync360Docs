@@ -10,7 +10,6 @@ Report_PotentialGroups identifies natural groupings of services based on actual 
 - **CSV export**: Outputs results to file for review
 - **Group suggestions**: Recommends which patterns warrant new service groups
 
----
 
 ## When to Use This Report
 
@@ -23,7 +22,6 @@ Run Report_PotentialGroups when:
 
 **Typical usage**: One-time during initial implementation, then periodically
 
----
 
 ## What You Need Before Running
 
@@ -38,7 +36,6 @@ For meaningful results:
 - At least 3+ services defined
 - Multiple companies purchasing multiple services
 
----
 
 ## What the Script Does
 
@@ -98,7 +95,6 @@ Also generates JSON for creating new Revenue Services with this group.
 #### Phase 5: Export to CSV
 Writes results to `C:\temp\dump.csv`
 
----
 
 ## Configuration
 
@@ -116,7 +112,6 @@ Writes results to `C:\temp\dump.csv`
 ```
 3. Ensure directory exists and is writable
 
----
 
 ## CSV Output Structure
 
@@ -156,7 +151,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - Reveals cross-selling patterns
 - Identifies service bundles
 
----
 
 ## Using the Report Results
 
@@ -206,7 +200,6 @@ If you decide to create a new group:
 - Assign them a new group number
 - Copy JSON configurations from existing services
 
----
 
 ## Example Analysis Scenario
 
@@ -244,7 +237,6 @@ Pattern 3: Tax + Consulting (45 companies)
 3. Re-run RevenueServiceProcessing
 4. Analyze each group independently
 
----
 
 ## Understanding the NewRecords JSON
 
@@ -273,7 +265,6 @@ The **NewRecords** column contains JSON for creating Revenue Service records:
 
 **Note**: The group number auto-increments from your current maximum group number.
 
----
 
 ## Script Execution
 
@@ -297,7 +288,6 @@ The **NewRecords** column contains JSON for creating Revenue Service records:
    - Sort, filter, and analyze patterns
    - Identify groups to create
 
----
 
 ## Advanced Usage
 
@@ -335,7 +325,6 @@ If certain services create noise in the analysis:
 </for>
 ```
 
----
 
 ## Troubleshooting
 
@@ -370,7 +359,6 @@ If certain services create noise in the analysis:
 - Review patterns manually regardless of flag
 - Consider dataset may be insufficient for grouping
 
----
 
 ## Best Practices
 
@@ -381,7 +369,6 @@ If certain services create noise in the analysis:
 5. **Validate patterns**: Verify patterns are stable over multiple runs
 6. **Document decisions**: Track why certain groups were/weren't created
 
----
 
 ## Integration with Other Scripts
 
@@ -396,6 +383,4 @@ If certain services create noise in the analysis:
 6. Report_ServicesMatrix → Analyze correlations within groups
 ```
 
----
 
-**Next**: Use Report_ServicesMatrix to analyze correlations, or PostRevenueGAGroupCreation to create new service groups based on this report.

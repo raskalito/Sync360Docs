@@ -2,9 +2,8 @@
 
 ## Overview
 
-This guide provides a step-by-step workflow for implementing the Revenue Service Analytics Solution from initial setup through ongoing operations. Follow these phases in order for a successful implementation.
+This guide provides a step-by-step workflow for implementing the White Space Solution from initial setup through ongoing operations. Follow these phases in order for a successful implementation.
 
----
 
 ## Implementation Phases
 
@@ -32,7 +31,6 @@ This guide provides a step-by-step workflow for implementing the Revenue Service
 **Goal**: Schedule automated processing
 **Duration**: Ongoing
 
----
 
 ## Phase 1: Initial Setup
 
@@ -46,7 +44,6 @@ This guide provides a step-by-step workflow for implementing the Revenue Service
 
 **Documentation**: See Dataverse Tables documentation
 
----
 
 ### Step 1.2: Configure Sync360 Connection
 **Action**: Set up Sync360 connection to Dataverse
@@ -57,7 +54,6 @@ This guide provides a step-by-step workflow for implementing the Revenue Service
 - Test connection
 - Verify script execution permissions
 
----
 
 ### Step 1.3: Configure Configuration.xml
 **Action**: Edit `@private/Configuration.xml` to match your environment
@@ -85,7 +81,6 @@ This guide provides a step-by-step workflow for implementing the Revenue Service
 - [ ] Save mode set appropriately
 - [ ] Orders configuration matches requirements
 
----
 
 ## Phase 2: Service Definition
 
@@ -101,7 +96,6 @@ This guide provides a step-by-step workflow for implementing the Revenue Service
 
 **Deliverable**: Data mapping document showing source tables, fields, and criteria
 
----
 
 ### Step 2.2: Define Service List
 **Action**: Create a list of services/products to track
@@ -122,7 +116,6 @@ Service Group 0: Core Services
 
 **Deliverable**: Service definition spreadsheet
 
----
 
 ### Step 2.3: Customize GenerateRevenueService.xml
 **Action**: Modify the GenerateRevenueService script template to match your data model
@@ -159,7 +152,6 @@ Service Group 0: Core Services
 - [ ] Lookup logic works with your tables
 - [ ] JSON is valid
 
----
 
 ### Step 2.4: Run GenerateRevenueService
 **Action**: Execute the customized script to create Revenue Service records
@@ -178,7 +170,6 @@ Service Group 0: Core Services
 
 **Troubleshooting**: See GenerateRevenueService documentation
 
----
 
 ### Step 2.5: Review Revenue Services
 **Action**: Manually verify created Revenue Services in Dataverse
@@ -194,7 +185,6 @@ Service Group 0: Core Services
 - Deactivate services not needed
 - Add additional services manually if needed
 
----
 
 ## Phase 3: Initial Processing
 
@@ -218,7 +208,6 @@ Service Group 0: Core Services
 - [ ] Order records created (if orders enabled)
 - [ ] No errors in logs
 
----
 
 ### Step 3.2: Verify Processing Results
 **Action**: Spot-check results in Dataverse
@@ -241,7 +230,6 @@ Sample Company A:
 
 **If issues found**: Review Revenue Service JSON configurations and re-run
 
----
 
 ### Step 3.3: Run Employee Processing (Optional)
 **Action**: If tracking employee-service relationships, run RevenueServiceEmployeeProcessing
@@ -261,7 +249,6 @@ Sample Company A:
 - [ ] Employee-service relationships created
 - [ ] Spot-check employee associations
 
----
 
 ## Phase 4: Analysis & Insights
 
@@ -284,7 +271,6 @@ Sample Company A:
 
 **Deliverable**: List of potential new service groups to consider
 
----
 
 ### Step 4.2: Run Report_ServicesMatrix
 **Action**: Analyze service correlations
@@ -306,7 +292,6 @@ Sample Company A:
 
 **Deliverable**: Cross-sell opportunity matrix
 
----
 
 ### Step 4.3: Run Report_FinancialAnalysis (Optional)
 **Action**: Analyze revenue patterns in service combinations
@@ -331,7 +316,6 @@ Sample Company A:
 
 **Deliverable**: Revenue-prioritized opportunity list
 
----
 
 ### Step 4.4: Create Revenue Segments (Optional)
 **Action**: Define segments for segment-based analysis
@@ -359,7 +343,6 @@ Sample Company A:
 
 **Deliverable**: Segment-based targeting strategy
 
----
 
 ### Step 4.5: Consolidate Insights
 **Action**: Review all reports and create action plan
@@ -379,7 +362,6 @@ Sample Company A:
 
 **Deliverable**: Strategic action plan with priorities
 
----
 
 ## Phase 5: Optimization
 
@@ -399,7 +381,6 @@ Create Group 2: Consulting + Compliance (120 companies)
 Skip: Small combinations (<50 companies)
 ```
 
----
 
 ### Step 5.2: Edit Potential Groups CSV
 **Action**: Prepare CSV for creating new groups
@@ -419,7 +400,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 120,"Consulting;Compliance",2,TRUE,"[...JSON...]"
 ```
 
----
 
 ### Step 5.3: Run PostRevenueGAGroupCreation
 **Action**: Create new Revenue Service groups
@@ -439,7 +419,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - [ ] JSON configurations copied correctly
 - [ ] All are active
 
----
 
 ### Step 5.4: Reprocess with New Groups
 **Action**: Run RevenueServiceProcessing with new service groups
@@ -456,7 +435,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - [ ] Companies properly classified
 - [ ] Old groups still work (if kept active)
 
----
 
 ### Step 5.5: Re-run Analysis Reports
 **Action**: Generate reports with new group structure to validate improvement
@@ -472,7 +450,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 
 **Iterate if needed**: Adjust groups and reprocess until satisfied
 
----
 
 ## Phase 6: Ongoing Operations
 
@@ -491,7 +468,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 
 **Documentation**: Refer to Sync360 scheduling documentation
 
----
 
 ### Step 6.2: Schedule Employee Processing (Optional)
 **Action**: If using employee tracking, schedule RevenueServiceEmployeeProcessing
@@ -500,7 +476,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - Same as or less frequent than RevenueServiceProcessing
 - Weekly or monthly typically sufficient
 
----
 
 ### Step 6.3: Periodic Segment Analysis
 **Action**: Run segment analysis periodically (monthly/quarterly)
@@ -511,7 +486,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 3. Review trends over time
 4. Adjust targeting strategies
 
----
 
 ### Step 6.4: Quarterly Review
 **Action**: Quarterly analysis to identify emerging patterns
@@ -529,7 +503,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - Should groups be restructured?
 - Are segment patterns shifting?
 
----
 
 ### Step 6.5: Maintain Service Definitions
 **Action**: Keep Revenue Services current
@@ -540,7 +513,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - Update JSON queries if criteria change
 - Adjust groups as business evolves
 
----
 
 ## Success Metrics
 
@@ -561,7 +533,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - Script success rate
 - Data freshness
 
----
 
 ## Common Implementation Patterns
 
@@ -575,7 +546,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 
 **Benefit**: Learn and refine before full deployment
 
----
 
 ### Pattern 2: Group-First Approach
 **Approach**: Define groups upfront based on business knowledge
@@ -588,7 +558,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 
 **Benefit**: Faster if you already know how services should be grouped
 
----
 
 ### Pattern 3: Analysis-Heavy Approach
 **Approach**: Deep analysis before optimization
@@ -601,7 +570,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 
 **Benefit**: Most data-driven approach
 
----
 
 ## Troubleshooting Common Issues
 
@@ -619,7 +587,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 3. Adjust criteria to be more inclusive
 4. Verify source data exists
 
----
 
 ### Issue: Processing Takes Too Long
 **Symptoms**: RevenueServiceProcessing runs for hours
@@ -631,7 +598,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 4. Process groups separately
 5. Review data volume and indexing
 
----
 
 ### Issue: Unexpected Patterns in Reports
 **Symptoms**: Correlations or groups don't make business sense
@@ -647,7 +613,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 3. Add date/status filters to queries
 4. Review with business stakeholders
 
----
 
 ## Best Practices Summary
 
@@ -660,7 +625,6 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 7. **Regular reviews**: Quarterly analysis to stay current
 8. **Act on insights**: Use data to drive actual business actions
 
----
 
 ## Support and Resources
 
@@ -675,16 +639,14 @@ GroupCount,Services,ServicesCount,UseThisGroup,NewRecords
 - Dataverse documentation: For platform capabilities
 - Internal team: For business logic and data questions
 
----
 
 ## Conclusion
 
-Following this implementation workflow will ensure a successful deployment of the Revenue Service Analytics Solution. The key to success is thorough preparation, careful analysis, and iterative refinement based on actual data patterns.
+Following this implementation workflow will ensure a successful deployment of the White Space Solution. The key to success is thorough preparation, careful analysis, and iterative refinement based on actual data patterns.
 
 Remember: This is a data-driven solution. The insights you gain will be as good as the data you provide and the thoughtfulness of your analysis.
 
 **Good luck with your implementation!**
 
----
 
 **End of Implementation Workflow Guide**

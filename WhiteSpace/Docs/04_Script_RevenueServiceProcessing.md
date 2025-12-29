@@ -11,7 +11,6 @@ RevenueServiceProcessing is the **core processing script** that executes all Rev
 - **Automatic cleanup**: Removes outdated associations when data changes
 - **Configurable**: Behavior controlled by Configuration.xml
 
----
 
 ## When to Use This Script
 
@@ -22,7 +21,6 @@ Run RevenueServiceProcessing when:
 - **On-demand analysis**: When you need current matched/unmatched data
 - **After service definition changes**: When Revenue Service queries are modified
 
----
 
 ## What You Need Before Running
 
@@ -36,7 +34,6 @@ Run RevenueServiceProcessing when:
 - **Orders enabled**: If using detailed order tracking (`Config['EnableOrders'] = true`)
 - **SQL connection**: If using SQL save mode
 
----
 
 ## What the Script Does
 
@@ -92,7 +89,6 @@ For each company with at least one service:
 - **Update orders**: Modify order records if source data changed
 - **Delete orders**: Remove orders for services that no longer match
 
----
 
 ## Configuration Impact
 
@@ -128,7 +124,6 @@ The script behavior varies based on Configuration.xml settings:
 - Simpler data model
 - Sufficient for correlation analysis only
 
----
 
 ## Script Execution
 
@@ -169,7 +164,6 @@ Processing time depends on:
 - 50 services, 10,000 companies: 15-30 minutes (Dynamics)
 - Large volumes: Consider SQL mode for better performance
 
----
 
 ## Expected Results
 
@@ -217,7 +211,6 @@ The `vs360_revenueserviceorder` table contains:
 | JOB-001 | GUID-123 | 2024-01-15 | 2024-06-30 | $50,000 |
 | JOB-002 | GUID-456 | 2024-03-01 | (null) | $25,000 |
 
----
 
 ## Important Behaviors
 
@@ -241,7 +234,6 @@ The `vs360_revenueserviceorder` table contains:
 - No code changes needed to modify service criteria
 - Complex queries with joins and conditions are supported
 
----
 
 ## Included Scripts
 
@@ -260,7 +252,6 @@ Handles parsing and execution of JSON queries. Supports:
 ### Conditions.xml
 Additional condition processing logic.
 
----
 
 ## Advanced Features
 
@@ -285,7 +276,6 @@ The script supports status tracking for orders:
 - Different statuses can drive different behaviors
 - Useful for workflow integration
 
----
 
 ## Scheduling for Ongoing Operations
 
@@ -311,7 +301,6 @@ Recommended when:
 
 **Sync360 Scheduling**: Refer to Sync360 documentation for setting up scheduled script execution.
 
----
 
 ## Troubleshooting
 
@@ -357,7 +346,6 @@ Recommended when:
 - Ensure JSON follows expected structure
 - Check GenerateRevenueService script for proper JSON generation
 
----
 
 ## Best Practices
 
@@ -369,7 +357,6 @@ Recommended when:
 6. **Use logging**: Add log statements if you need more visibility into processing
 7. **Backup before changes**: If modifying the script, test in development first
 
----
 
 ## Performance Optimization Tips
 
@@ -379,6 +366,4 @@ Recommended when:
 4. **Process by group**: If you have many groups, consider separate scheduled runs per group
 5. **Index source tables**: Ensure source tables have proper indexes on fields used in queries
 
----
 
-**Next Script**: After processing is complete, run analytics reports to analyze the results, or use RevenueServiceEmployeeProcessing to track employee-service relationships.

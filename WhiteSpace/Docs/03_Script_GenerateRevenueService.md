@@ -9,7 +9,6 @@ The GenerateRevenueService script is a **client-specific template** that creates
 - **Requires customization**: The provided script is a template/example that must be adapted to your client's needs
 - **Idempotent**: Can be safely re-run; only creates records that don't already exist
 
----
 
 ## When to Use This Script
 
@@ -18,7 +17,6 @@ Use GenerateRevenueService when:
 - **Adding new services**: Creating additional service definitions after initial setup
 - **Bulk updates**: Need to update query definitions across multiple services
 
----
 
 ## What You Need Before Running
 
@@ -39,7 +37,6 @@ For each service you want to track:
 - Query criteria (fields, conditions, linked tables)
 - Any specific thresholds or rules
 
----
 
 ## Script Structure Overview
 
@@ -66,7 +63,6 @@ Lists all services to create, organized by group.
 ### 3. Processing Loop
 Iterates through service definitions, creates JSON configurations, and generates Revenue Service records.
 
----
 
 ## Customization Guide
 
@@ -165,7 +161,6 @@ Replace with your client's logic:
 
 **Important**: Use a placeholder value (like "GGGGGGGG" or "PLACEHOLDER") that will be replaced dynamically in the processing loop.
 
----
 
 ### Step 2: Define Your Service Data
 
@@ -206,7 +201,6 @@ Each service definition contains:
 <set var="Data['1'][]"><attr name="code">PREM002</attr><attr name="grp">PREM</attr></set>
 ```
 
----
 
 ### Step 3: Customize the Lookup Logic
 
@@ -250,7 +244,6 @@ If you don't have a lookup table and want to hard-code service names:
 <set var="p['your_service_name_field']">Service Name for {val.code}</set>
 ```
 
----
 
 ### Step 4: Customize the Template Replacement
 
@@ -271,7 +264,6 @@ The script dynamically replaces the placeholder with actual values:
 <set var="tx">{tx.Replace('PLACEHOLDER2',p.another_field.ToString())}</set>
 ```
 
----
 
 ### Step 5: Customize the Service Name Format
 
@@ -294,7 +286,6 @@ This creates names like: "(BL) Business Law"
 <set var="name">{p.your_service_name_field}</set>
 ```
 
----
 
 ## Script Execution Steps
 
@@ -313,7 +304,6 @@ This creates names like: "(BL) Business Law"
    - Confirm records were created with correct names
    - Review JSON in `vs360_selectedcombinations` field
 
----
 
 ## What the Script Does
 
@@ -329,7 +319,6 @@ This creates names like: "(BL) Business Law"
      - `vs360_group`: Group number
      - `vs360_selectedcombinations`: JSON query configuration
 
----
 
 ## Expected Results
 
@@ -352,7 +341,6 @@ After running the script successfully:
 | (PREM) Managed Services | 1 | Active |
 | (PREM) Support Services | 1 | Active |
 
----
 
 ## Common Customization Scenarios
 
@@ -409,7 +397,6 @@ Different services need different query structures:
 </for>
 ```
 
----
 
 ## Troubleshooting
 
@@ -433,7 +420,6 @@ Different services need different query structures:
 - Completely rewrite the template section to match your needs
 - Consider starting with a simple query and expanding
 
----
 
 ## Best Practices
 
@@ -444,6 +430,4 @@ Different services need different query structures:
 5. **Validate JSON**: Use a JSON validator on your template before running
 6. **Incremental changes**: Add services over time rather than trying to create everything at once
 
----
 
-**Next Script**: Once Revenue Services are created, proceed to RevenueServiceProcessing.xml to execute the queries and classify companies.
