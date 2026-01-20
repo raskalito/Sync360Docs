@@ -1,0 +1,197 @@
+<script>
+	<set var="Enum">{static 'System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+	<set var="TimeZoneInfo">{static 'System.TimeZoneInfo, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+
+	<set var="RegexOptions">{typeof 'System.Text.RegularExpressions.RegexOptions, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+	<set var="RegexOptionMultiline">{Enum.Parse(RegexOptions, 'Multiline')}</set>
+	<set var="Regex">{typeof 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+	<set var="Regexp">{static Regex}</set>
+
+	<set var="expr"><![CDATA[\{{([^{{}]+)\}]]></set>
+	<set var="expr2"><![CDATA[(\[\[.+\]\])]]></set>
+	<set var="regexEval">{new Regex(expr, RegexOptionMultiline)}</set>
+	<set var="regexPlaceHolder">{new Regex(expr2, RegexOptionMultiline)}</set>
+
+	<set var="lBr">{'{'}</set>
+	<set var="rBr">}</set>
+
+	<set var="ExecutionTimeUtc">{Utils.Now.ToUniversalTime()}</set>
+
+	<select from="crm" entity="vs360_templateblock" var="records">
+		<attr name="vs360_templateblockid"/>
+		<attr name="vs360_name"/>
+		<attr name="vs360_blocktype" />
+		<attr name="vs360_html_tokenized" />
+		<attr name="vs360_slots_json" />
+		<attr name="vs360_defaultprops_json" />
+	</select>
+	<set var="TemplateBlocks">{new Dictionary()}</set>
+	<for var="block" in="records">
+		<set var="TemplateBlocks[block.vs360_templateblockid.ToString()]">{block}</set>
+	</for>
+
+	<select from="crm" entity="vs360_notificationprofile" var="Profiles">
+		<attr name="vs360_name" />
+		<attr name="vs360_notificationprofileid"/>
+		<attr name="vs360_notificationtype" />
+		<attr name="vs360_description" />
+		<attr name="vs360_deliverytype" />
+		<attr name="vs360_dedupewindow" />
+		<attr name="vs360_allowpersonalization" />
+		<attr name="vs360_targetentitylogicalname" />
+	</select>
+
+	<select from="crm" entity="vs360_subscription" var="records">
+		<attr name="vs360_notificationprofileid"/>
+		<attr name="vs360_name"/>
+		<attr name="vs360_channel"/>
+		<attr name="vs360_rrule"/>
+		<attr name="vs360_isoptin"/>
+		<attr name="vs360_subscriptionid" />
+		<attr name="vs360_timezone" />
+		<attr name="vs360_timedelivery" />
+		<attr name="vs360_startfrom" />
+	</select>
+	<set var="Subscriptions">{new Dictionary()}</set>
+	<for var="sub" in="records">
+		<set var="nId">{sub.vs360_notificationprofileid.Id.ToString()}</set>
+		<set var="Subscriptions[nId]" if="!Subscriptions.ContainsKey(nId)">{new List()}</set>
+		<set var="Subscriptions[nId][]">{sub}</set>
+	</for>
+
+
+	<for var="profile" in="Profiles">
+		<set var="nId">{profile.vs360_notificationprofileid.ToString()}</set>
+		<if condition="!Subscriptions.ContainsKey(nId) or Subscriptions[nId].Count eq 0">
+			<continue />
+			<!--No available subscriptions, skip profile -->
+		</if>
+
+		<for var="subscription" in="Subscriptions[nId]">
+			<set var="Schedule">{new Object()}</set>
+			<set var="Schedule.isAllowedSend">{false}</set>
+			<RRuleParser rule="subscription.vs360_rrule" schedule="Schedule" subscription="subscription" ExecutionTimeUtc="ExecutionTimeUtc" />
+			<log>{subscription}</log>
+		</for>
+
+
+		<if condition="profile.vs360_notificationtype eq 911170000">			<!-- Logic for record driven notifications -->
+
+		</if>
+
+		<if condition="profile.vs360_notificationtype eq 911170001">			<!-- Logic for summary notifications -->
+			<if condition="profile.vs360_deliverytype eq 911170001 or profile.vs360_deliverytype eq 911170002">				<!-- Delivery Type includes email -->
+
+
+				<set var="CollectedData">{new Dictionary()}</set>
+				<set var="slots">{new Object()}</set>
+
+				<!-- Collect data by using queries and save in CollectedData -->
+				<select from="crm" entity="vs360_profilequery" var="Queries">
+					<where>
+						<condition attr="vs360_notificationprofileid" op="eq">{nId}</condition>
+					</where>
+					<attr name="vs360_name"/>
+					<attr name="vs360_outputalias"/>
+					<attr name="vs360_isperrecipient"/>
+					<attr name="vs360_maxrows"/>
+					<attr name="vs360_fetchxml"/>
+				</select>
+				<for var="query" in="Queries">
+					<set var="CollectedData[query.vs360_outputalias]" if="!CollectedData.ContainsKey(query.vs360_outputalias)">{new List()}</set>
+					<select from="crm" entity="table" var="queryResult">
+						<query>
+							{query.vs360_fetchxml}
+						</query>
+					</select>
+					<for var="item" in="queryResult">
+						<set var="CollectedData[query.vs360_outputalias][]">{item}</set>
+					</for>
+				</for>
+
+				<!-- Collect html using template -->
+				<select from="crm" entity="vs360_templatecomposition" var="Compositions">
+					<where>
+						<condition attr="vs360_notificationprofileid" op="eq">{nId}</condition>
+					</where>
+					<attr name="vs360_templatecompositionid" />
+					<attr name="vs360_parentid"/>
+					<attr name="vs360_blockid"/>
+					<attr name="vs360_displayorder"/>
+					<attr name="vs360_slotname"/>
+					<attr name="vs360_inputalias" />
+					<attr name="vs360_props_json" />
+					<attr name="vs360_css" />
+					<attr name="vs360_isroot" />
+					<order by="vs360_displayorder" desc="true" />
+				</select>
+				<set var="TemplateParts">{new Dictionary()}</set>
+				<for var="part" in="Compositions">
+					<set var="TemplateParts[part.vs360_templatecompositionid.ToString()]">{part}</set>
+				</for>
+
+				<set var="HtmlContent"></set>
+				<for var="TempDef" in="Compositions">
+					<set var="block">{TemplateBlocks[TempDef.vs360_blockid.Id.ToString()]}</set>
+					<set var="props">{new Dictionary()}</set>
+					<set var="props" if="TempDef.vs360_props_json.isSet">{Json.FromJson(TempDef.vs360_props_json)}</set>>
+					<set var="blockHtml">{block.vs360_html_tokenized}</set>
+					<set var="matches">{regexEval.Matches(blockHtml)}</set>
+					<set var="currentHtml"></set>
+					<if condition="TempDef.vs360_inputalias.isSet">
+						<if condition="block.vs360_blocktype eq 911170000">
+							<if condition="CollectedData.ContainsKey(TempDef.vs360_inputalias)">
+								<for var="item" in="CollectedData[TempDef.vs360_inputalias]">
+									<set var="tempHtml">{block.vs360_html_tokenized}</set>
+									<for var="match" in="matches">
+										<set var="text">{match.ToString()}</set>
+										<set var="sub">{new Regex(Regexp.Escape(text))}</set>
+										<set var="tempHtml">{sub.Replace(tempHtml, Utils.Eval(text.Replace(lBr, '').Replace(rBr, '')), 1)}</set>
+									</for>
+									<set var="currentHtml">{currentHtml}{tempHtml}</set>
+								</for>
+							</if>
+
+						</if>
+
+					</if>
+					<if condition="currentHtml eq ''">
+						<set var="currentHtml">{block.vs360_html_tokenized}</set>
+					</if>
+
+					<for var="match" in="matches">
+						<set var="text">{match.ToString()}</set>
+						<if condition="text.Contains('props.')">
+							<set var="sub">{new Regex(Regexp.Escape(text))}</set>
+							<set var="currentHtml">{sub.Replace(currentHtml, Utils.Eval(text.Replace(lBr, '').Replace(rBr, '')).ToString(), 1)}</set>
+						</if>
+					</for>
+					<if condition="slots.Count gt 0">
+						<for var="match" in="matches">
+							<set var="text">{match.ToString()}</set>
+							<if condition="text.Contains('slots.')">
+								<set var="sub">{new Regex(Regexp.Escape(text))}</set>
+								<set var="currentHtml">{sub.Replace(currentHtml, Utils.Eval(text.Replace(lBr, '').Replace(rBr, '')), 1)}</set>
+							</if>
+						</for>
+					</if>
+					<set var="slots[TempDef.vs360_slotname]" if="TempDef.vs360_slotname.isSet">{currentHtml}</set>
+					<if condition="TempDef.vs360_isroot">
+						<if condition="TempDef.vs360_css.isSet">
+							<then>
+								<set var="currentHtml">{Utils.Replace(currentHtml,"[[CSS]]",TempDef.vs360_css)}</set>
+							</then>
+							<else>
+								<set var="currentHtml">{Utils.Replace(currentHtml,"[[CSS]]","")}</set>
+							</else>
+						</if>
+						<set var="HtmlContent">{currentHtml}</set>
+					</if>
+				</for>
+				<log>{HtmlContent}</log>
+			</if>
+
+		</if>
+
+	</for>
+</script>

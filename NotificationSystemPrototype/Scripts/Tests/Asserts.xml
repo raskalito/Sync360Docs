@@ -1,0 +1,29 @@
+<script Operator="'Equal'" Original="null" Expected="null" Object="null">
+
+  <!-- 
+    Props:
+      Method: [Equal, NotEqual]
+  -->
+
+  <script var="equal" Original="null" Expected="null">
+    <exception if="Original ne Expected">Original is different</exception>
+  </script>
+
+  <script var="notequal" Original="null" Expected="null">
+    <exception if="Original eq Expected">Original is the same</exception>
+  </script>
+
+  <script var="notnull" Object="null">
+    <exception if="!Object.isSet">Object is not null</exception>
+  </script>
+
+  <set var="methods">{[
+    'equal': equal,
+    'notequal': notequal,
+    'notnull': notnull,
+  ]}</set>
+
+  <call script="methods[Operator.ToLower()]" Original="Original" Expected="Expected" Object="Object" />
+
+
+</script>

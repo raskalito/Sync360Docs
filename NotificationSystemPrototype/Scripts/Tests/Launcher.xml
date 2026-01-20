@@ -1,0 +1,22 @@
+<script>
+
+  <!-- 
+    Launcher of tests.
+    
+    Props:
+      Test: codeblock
+      Name: string
+      Params: object
+
+  -->
+
+  <sandbox verbose="true">
+    <log> [Test] {Utils.Now}: {Name} is executing...</log>
+    <call script="Test" Params="Params" />
+    <log> [Test] {Utils.Now}: {Name} is completed successfully</log>
+    <onerror var="ex">
+      <log> [Test] {Utils.Now}: {Name} failed</log>
+    </onerror>
+  </sandbox>
+
+</script>

@@ -1,0 +1,67 @@
+<script>
+
+  <!--
+    
+    Runs as soon as possible for sending email, in-app notification and other.
+
+    
+    Steps:
+    1. Read pending notification tasks that was prepared by the schedule processing in current window.
+    2. 
+
+
+    Input:
+      ObjectId
+      ObjectPayload
+
+  -->
+
+    <!-- <select from="crm" entity="vs360_notificationhistory" var="Notifications">
+      <where>
+        <condition attr="statecode" op="eq">{0}</condition>
+        <condition attr="statuscode" op="eq">{1}</condition>
+      </where>
+      <join type="inner" entity="vs360_notificationprofile" to="vs360_notificationprofileid" from="vs360_notificationprofileid" as="profile">
+        <attr name="vs360_notificationprofileid" as="vs360_notificationprofileid" />
+        <attr name="vs360_notificationtype" as="vs360_notificationtype" />
+      </join>
+    </select> -->
+  
+  <sandbox>
+
+    <include name="InitializeNotificationData" />
+
+    <!-- TODO: Type depends on Input -->
+    <set var="providerParams">{[
+      'Type': 'email',
+      'Provider': null
+    ]}</set>
+    <call name="NotificationProviders/GetNotificationProvider" Params="providerParams" />
+
+    <log>debug: {providerParams}</log>
+
+    <set var="task">{Context.Task}</set>
+    <!-- <set var="recipients">{Utils.Split(task.vs360_recipientsraw ?? '', ';')}</set> -->
+    
+    <set var="callProviderParams">{[
+      'Method': 'send',
+      'Parameters': [
+        'Task': task,
+      ]
+    ]}</set>
+
+    <log>debug: {callProviderParams}</log>
+
+    <call script="providerParams.Provider" Params="callProviderParams" />
+
+    <!-- set Finished status -->
+    <update in="crm" entity="vs360_notificationhistory">
+      <where>
+        <condition attr="vs360_notificationhistoryid" op="eq">{Input.ObjectId}</condition>
+      </where>
+      <attr name="statuscode">{911170002}</attr>
+    </update>
+
+  </sandbox>
+
+</script>

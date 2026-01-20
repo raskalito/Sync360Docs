@@ -1,0 +1,77 @@
+<script>
+
+  <!--
+
+    CacheLoader script uses ConcurrentDictionary to store cache keys. Value of each key is
+    ConcurrentDictionary too and it stores loaded records. Refreshing cache value is atomic operation.
+    It means all records will be overwritten at once by cache key.
+
+    Next configurations trigger refreshing cache:
+
+      - profile ??? (uses in Ranges)
+      - subsciption
+      - profile query
+      - subsciption recipient
+      - subsciption target
+      - template block
+      - template composition
+
+  -->
+
+  <exception if="!CacheContainer.isSet">CacheContainer is missing.</exception>
+
+  <if condition="!CacheContainer.ContainsKey('Notifications')">
+    <then>
+      <set var="CacheContainer['Notifications']">{new 'System.Collections.Concurrent.ConcurrentDictionary`2[System.String,System.Object]'()}</set>
+    </then>
+  </if>
+
+  <set var="cacheItems">{CacheContainer['Notifications']}</set>
+
+  <!-- just cache configuration -->
+  <set var="cacheConfigs">{[
+    [
+      'Name': 'Profiles',
+      'Script': 'GetProfilesCache'
+    ],
+    [
+      'Name': 'Templates',
+      'Script': 'GetTemplatesCache'
+    ],
+    [
+      'Name': 'Subscriptions',
+      'Script': 'GetSubscriptionsCache'
+    ],
+    [
+      'Name': 'Queries',
+      'Script': 'GetQueriesCache'
+    ],
+    [
+      'Name': 'Recipients',
+      'Script': 'GetRecipientsCache'
+    ],
+    [
+      'Name': 'Targets',
+      'Script': 'GetRecipientTargetsCache'
+    ],
+    [
+      'Name': 'TeamMembers',
+      'Script': 'GetTeamMemberCache'
+    ],
+    
+  ]}</set>
+
+  <log>[CacheLoader] Started: {Utils.Now}</log>
+
+  <!-- loop by cache keys -->
+  <for var="config" in="cacheConfigs">
+    <CacheItemLoader
+      CacheContainer="cacheItems"
+      CacheKey="config.Name"
+      LoaderScriptName="config.Script"
+      CacheLoadFrequency="" />
+  </for>
+
+  <log>[CacheLoader] Completed: {Utils.Now}</log>
+		
+</script>

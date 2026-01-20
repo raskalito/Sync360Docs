@@ -1,0 +1,109 @@
+<script>
+
+  <script var="wrongProviderTypeBySettings">
+
+    <set var="Configuration.Settings['EmailProvider']">DataverseProvider</set>
+    
+    <set var="innerParams">{[
+      'Type': 'outlook',
+      'Provider': null
+    ]}</set>
+
+    <sandbox verbose="false">
+      
+      <call name="..\@private\NotificationProviders\GetNotificationProvider"
+            Params="innerParams" />
+      
+      <exception if="!innerParams.Provider.isSet">Email provider is not found</exception>
+      
+      <onerror var="ex">
+        <if condition="ex.Message ne 'outlook type is not supported'">
+          <exception>{ex}</exception>
+        </if>
+      </onerror>
+    </sandbox>
+  </script>
+
+  <script var="findsAndCallDataverseProviderBySettings">
+
+    <set var="Configuration.Settings['EmailProvider']">DataverseProvider</set>
+    <set var="Configuration.Settings['DataverseProvider_ConnectionName']">crm</set>
+    <set var="Configuration.Settings['DataverseProvider_FromUserId']">a37eb3e4-5dd5-eb11-bacc-000d3a33e8ae</set>
+
+    <set var="recipientUser">{['Id': 'b2879d9e-7849-46de-802a-555176326bfb']}</set>
+    <set var="recipientTeam">{['Id': 'cbc551d6-aa5a-4b71-9325-a1c15c4c7309']}</set>
+    <set var="recipientPartyLogicalName">contact</set>
+    <set var="recipientPartyId">945a1e22-bf11-4bec-8635-41aa5226a030</set>
+    <set var="recipientRawEmail">contactemail@akfsjdhsfg.com</set>
+
+    <set var="emailFields">
+      <attr name="subject">just subject</attr>
+      <attr name="description"><![CDATA[<html></html>]]></attr>
+      <attr name="directioncode">{true}</attr>
+      <attr name="from">systemuser:{Configuration.Settings['DataverseProvider_FromUserId']}</attr>
+      <attr name="to">{[
+        'systemuser:' + recipientUser.Id,
+        'team:' + recipientTeam.Id,
+        recipientPartyLogicalName + ':' + recipientPartyId,
+        recipientRawEmail
+      ]}</attr>
+      <attr name="emailformat">{1}</attr>  <!-- HTML -->
+    </set>
+
+    <set var="Globals['test_ExpectedEmailFields']">{emailFields}</set>
+
+    <set var="innerParams">{[
+      'Type': 'email',
+      'Provider': null
+    ]}</set>
+    <call name="..\@private\NotificationProviders\GetNotificationProvider"
+      Params="innerParams" />
+
+    <exception if="!innerParams.Provider.isSet">Email provider is not found</exception>
+    
+    <script var="sendStamp">
+      <!-- 
+        Params:
+          Attributes: object
+          ConnectionName: string
+          FromUserId: guid
+      -->
+
+      <set var="emailFields">{Globals['test_ExpectedEmailFields']}</set>
+
+      <!-- <for var="kv" in="Params.Attributes">
+        <exception if="kv.Value ne emailFields[kv.Key]">{kv.Key} is different</exception>
+      </for> -->
+
+      <CollectionAsserts Operator="'Equal'" Original="Params.Attributes.to" Expected="emailFields.to" />
+
+    </script>
+
+    <set var="providerParams">{[
+      'Method': 'send',
+      'Parameters': [
+        'Task': [
+          'vs360_content': Json.ToJson(['subject': emailFields.subject, 'content': emailFields.description]),
+          'recipientUser': recipientUser,
+          'recipientTeam': recipientTeam,
+          'recipientPartyLogicalName': recipientPartyLogicalName,
+          'recipientPartyId': recipientPartyId,
+          'recipientRawEmail': recipientRawEmail,
+        ],
+        'SendScript': sendStamp
+      ]
+    ]}</set>
+    <call script="innerParams.Provider" Params="providerParams" />
+
+  </script>
+  
+  <set var="launchParams">{[
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+
+
+  <Launcher Test="wrongProviderTypeBySettings" Name="'WrongProviderTypeBySettings'" Params="launchParams" />
+  <Launcher Test="findsAndCallDataverseProviderBySettings" Name="'FindsAndCallDataverseProviderBySettings'" Params="launchParams" />
+  
+
+</script>

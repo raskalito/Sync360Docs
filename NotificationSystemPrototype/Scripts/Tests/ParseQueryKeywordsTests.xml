@@ -1,0 +1,48 @@
+<script>
+
+  <script var="ParsesNowKeywordsUnitTest">
+    <set var="now">{DateTime.UtcNow}</set>
+    <set var="template"><![CDATA[<fetch><entity name="contact"><attribute name="contactid" /><filter><condition attribute="createdon" operator="gt" value="@now" /></filter></entity></fetch>]]></set>
+    <set var="params">{[
+      'FetchXmlTemplate': template,
+      'FetchXml': null,
+      'AdditionalParams': ['NOW': now]
+    ]}</set>
+
+    <call name="..\@private\Queries\ParseQueryKeywords" Params="params" />
+
+    <exception if="template.Replace('@now', now.ToString('yyyy-MM-ddTHH:mm:ssZ')) ne params.FetchXml">Parsing is wrong</exception>
+
+  </script>
+
+  <script var="ParsesNowKeywordsIntegrationTest">
+    <set var="now">{new DateTime(2025, 12, 10, 10, 0, 0)}</set>
+
+    <create in="crm" entity="vs360_notifications_testtable1" var="id">
+      <attr name="vs360_name">testrange: {Utils.Now}</attr>
+    </create>
+
+    <set var="template"><![CDATA[<fetch><entity name="vs360_notifications_testtable1"><attribute name="vs360_name" /><filter><condition attribute="createdon" operator="gt" value="@now" /><condition attribute="createdon" operator="gt" value="@now" /><condition attribute="vs360_notifications_testtable1id" operator="eq" value="{id}" /></filter></entity></fetch>]]></set>
+    <set var="params">{[
+      'FetchXmlTemplate': template,
+      'FetchXml': null,
+      'AdditionalParams': ['NOW': now]
+    ]}</set>
+
+    <call name="..\@private\Queries\ParseQueryKeywords" Params="params" />
+
+    <!-- <exception if="template.Replace('@now', now.ToString('yyyy-MM-ddTHH:mm:ssZ')) ne params.FetchXml">Parsing is wrong</exception> -->
+
+    <select from="crm" entity="q" var="records">
+      <query>{params.FetchXml}</query>
+    </select>
+
+    <exception if="records.Count ne 1">FetchXml returned wrong data</exception>
+    <exception if="records[0].vs360_notifications_testtable1id ne id">FetchXml contains wrong record</exception>
+
+  </script>
+
+  <Launcher Test="ParsesNowKeywordsUnitTest" Name="'ParsesNowKeywordsUnitTest'" Params="null" />
+  <Launcher Test="ParsesNowKeywordsIntegrationTest" Name="'ParsesNowKeywordsIntegrationTest'" Params="null" />
+
+</script>

@@ -1,0 +1,54 @@
+<script>
+
+  <!-- 
+
+    Responsible for retrieving records from Dataverse using LoaderScriptName 
+    and saving them to CacheContainer by CacheKey.
+  
+    Also, script checks refreshing flag in vs360_settings of cache and it forces to refresh 
+    collection in CacheContainer.
+
+  -->
+
+  <exception if="!CacheContainer.isSet">CacheContainer is missing.</exception>
+  <exception if="!CacheKey.isSet">CacheKey is missing.</exception>
+  <exception if="!LoaderScriptName.isSet">LoaderScriptName is missing.</exception>
+
+  <if condition="!CacheContainer.ContainsKey(CacheKey)">
+    <then>
+      <!-- not previously added -->
+      <set var="collection">{new List()}</set>
+      <call name="{LoaderScriptName}" Collection="collection" />
+      <set var="CacheContainer[CacheKey]">{[
+        'refreshedOn': DateTime.UtcNow,
+        'collection': collection
+      ]}</set>
+      <log>[CacheLoader] {CacheKey} - {collection.Count} items loaded.</log>
+    </then>
+    <else>
+      <!-- already added - run refreshing cache logic -->
+      <set var="RunAllowed">{true}</set>
+      <set var="lastRefreshedOn">{CacheContainer[CacheKey].refreshedOn}</set>
+      
+      <set var="shouldRefreshCacheParams">{[
+        'NoAction': true,
+        'LastRefreshedOn': lastRefreshedOn
+      ]}</set>
+      <call name="@private\Cache\ShouldRefreshCache" Params="shouldRefreshCacheParams" />
+
+      <if condition="!shouldRefreshCacheParams.NoAction">
+        <set var="collection">{new List()}</set>
+        <call name="{LoaderScriptName}" Collection="collection"></call>
+        
+        <log>[CacheLoader] {CacheKey} - {collection.Count} newly loaded records...</log>
+
+        <!-- update cache item-->
+        <set var="CacheContainer[CacheKey]">{[
+          'refreshedOn': shouldRefreshCacheParams.LastRefreshedOn,
+          'collection': collection
+        ]}</set>
+      </if>
+    </else>
+  </if>
+
+</script>

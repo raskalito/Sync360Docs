@@ -1,0 +1,173 @@
+<script>
+  <log>[InitializeProfilesData] started.</log>
+  <exception if="!Input.Cache.isSet">Cache global varialbe was not passed</exception>
+  <exception if="!Input.Cache['Notifications'].isSet">Notifications cache was not padded</exception>
+
+  <set var="Context">{['Profile': null, 'NotificationsCache': null]}</set>
+
+  <log>[InitializeProfilesData] Checking Profile Context ({Input.ObjectPayload})</log>
+  <set var="Context.ProfileId">{Input.ObjectId as 'Guid'}</set>
+  <set var="Context.Profile">{Input.ObjectPayload}</set>
+  <set var="Context.NotificationsCache">{Input.Cache['Notifications']}</set>
+
+  <log>[InitializeProfilesData]     Input.Cache['Notifications'] is set.</log>
+
+  <!-- Subscriptions -->
+  <set var="profileSubscriptions">{new List()}</set>
+  <set var="profileSubscriptionsDic">{new Dictionary()}</set>
+  <set var="subscriptionsCache">{Context.NotificationsCache['Subscriptions']}</set>
+  <for var="item" in="subscriptionsCache.collection">
+    <if condition="item.vs360_notificationprofileid.Id eq Context.ProfileId">
+      <set var="cloned">{new Object()}</set>
+      <!-- clone -->
+      <for var="kv" in="item">
+        <set var="cloned[kv.Key]">{kv.Value}</set>
+      </for>
+      <set var="profileSubscriptions[]">{cloned}</set>
+      <set var="profileSubscriptionsDic[item.vs360_subscriptionid.ToString()]">{cloned}</set>
+    </if>
+  </for>
+  <set var="Context.Subscriptions">{profileSubscriptions}</set>
+
+  <!-- Queries -->
+  <set var="conditionalQueries">{new List()}</set>
+  <set var="dataQueries">{new List()}</set>
+  <set var="recipientQueries">{new List()}</set>
+  <set var="queriesCache">{Context.NotificationsCache['Queries']}</set>
+  <for var="item" in="queriesCache.collection">
+    <!-- 
+      vs360_querytype:
+          Data	911170000
+          Condition	911170001
+     -->
+    <set var="cloned">{new Object()}</set>
+    <for var="kv" in="item">
+      <set var="cloned[kv.Key]">{kv.Value}</set>
+    </for>
+    <set  var="conditionalQueries[]" 
+          if="!(item.vs360_isperrecipient ?? false) and item.vs360_notificationprofileid.Id eq Context.ProfileId and item.vs360_querytype eq 911170001">{cloned}</set>
+    <set  var="dataQueries[]"
+          if="!(item.vs360_isperrecipient ?? false) and item.vs360_notificationprofileid.Id eq Context.ProfileId and item.vs360_querytype eq 911170000">{cloned}</set>
+    <set  var="recipientQueries[]" 
+          if="(item.vs360_isperrecipient ?? false) and item.vs360_notificationprofileid.Id eq Context.ProfileId">{cloned}</set>
+  </for>
+  <set var="Context.ConditionalQueries">{conditionalQueries}</set>
+  <set var="Context.DataQueries">{dataQueries}</set>
+
+  <!-- Recipients -->
+  <set var="recipientsCache">{Context.NotificationsCache['Recipients']}</set>
+  <set var="recipientsDic">{new Dictionary()}</set>
+  <!-- <for var="subscription" in="Context.Subscriptions"> -->
+  <for var="recipient" in="recipientsCache.collection">
+    <set var="subscription">{profileSubscriptionsDic[recipient.vs360_subscriptionid.Id.ToString()] ?? null}</set>
+    <if condition="subscription.isSet">
+      <set var="cloned">{new Object()}</set>
+      <for var="kv" in="recipient">
+        <set var="cloned[kv.Key]">{kv.Value}</set>
+      </for>
+      
+      <set var="subscription.Recipients" if="!subscription.Recipients.isSet">{new List()}</set>
+
+      <!-- find queries for recipient -->
+      <set var="recipientConditionalQueries">{new List()}</set>
+      <set var="recipientDataQueries">{new List()}</set>
+
+      <!-- loop by recipient queries -->
+      <for var="query" in="recipientQueries">
+        <set  var="recipientConditionalQueries[]" 
+              if="item.vs360_querytype eq 911170001">{query}</set>
+        <set  var="recipientDataQueries[]"
+              if="item.vs360_querytype eq 911170000">{query}</set>
+      </for>
+      <set var="cloned.ConditionalQueries">{recipientConditionalQueries}</set>
+      <set var="cloned.DataQueries">{recipientDataQueries}</set>
+
+      <!-- push recipient to context Subscription.Recipient -->
+      <set var="subscription.Recipients[]">{cloned}</set>
+      <set var="recipientsDic[recipient.vs360_subscriptionrecipientid.ToString()]">{cloned}</set>
+    </if>
+  </for>
+  <!-- </for> -->
+
+  <!-- Templates -->
+  <set var="templates">{new List()}</set>
+  <set var="cacheCollection">{Context.NotificationsCache['Templates']}</set>
+  <for var="item" in="cacheCollection.collection">
+    <set var="templates[]" if="item.vs360_notificationprofileid.Id eq Context.ProfileId">{item}</set>
+  </for>
+  <set var="Context.TemplateCompositions">{templates}</set>
+
+
+  <!-- Subscription Targets -->
+  <set var="targets">{new List()}</set>
+  <set var="cacheCollection">{Context.NotificationsCache['Targets']}</set>
+  <for var="item" in="cacheCollection.collection">
+    <set var="recipient">{recipientsDic[item.vs360_subscriptionrecipientid.Id.ToString()] ?? null}</set>
+    <if condition="recipient.isSet">
+      <set var="cloned">{new Object()}</set>
+      <for var="kv" in="item">
+        <set var="cloned[kv.Key]">{kv.Value}</set>
+      </for>
+      <set var="recipient.Targets" if="!recipient.Targets.isSet">{new List()}</set>
+      <if condition="item.vs360_targetid eq '00000000-0000-0000-0000-000000000000'">
+        <then>
+          <!-- empty recordid contains schedule for participant -->
+          <set var="recipient.Schedule">{cloned}</set>
+        </then>
+        <else>
+          <!-- default target with recorid -->
+          <set var="recipient.Targets[]">{cloned}</set>
+        </else>
+      </if>
+      <!-- <set var="targets[]" if="item.vs360_notificationprofileid.Id eq Context.ProfileId">{item}</set> -->
+    </if>
+  </for>
+  
+  <!-- Team members -->
+  <set var="teammembers">{new Dictionary()}</set>
+  <set var="cacheCollection">{Context.NotificationsCache['TeamMembers']}</set>
+  <for var="item" in="cacheCollection.collection">
+    <set var="teamId">{item.teamid.ToString()}</set>
+    <if condition="!teammembers.ContainsKey(teamId)">
+      <set var="l">{new List()}</set>
+      <set var="teammembers[teamId]">{l}</set>
+    </if>
+    <set var="teammembers[teamId][]">{item.systemuserid}</set>
+  </for>
+  <set var="Context.TeamMembers">{teammembers}</set>
+
+  <!-- read last time frame -->
+  <set var="Directory">{static 'System.IO.Directory'}</set>
+  <set var="dataPath">{Path.Combine(Configuration.LocalApplicationFolder, '.data')}</set>
+  <set var="nodashes">{Context.ProfileId.ToString("N")}</set>
+  <set var="profilePath">{Path.Combine(dataPath, nodashes)}</set>
+  <set var="Context.LastTimeFrame">{null}</set>
+  <if condition="File.Exists(profilePath)">
+    <then>
+      <set var="content">{File.ReadAllText(profilePath)}</set>
+      <set var="Context.LastTimeFrame">{DateTime.Parse(content).ToUniversalTime()}</set>
+    </then>
+  </if>
+
+  <!-- read configuration but it can be overridden by dataverse (profile table) -->
+  <set var="Context.SchedulerSlidingWindow">{(Configuration.Settings['Scheduler_SlidingWindow'] ?? 360) as 'int'}</set>
+
+  <script var="commitInteraction" Context="Context" LastTimeFrame="null">
+    <set var="Directory">{static 'System.IO.Directory'}</set>
+    <set var="dataPath">{Path.Combine(Configuration.LocalApplicationFolder, '.data')}</set>
+
+    <if condition="!Directory.Exists(dataPath)">
+      <set>{Directory.CreateDirectory(dataPath)}</set>
+    </if>
+
+    <set var="nodashes">{Context.ProfileId.ToString("N")}</set>
+    <set var="profilePath">{Path.Combine(dataPath, nodashes)}</set>
+
+    <log>Set LastTimeFrame={LastTimeFrame}</log>
+
+    <set>{File.WriteAllText(profilePath, LastTimeFrame.ToString('yyyy-MM-ddTHH:mm:ss.fffZ'))}</set>
+  </script>
+  <set var="Context.Commit">{commitInteraction}</set>
+  
+  <log>[InitializeProfilesData] finished.</log>
+</script>

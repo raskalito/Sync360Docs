@@ -1,0 +1,39 @@
+<script Params="null" Mocks="null" UserContext="''">
+
+  <!-- 
+    Params:
+      Queries: list
+      QueryResultCache: dictionary
+      AdditionalParams: object
+      Result: boolean (output)
+    Mocks: object
+    UserContext: Guid|Empty
+  -->
+  
+  <context for="crm" user="{UserContext}">
+    <set var="result">{true}</set>
+    <for var="q" in="Params.Queries">
+      <set var="parseQueryKeywordsParams">{[
+        'FetchXmlTemplate': q.vs360_fetchxml,
+        'FetchXml': null,
+        'QueryResultCache': Params.QueryResultCache,
+        'AdditionalParams': Params.AdditionalParams ?? new Object(),
+        'CallRetrieveScript': Mocks.CallRetrieveScript ?? null
+      ]}</set>
+      
+      <call name="CallProfileQuery" Params="parseQueryKeywordsParams" />
+      
+      <!-- take records from cache by fetchxml -->
+      <set var="queryRecords">{Params.QueryResultCache[parseQueryKeywordsParams.FetchXml]}</set>
+      <set var="conditionResult">{queryRecords.Count gt 0}</set>
+
+      <if condition="!conditionResult">
+        <log>'{q.vs360_name}' conditional query: {conditionResult}</log>
+        <set var="result">{false}</set>
+        <break />
+      </if>
+    </for>
+    <set var="Params.Result">{result}</set>
+  </context>
+
+</script>

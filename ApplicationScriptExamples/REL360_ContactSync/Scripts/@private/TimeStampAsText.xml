@@ -1,8 +1,0 @@
-<script>
-	<set var="Month">{Utils.Right(00 + Utils.Now.Month.ToString(),2)}</set>
-	<set var="Day">{Utils.Right(00 + Utils.Now.Day.ToString(),2)}</set>
-	<set var="Hour">{Utils.Right(00 + Utils.Now.Hour.ToString(),2)}</set>
-	<set var="Minute">{Utils.Right(00 + Utils.Now.Minute.ToString(),2)}</set>
-	<set var="Second">{Utils.Right(00 + Utils.Now.Second.ToString(),2)}</set>
-    <set var="TimeStampAsText">{Utils.Now.Year.ToString()}-{Month}-{Day}-{Hour}-{Minute}-{Second}</set>
-</script>

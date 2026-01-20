@@ -1,8 +1,0 @@
-<script>
-<!-- 
-	Input params:
-	Contact		(ExpandoObject); 
--->
-    <set Contact.crmid="new Guid(Contact.crmid).ToString() ?? new Guid().ToString()" />
-    
-</script>

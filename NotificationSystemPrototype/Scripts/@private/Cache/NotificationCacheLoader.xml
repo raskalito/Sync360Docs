@@ -1,0 +1,52 @@
+DEPRICATED
+<script>
+
+	<!--
+
+		CacheLoader script uses ConcurrentDictionary to store cache keys. Value of each key is
+		ConcurrentDictionary too and it stores loaded records. Refreshing cache value is atomic operation.
+		It means all records will be overwritten at once by cache key.
+
+		Next configurations trigger refreshing cache:
+
+			- users
+			- teams
+
+	-->
+
+	<exception if="!CacheContainer.isSet">CacheContainer is missing.</exception>
+
+	<if condition="!CacheContainer.ContainsKey('Notifications')">
+		<then>
+			<set var="CacheContainer['Notifications']">{new 'System.Collections.Concurrent.ConcurrentDictionary`2[System.String,System.Object]'()}</set>
+		</then>
+	</if>
+
+	<set var="cacheItems">{CacheContainer['Notifications']}</set>
+
+	<!-- just cache configuration -->
+	<set var="cacheConfigs">{[
+    [
+      'Name': 'Users',
+      'Script': 'Cache/GetUsersCache'
+    ],
+    [
+      'Name': 'Teams',
+      'Script': 'Cache/GetTeamsCache'
+    ]
+  ]}</set>
+	
+	<log>[CacheLoader] Started: {Utils.Now}</log>
+
+	<!-- loop by cache keys -->
+	<for var="config" in="cacheConfigs">
+		<CacheItemLoader
+			CacheContainer="cacheItems"
+			CacheKey="config.Name"
+			LoaderScriptName="config.Script"
+			CacheLoadFrequency="" />
+	</for>
+
+	<log>[CacheLoader] Completed: {Utils.Now}</log>
+		
+</script>

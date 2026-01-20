@@ -1,0 +1,487 @@
+<script>
+
+  <!--
+
+    Input:
+
+      ObjectId - profile identifier
+      ObjectPayload - profile fields
+      Cache - configuration entities
+    
+    Mocks - unit testing object
+
+  -->
+
+  <!--
+    
+    Runs once a day (maybe it should review). It prepares notification history records for future sending.
+    Each notification history record receives the 'Pending for sending' status.
+
+    Note:
+      Summary type is only handled at the moment (11/14/2025)
+    
+    Note: 
+      How does No activity type handled because of future sending? It will not work because the script 
+      prepares notification for future sending a day. Should we set interval up for less than a day?
+
+  - Summary steps:
+
+    ??? Think about cache - sqlite 
+
+    1. Get Summary profiles grouped by the delivery type field
+    2. Get Participants and subscriptions
+    3. Process subscription schedules (Subscrition Schedule)
+    4. Should run?
+        YES:
+        - Check Query Condition records
+          YES:
+          - Read recipients
+            - Put to history for notifications
+              - Recipient
+              - Subscription
+              - Profile
+              - ScheduledOn
+          No:
+          - Skip subscription
+
+  - Summary steps with query condition:
+
+    ?? Profile.Delivery Type vs Subscription.Channel
+
+    1. Get Summary profiles grouped by the delivery type field
+    2. Get Subscriptions
+    3. Process subscription schedules (Subscrition Schedule)
+    4. Should run?
+        YES:
+        - Check Query Condition records
+          YES:
+          - Read recipients
+            - Put to history for notifications
+              - Recipient
+              - Subscription
+              - Profile
+              - ScheduledOn
+          No:
+          - Skip subscription
+
+  - Record steps:
+
+    1. Get Summary profiles grouped by the delivery type field
+    2. Get Subscriptions
+    2. Get Targets by Recipient
+    3. Process targets schedules of pecipents (Target Schedule)
+    4. Should run?
+        YES:
+        - Check Query Condition records
+          YES:
+          - Read recipients
+            - Put to history for notifications
+              - Recipient
+              - Subscription
+              - Profile
+              - ScheduledOn
+          No:
+          - Skip subscription
+
+
+    Triggers:
+    - Schedule (Sync360)
+    - Data Event (plugin only)
+
+
+    !!! Note:
+
+      ??? Bad query because multiple contacts will require multiple requests. Maybe to use the In operator instead of Equal
+
+      <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true" count="1">
+        <entity name="contact">
+          <attribute name="contactid" />
+          <filter type="and">
+            <condition attribute="contactid" operator="eq" value="{targetRecord.contactid}" />
+            <condition attribute="modifiedon" operator="on-or-after" value="{targetDate}" />
+          </filter>
+        </entity>
+      </fetch>
+
+
+
+    -->
+
+  
+    <!-- 1. Get Summary profiles -->
+    <!-- <select from="crm" entity="vs360_notificationprofile" var="records">
+      <attr name="vs360_name" />
+      <attr name="vs360_notificationprofileid"/>
+      <attr name="vs360_notificationtype" />
+      <attr name="vs360_description" />
+      <attr name="vs360_deliverytype" />
+      <attr name="vs360_dedupewindow" />
+      <attr name="vs360_allowpersonalization" />
+      <attr name="vs360_targetentitylogicalname" />
+      
+    </select>
+    <set var="Profiles">{new Dictionary()}</set>
+    <for var="sub" in="records">
+      <set var="nId">{sub.vs360_notificationprofileid.ToString()}</set>
+      <set var="Profiles[nId]" if="!Profiles.ContainsKey(nId)">{new List()}</set>
+      <set var="Profiles[nId]">{sub}</set>
+    </for> -->
+
+
+  <set var="SchedulerDeliveryTimeRange">{(Configuration.Settings['Scheduler_DeliveryTimeFrame'] ?? 1) as 'int'}</set>
+
+  <set var="recipientKind">{[
+    'User': 911170000,
+    'Team': 911170001,
+    'MailEnabled': 911170002,
+    'RawEmail': 911170003,
+  ]}</set>
+
+  <set var="executionTimeUtc">{Input.ExecutionTimeUtc ?? Utils.Now.ToUniversalTime()}</set>
+  <set var="originalExecutionTimeUtc">{executionTimeUtc}</set>
+
+  <set var="collectTasksByDeliveryType">{[
+    '911170001': ['CollectTasks_Email2'],
+    '911170000': ['CollectTasks_InApp'],
+    '911170002': ['CollectTasks_Email2', 'CollectTasks_InApp']
+  ]}</set>
+
+  <include name="InitializeProfileData" />
+
+  <if condition="Context.LastTimeFrame.isSet">
+    <!-- check sliding window -->
+    <set var="minutesPassed">{executionTimeUtc - Context.LastTimeFrame}</set>
+    <if condition="minutesPassed.TotalMinutes gt Context.SchedulerSlidingWindow">
+      <!-- been too long - truncate to sliding window -->
+      <set var="minutesPassed">{(static 'System.TimeSpan').FromMinutes(Context.SchedulerSlidingWindow)}</set>
+    </if>
+    <!-- update execution time to last time frame -->
+    <set var="executionTimeUtc">{executionTimeUtc.Subtract(minutesPassed)}</set>
+  </if>
+
+  <log>ExecutionTimeUtc={executionTimeUtc}, OriginalExecutionTimeUtc={originalExecutionTimeUtc}, LastTimeFrame={Context.LastTimeFrame??''}</log>
+  
+  <!-- subsciptions from cache -->
+  <set var="subscriptions">{Context.Subscriptions}</set>
+
+  <!-- subscripts for sending notification -->
+  <set var="subscriptionsForSend">{new List()}</set>
+    
+  <sandbox>
+
+    <set var="allowPersonalization">{Context.Profile.vs360_allowpersonalization ?? false}</set>
+
+    <!-- 
+      
+      allowPersonalization allows to schedule notifications for specific 
+      recipients instead of use a schedule of subscriptions. Also it forces
+      to use the recipient target table for scheduling. The recipient 
+      target table stores empty Guid record in the recordid field 
+      for scheduling.
+      
+    -->
+
+    <if condition="!allowPersonalization">
+      <then>
+        <!-- 
+          evaluate schedule of all subscriptions
+        -->
+        <log>debug: Subscription schedule</log>
+
+        <for var="subscription" in="subscriptions">
+          <set var="schedule">{[
+            'IsAllowedSend': false,
+            'DeliveryTimeRange': SchedulerDeliveryTimeRange,
+            'Options': subscription,
+          ]}</set>
+          
+          <!-- check schedule of subscription -->
+          <RRuleParser Rule="subscription.vs360_rrule" Schedule="schedule" ExecutionTimeUtc="executionTimeUtc" />
+          
+          <if condition="schedule.IsAllowedSend">
+            <!-- put for further sending -->
+            <set var="subscriptionsForSend[]">{['subscription': subscription, 'schedule': schedule]}</set>
+          </if>
+        </for>
+      </then>
+      <else>
+        <!-- 
+          allow personalization enabled, so potentially all subscription will be processed.
+          If participant will not have own schedule, the subscription schedule will be estimated.
+        -->
+        <for var="subscription" in="subscriptions">
+          <set var="subscriptionsForSend[]">{['subscription': subscription, 'schedule': null]}</set>
+        </for>
+      </else>
+    </if>
+    
+    <!-- 
+      used for caching result of query for next subscriptions
+        where 
+          Key is fetchXml
+          Value is a list of records
+    -->
+    <set var="queryResultCache">{new Dictionary()}</set>
+
+    <!-- check query condition -->
+    <for var="subscriptionData" in="subscriptionsForSend">
+      <set var="subscription">{subscriptionData.subscription}</set>
+      <set var="subscriptionSchedule">{subscriptionData.schedule}</set>
+      <set var="subscriptionTasks">{new List()}</set>
+      <set var="collectedData">{new Dictionary()}</set>
+
+      <!-- 
+      
+        Note:
+          use vs360_isperrecipient field to run query under recipient 
+        
+      -->
+
+      <!-- evaluate condition queries -->
+      <set var="evaluateConditionalQueriesParams">{[
+          'Queries': Context.ConditionalQueries,
+          'QueryResultCache': queryResultCache,
+          'Result': null
+      ]}</set>
+      <call name="@private\Queries\EvaluateConditionalQueries"
+            Mocks="Mocks ?? null"
+            Params="evaluateConditionalQueriesParams" />
+
+      <!-- evaluated condition queries returned false -->
+      <continue if="!evaluateConditionalQueriesParams.Result" />
+
+      <!-- evaluate data queries -->
+      <set var="evaluateDataQueriesParams">{[
+          'Queries': Context.DataQueries,
+          'QueryResultCache': queryResultCache,
+          'CollectedData': collectedData
+      ]}</set>
+      <call name="@private\Queries\EvaluateDataQueries"
+            Mocks="Mocks ?? null"
+            Params="evaluateDataQueriesParams" />
+
+      <!-- recipients of subscription from cache -->
+      <for var="recipient" in="subscription.Recipients ?? []">
+        
+        <!-- find emails for different types of recipients -->
+        <!-- <set var="recipientData">{[
+          'Recipient': recipient,
+        ]}</set> -->
+
+
+        <!--
+        
+        Notes:
+
+        1.
+          Recipient Query
+            - runs query with recipient condition (userid)
+            - runs query under recipient permissions for userid/teamid
+            - vs360_isperrecipient field is requried
+
+        2.
+          Allow Personalization field:
+            - creates specialized target with recipient schedule
+          Else
+            - uses subscription schedule
+
+        -->
+
+        <set var="recipientQueryResultCache">{new Dictionary()}</set>
+
+        <log>debug: RecipientSchedule={recipient.Schedule ?? 'No'}</log>
+
+        <!-- recipient schedule or subscription schedule -->
+        <set var="recipientSchedule">{null}</set>
+
+        <if condition="recipient.Schedule.isSet">
+          <!-- schedule of recipient is set - check possible sending -->
+          <set var="recipientSchedule">{[
+            'IsAllowedSend': false,
+            'DeliveryTimeRange': SchedulerDeliveryTimeRange,
+            'Options': recipient.Schedule,
+          ]}</set>
+          
+          <!-- check schedule of subscription -->
+          <RRuleParser Rule="recipient.Schedule.vs360_rrule" Schedule="recipientSchedule" ExecutionTimeUtc="executionTimeUtc" />
+          
+          <if condition="!recipientSchedule.IsAllowedSend">
+            <!-- skip this participant because of schedule-->
+            <continue />
+          </if>
+        </if>
+
+        <if condition="!recipient.Schedule.isSet">
+          <!--
+            no own schedule, check a subscription schedule
+          -->
+          <if condition="!subscriptionSchedule.isSet">
+            <then>
+              <!-- 
+                Subscription schedule was not computed before, it can be first recipient without 
+                own schedule and next recipient without schedule will already have computed 
+                subscription schedule. This behavior works for AllowPersonalication flag.
+                If there is no AllowPersonalication flag, recipient does not have own schedule at all.
+              -->
+              <set var="subscriptionSchedule">{[
+                'IsAllowedSend': false,
+                'DeliveryTimeRange': SchedulerDeliveryTimeRange,
+                'Options': subscription,
+              ]}</set>
+              
+              <!-- check schedule of subscription -->
+              <RRuleParser Rule="subscription.vs360_rrule" Schedule="subscriptionSchedule" ExecutionTimeUtc="executionTimeUtc" />
+            </then>
+          </if>
+
+          <if condition="!subscriptionSchedule.IsAllowedSend">
+            <!-- skip this participant because of schedule-->
+            <continue />
+          </if>
+
+          <set var="recipientSchedule">{subscriptionSchedule}</set>
+        </if>
+
+        <!-- DistributeUserList is List[{ userid, raw }] -->
+        <set var="recipient.DistributeUserList">{new List()}</set>
+        <if condition="recipient.vs360_recipientkind eq recipientKind.User">
+          <set var="recipient.DistributeUserList">{[
+            ['userid': recipient.vs360_userid.Id, 'raw': recipient.vs360_userid.Id.ToString()]
+          ]}</set>
+        </if>
+
+        <if condition="recipient.vs360_recipientkind eq recipientKind.Team">
+          <set var="teamId">{recipient.vs360_teamid.Id.ToString()}</set>
+          <set var="users">{null}</set>
+          <if condition="Context.TeamMembers.ContainsKey(teamId)">
+            <then>
+              <for var="userId" in="Context.TeamMembers[teamId]">
+                <set var="recipient.DistributeUserList[]">{['userid': userId, 'raw': userId.ToString()]}</set>
+              </for>
+            </then>
+            <else>
+              <set var="extractTeamParams">{['TeamId': recipient.vs360_teamid.Id, 'Users': null]}</set>
+              <call name="@private\ExtractTeam" Params="extractTeamParams" />
+              <for var="userData" in="extractTeamParams.Users">
+                <set var="recipient.DistributeUserList[]">{['userid': userData.userid, 'raw': userData.userid.ToString()]}</set>
+              </for>
+            </else>
+          </if>
+        </if>
+
+        <!-- <if condition="recipient.vs360_recipientkind eq recipientKind.MailEnabled">
+          <set var="recipient.DistributeUserList">{[
+            ['email': recipient.vs360_userid.Id ]
+          ]}</set>
+        </if> -->
+
+        <if condition="recipient.vs360_recipientkind eq recipientKind.RawEmail">
+          <set var="recipient.DistributeUserList">{[
+            ['raw': recipient.vs360_rawemail]
+          ]}</set>
+        </if>
+
+        <!-- if DistributeUserList was not populated, loop once -->
+        <for var="userItem" in="recipient.DistributeUserList.Count gt 0 ? recipient.DistributeUserList : [new Object()]">
+          <!-- loop DistributeUserList -->
+          
+          <!-- user context used -->
+          <set var="userContext">{userItem.userid ?? ''}</set>
+          <set var="rawData">{userItem.raw ?? null}</set>
+          
+          <!-- conditional queries of subscription from cache -->
+          <set var="conditionalQueries">{recipient.ConditionalQueries}</set>
+
+          <set var="evaluateConditionalQueriesParams">{[
+              'Queries': recipient.ConditionalQueries,
+              'QueryResultCache': recipientQueryResultCache,
+              'AdditionalParams': ['RECIPIENT': userContext],
+              'Result': null
+          ]}</set>
+          <call name="@private\Queries\EvaluateConditionalQueries" 
+                Mocks="Mocks ?? null" 
+                Params="evaluateConditionalQueriesParams" 
+                UserContext="userContext" />
+
+          <!-- evaluated condition queries returned false -->
+          <continue if="!evaluateConditionalQueriesParams.Result" />
+
+          <!-- evaluate data queries of subscription from cache -->
+          <set var="evaluateDataQueriesParams">{[
+              'Queries': recipient.DataQueries,
+              'QueryResultCache': recipientQueryResultCache,
+              'CollectedData': collectedData,
+              'AdditionalParams': ['RECIPIENT': userContext]
+          ]}</set>
+          <call name="@private\Queries\EvaluateDataQueries"
+                Mocks="Mocks ?? null"
+                Params="evaluateDataQueriesParams"
+                UserContext="userContext" />
+
+          <!-- notification tasks creation for recipient -->
+          <set var="recipientDeliverytype">{recipient.vs360_deliverytype.ToString() ?? '911170001'}</set>
+          <for var="createTasksHandler" in="collectTasksByDeliveryType[recipientDeliverytype]">
+            <set var="createTasksHandlerParams">{[
+              'Context': Context,
+              'CollectedData': collectedData,
+              'Recipient': recipient,
+              'Subscription': subscription,
+              'Profile': Context.Profile,
+              'RawData': rawData,
+              'Task': null,
+              'RecipientSchedule': recipientSchedule
+            ]}</set>
+            
+            <!-- create tasks for each delivery type of recipient -->
+            <call script="createTasksHandler" Params="createTasksHandlerParams" />
+            <set var="subscriptionTasks[]">{createTasksHandlerParams}</set>
+          </for>
+          
+          <!-- // loop DistributeUserList -->
+        </for>
+      
+
+        <!-- 
+          TODO: maybe depricated here
+          prepare emails by recipient kind - overriding script
+        -->
+        <!-- <set var="prepareDestinationEmails">{PrepareDestinationEmailsScript ?? 'PrepareDestinationEmails'}</set>
+        <call name="prepareDestinationEmails" Params="recipientData" /> -->
+      </for>
+
+      <!-- 
+        create tasks - overriding script
+      -->
+      <set var="createNotificationTasksScript">{Mocks.CreateNotificationTasksScript ?? 'CreateNotificationTasks'}</set>
+
+      <!-- a list of tasks for creation-->
+      <set var="creatingTasks">{new List()}</set>
+      <for var="task" in="subscriptionTasks">
+        <set var="creatingTask">
+          <attr name="vs360_name">{Context.Profile.vs360_name}: {task.Recipient.vs360_name} ({task.Task.DeliveryType})</attr>
+          <attr name="vs360_deliverytype">{task.Task.DeliveryType}</attr>
+          <attr name="vs360_content">{task.Task.Content}</attr>
+          <attr name="vs360_notificationprofileid">{Context.ProfileId}</attr>
+          <attr name="vs360_subscriptionid">{task.Subscription.vs360_subscriptionid}</attr>
+          <attr name="vs360_subscriptionrecipientid">{task.Recipient.vs360_subscriptionrecipientid}</attr>
+          
+          <!--
+            this field contains single userid for kind=user, multiple 
+            userid (comma) for kind=team, email for kind=[rawemail and emailed tabled]
+          -->
+          <attr name="vs360_recipientsraw">{task.RawData}</attr>
+          <attr name="vs360_scheduledon">{task.RecipientSchedule.scheduledDateTimeUtc}</attr>
+        </set>
+        <set var="creatingTasks[]">{creatingTask}</set>
+      </for>
+
+      <!-- push tasks to dataverse -->
+      <call script="createNotificationTasksScript" Context="Context" Tasks="creatingTasks" />
+
+      <!-- set new time frame -->
+      <set var="lastTimeFrame">{originalExecutionTimeUtc.AddMinutes(SchedulerDeliveryTimeRange)}</set>
+
+      <call script="Context.Commit" Context="Context" LastTimeFrame="lastTimeFrame" />
+    </for>
+  </sandbox>
+</script>

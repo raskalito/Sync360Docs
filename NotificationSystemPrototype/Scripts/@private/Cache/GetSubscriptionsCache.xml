@@ -1,0 +1,31 @@
+<script>
+	<exception if="!Collection.isSet">Collection param is missing.</exception>
+
+	<select from="crm" entity="vs360_subscription" var="records">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+			<condition attr="vs360_notificationprofileid" op="ex"></condition>
+		</where>
+		<attr name="statecode" />
+    <attr name="statuscode" />
+    <attr name="vs360_channel" />
+    <attr name="vs360_description" />
+    <attr name="vs360_isoptin" />
+    <attr name="vs360_name" />
+    <attr name="vs360_notificationprofileid" />
+    <attr name="vs360_rrule" />
+    <attr name="vs360_startfrom" />
+    <attr name="vs360_subscriptionid" />
+    <attr name="vs360_timedelivery" />
+    <attr name="vs360_timezone" />
+    <join type="inner" entity="vs360_notificationprofile" to="vs360_notificationprofileid" from="vs360_notificationprofileid" as="profile">
+      <where>
+        <condition attr="statecode" op="eq">{0}</condition>
+      </where>
+    </join>
+	</select>
+
+	<for var="item" in="records">
+		<set var="Collection[]">{item}</set>
+	</for>
+</script>

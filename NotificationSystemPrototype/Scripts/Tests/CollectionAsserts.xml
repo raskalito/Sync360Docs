@@ -1,0 +1,35 @@
+<script Operator="'Equal'" Original="null" Expected="null">
+
+  <!-- 
+    Props:
+      Method: [Equal, NotEqual]
+  -->
+
+  <script var="equal" Original="null" Expected="null">
+    <set var="msg">Original is different</set>
+    <if condition="Original.isSet and Expected.isSet">
+      <then>
+        <exception if="Original.Count ne Expected.Count">{msg}</exception>
+        <for var="i" from="0" to="Original.Count - 1">
+          <exception if="Original[i] ne Expected[i]">{msg}</exception>
+        </for>
+      </then>
+      <else>
+        <exception if="Original ne Expected">{msg}</exception>
+      </else>
+    </if>
+  </script>
+
+  <script var="notequal" Original="null" Expected="null">
+    <exception if="Original eq Expected">Original is the same</exception>
+  </script>
+
+  <set var="methods">{[
+    'equal': equal,
+    'notequal': notequal,
+  ]}</set>
+
+  <call script="methods[Operator.ToLower()]" Original="Original" Expected="Expected" />
+
+
+</script>

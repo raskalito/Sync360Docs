@@ -1,0 +1,121 @@
+<script Method="null" Params="null">
+
+  <script var="makeHash" Params="null">
+    <!--
+      Params:
+        Task
+        Hash - output
+        HashFilePath - output
+    -->
+
+    <set var="Directory">{static 'System.IO.Directory'}</set>
+    <set var="defaultHashStorage">{Path.Combine(Configuration.LocalApplicationFolder, '.hashes')}</set>
+    <set var="hashingFields">{[
+        'vs360_name',
+        'vs360_notificationprofileid',
+        'vs360_subscriptionid',
+        'vs360_subscriptionrecipientid',
+        'vs360_recipientsraw',
+        'vs360_scheduledon'
+      ]}</set>
+    <set var="hashingString"></set>
+    <for var="field" in="hashingFields">
+      <set var="hashingString">{hashingString}$$${Params.Task[field]}</set>
+    </for>
+
+    <sandbox>
+      <set var="sha256">{(static 'System.Security.Cryptography.SHA256, mscorlib').Create()}</set>
+      <set var="hashBytes">{sha256.ComputeHash(Encoding.UTF8.GetBytes(hashingString))}</set>
+      
+      <!-- HEX string -->
+      <set var="hashHex"></set>
+      <for var="b" in="hashBytes"><set var="hashHex">{hashHex}{b.ToString('x2')}</set></for>
+
+      <set var="duplicateDetectionHashStorage">{(Configuration.Settings['DuplicateDetectionHashStorage'] ?? defaultHashStorage)}</set>
+
+      <!-- Directory.CreateDirectory skips if folder exists -->
+      <if condition="!Directory.Exists(duplicateDetectionHashStorage)">
+        <set>{Directory.CreateDirectory(duplicateDetectionHashStorage)}</set>
+      </if>
+
+      <set var="hashFilePath">{Path.Combine(duplicateDetectionHashStorage, hashHex)}</set>
+
+      <!-- clear -->
+      <set>{sha256.Dispose()}</set>
+
+      <set var="Params.Hash">{hashHex}</set>
+      <set var="Params.HashFilePath">{hashFilePath}</set>
+
+      <onerror var="ex">
+        <set if="sha256.isSet">{sha256.Dispose()}</set>
+        <exception>{ex}</exception>
+      </onerror>
+    </sandbox>
+
+  </script>
+
+  <script var="check" Params="null" MakeHash="null">
+
+    <!-- 
+      Params:
+        Task - task data
+        IsDuplicate - boolean
+        Hash -  (output)
+        HashFilePath - file path (output)
+    -->
+
+    <exception if="!Params.isSet">Params is required</exception>
+    <exception if="!Params.Task.isSet">Params.Task is required</exception>
+
+    <set var="makeHashParams">{[
+      'Task': Params.Task,
+      'Hash': null,
+      'HashFilePath': null
+    ]}</set>
+    <call script="MakeHash" Params="makeHashParams" />
+
+    
+    <set var="hashHex">{makeHashParams.Hash}</set>
+
+    <set var="hashFilePath">{makeHashParams.HashFilePath}</set>
+
+    <set var="Params.IsDuplicate">{File.Exists(hashFilePath)}</set>
+    <set var="Params.Hash">{makeHashParams.Hash}</set>
+    <set var="Params.HashFilePath">{hashFilePath}</set>
+
+  </script>
+
+  <script var="save" Params="null">
+
+    <!-- 
+      Params:
+        HashFilePath - file path
+    -->
+    <log>debug: {Params}</log>
+
+    <exception if="!Params.HashFilePath.isSet">HashFilePath is required</exception>
+
+    <set var="Directory">{static 'System.IO.Directory'}</set>
+    <set var="folder">{Path.GetDirectoryName(Params.HashFilePath)}</set>
+
+    <!-- Directory.CreateDirectory skips if folder exists -->
+    <if condition="!Directory.Exists(folder)">
+      <set>{Directory.CreateDirectory(folder)}</set>
+    </if>
+    
+    <if condition="!File.Exists(Params.HashFilePath)">
+		<!-- create text file where name is hash -->
+		<set>{File.WriteAllText(Params.HashFilePath, '')}</set>
+    </if>
+  </script>
+
+  <set var="methods">{[
+    'check': check,
+    'save': save,
+  ]}</set>
+
+  <set var="method">{methods[Method]}</set>
+
+  <call script="method" Params="Params" MakeHash="makeHash" />
+
+</script>

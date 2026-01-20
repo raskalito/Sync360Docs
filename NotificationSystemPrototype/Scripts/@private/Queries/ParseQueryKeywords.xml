@@ -1,0 +1,68 @@
+<script>
+
+  <!--
+
+    Params:
+      FetchXmlTemplate: string
+      FetchXml: string
+      AdditionalParams: object (optional)
+        NOW - date time in UTC format
+        RECIPIENT - userid used for the systemuser or team kind as recipient
+      
+
+  -->
+  <!-- by default -->
+  <set var="Params.FetchXml">{Params.FetchXmlTemplate}</set>
+
+  <script var="nowHandler" AdditionalParams="null">
+    <!-- 
+      AdditionalParams
+      Params:
+        Result
+    -->
+    <set var="reservParameterName">NOW</set>
+    <set var="res">{AdditionalParams.isSet and AdditionalParams.ContainsKey(reservParameterName) ? AdditionalParams[reservParameterName] : DateTime.NowUtc}</set>
+    <set var="Params.Result">{res.ToString('yyyy-MM-ddTHH:mm:ssZ')}</set>
+  </script>
+
+  <script var="recipientHandler" AdditionalParams="null">
+    <!-- 
+      AdditionalParams
+      Params:
+        Result
+    -->
+    <set var="recipient">{AdditionalParams.RECIPIENT ?? null}</set>
+    <exception if="!recipient.isSet">AdditionalParams parameters should contain RECIPIENT parameter</exception>
+    <set var="Params.Result">{recipient.ToString()}</set>
+  </script>
+
+  <set var="queryKeywords">{new Dictionary()}</set>
+  <set var="queryKeywords['now']">{nowHandler}</set>
+  <set var="queryKeywords['recipient']">{recipientHandler}</set>
+
+  <!-- parameters pattern: @{parameter1} -->
+  <set var="regex">{new 'System.Text.RegularExpressions.Regex, System.Text.RegularExpressions'("@([A-Za-z0-9_.-]+)")}</set>
+
+  <!-- replace found parameters -->
+  <for var="m" in="regex.Matches(Params.FetchXml)">
+    <set var="parameterFullName">{m.Groups[0].Value.ToLower()}</set>
+    <set var="parameterName">{m.Groups[1].Value.ToLower()}</set>
+
+    <log>debug: parameterFullName={parameterFullName}, parameterName={parameterName}</log>
+
+    <if condition="queryKeywords.ContainsKey(parameterName)">
+      <then>
+        <set var="handler">{queryKeywords[parameterName]}</set>
+        <set var="callParams">{['Result': null]}</set>
+        <call script="handler" Params="callParams" AdditionalParams="Params.AdditionalParams ?? null" />
+        <set var="Params.FetchXml">{Params.FetchXml.Replace(parameterFullName, callParams.Result.ToString())}</set>
+      </then>
+      <else>
+        <!-- parameter specified in fetchXml but there is no handler-->
+        <exception>'{parameterName}' keyword is not supported</exception>
+      </else>
+    </if>
+  </for>
+
+  <log>Resulting Query: {Params.FetchXml}</log>
+</script>

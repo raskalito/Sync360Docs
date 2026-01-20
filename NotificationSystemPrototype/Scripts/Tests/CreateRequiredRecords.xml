@@ -1,0 +1,193 @@
+<script TestName="null" Params="null">
+
+  <script var="notificationTasksRangeTest" Params="null">
+
+    <set var="profileId">{Params.profileId ?? '80fc6dd4-091a-4795-b880-0f0fc4d3f282' as 'Guid'}</set>
+    <set var="prefix">{Params.prefix ?? '82a542c95'}</set>
+
+    <!-- MAX 100 records -->
+    <set var="recipientsIds">{Utils.Split('d92e5255-498e-44bf-b2d0-f52e80b354d1;d2749968-bc93-4815-ad12-e0d3e85e82fe;cd4f07ef-f2c7-4bd9-8acd-977068001dcb;2b7155f6-820a-4f76-a8eb-7893d916ea0d;679a3cb7-6383-4b50-ba1a-e7cb56ccdc3e;d6b8a79b-0d24-4fc3-bfb1-1a7fef9d7ec9;190dbdf3-e235-4dab-b6ea-6d34a75738d4;a4b967ea-9429-4ffa-9358-f8366047b5fb;4352027f-099a-42e1-83bf-6302db9349d9;84a033ad-dbd1-46a1-a120-eedfcf19fb3b;0feb54a7-a87b-4f69-b41b-5e1c4000b978;31a2d9f7-02f4-4d34-9bb0-fb9e41020346;fee5a2ad-09ea-47d8-b2dc-e7fc1dc8edba;0fae2809-3d3f-44d6-8cca-33abceb6443b;cb538bea-3984-4278-b8ef-24218991ff31;4a3a9758-9ede-41a0-b3dc-648e25692efe;01872dee-f61a-4d55-b200-63433e52f5dd;75e699a8-d593-4aee-b791-3ed608a2c12b;d1379472-86f2-482e-bb17-9d7e6846ce22;50950d05-956b-4368-8030-67d8d1164c09;e722ee59-df47-4c42-a449-d84d09e2585e;94f34a39-9c52-4461-adbe-f480467bcb41;ea35d443-3a32-45ae-af9c-625967efa4c1;22238d3b-583b-4f27-8267-0a12a19c5979;7e729d4d-cd50-4d9f-8299-1c6b7816e190;45ee382e-1769-448c-9963-670e8558505b;1c39528e-f558-41e1-a5cc-1fc6bc17993d;f23eb44a-fb2a-491c-bcb6-9527913b2051;d0606b41-cef3-4cda-8aec-d87ba022101a;6bcdb642-730c-4a34-811b-ce60454cc984;929298f4-d66a-43ad-9f23-3751a08f0d49;197f9b16-4380-4e85-9853-b77e5b1c0ee1;8069f1e7-bdab-4ec7-bc4a-27c0971b029a;6182def3-59d1-4681-ae3f-b8e61769d371;ed32ad8b-c7b9-4dda-8aed-7bfa676bf8e1;425bc2ba-b1a7-4d35-853c-58acdb6008ea;04574dce-c91b-4759-a15a-fee27a815ce9;3a2560fb-909c-4679-809b-52488d9c45d9;2da4cc2f-d9b3-4381-acd6-a6186f56822f;a72a7dec-e163-46d3-b534-1f5dbe86e5da;1a6f85f9-123f-4e98-b2c4-0929f1261fad;831170d3-e68e-4098-a118-f9dc12cbab9a;bcab39cd-358d-4f68-9e7b-089695f29256;a9a8210f-28bd-4471-8ce4-9c64a2c022f3;875c08d1-2c2e-4016-af1d-b181992830a1;b0f2d62b-fd65-4886-8319-54e3888e8c03;93def893-0c0c-4671-a4a6-5dfb9b4b8db5;c129e59f-d984-425d-b50c-5a90d7a06968;673b7e53-4287-4afb-8a69-d97ffdae9227;9f71a253-d6be-4458-8f31-74bbe270ed16;6f077a69-c32e-41bb-a159-669d5bd0d95d;9bf75549-8848-4651-b61b-6a53bb5df97d;e6676fe1-67a6-40d2-8f76-e8d254c4f232;a0950030-3858-46ea-941f-a0e96bc37b65;f4331b57-357e-494e-bfdc-977302d1a838;ca28c9cf-0232-40ca-a2b2-b691ae35f2e5;2e618b6a-9f11-4a55-a7fa-ff1b6ddf6a88;e34e201a-54a4-4271-819e-495f9e61836a;794d3887-aa45-4044-b645-095a802b2eeb;0c9416dd-d395-47a0-9801-be021ac04887;32e23b80-702c-47b4-92fc-1dc14cbd2707;dc50e3d8-af51-4eab-a653-c6caf926c992;9293b7cb-c721-4b77-8344-f4a06d62fa7e;fe8f3fef-3bba-4a72-b969-f8f14a8bf2bf;d19c1f6d-adc7-4929-a9e8-07558eb554f7;9ae02c95-0835-41c7-971d-69330bbbca29;2ac47244-cc0f-409b-bc54-36b42685d4a3;0a327f80-e11f-4085-80c2-a102844f0950;bb43b85c-2969-4a3b-97a9-abdc8f557454;11268526-628e-4d98-b560-c851ddcf82b7;018d830e-c04c-465f-99d5-0479fd3675b3;99feb2c6-1a45-40d4-a57a-0776323cf189;ad0ece97-0d1a-48ab-ba1e-12fbe59127bb;37050f65-f14c-4a60-ac90-e65ffd0405e5;c330d450-d0c2-448d-afa7-878d2d4d7d07;0710bba3-ab19-4e96-8688-b957f698aaf5;62e2151e-2078-4804-a111-c9bd6a530bed;889bab2e-f4af-47a5-b1f1-510a6249ddd8;2e9e1ce1-ffd3-41b1-936d-edacba50d528;4265316a-4057-41c4-9d39-190404401535;f6e1d8c4-deec-43cf-aafa-bbda2c3e2ff1;1e730680-c616-44bb-837e-a566c75419d2;661e297f-d533-46d9-8760-dbfdb050d2cd;34bd8abe-1848-4f14-b12a-04fa4abe104b;db963068-bf39-4028-92b5-141d4a030b4f;8a5e4c2f-197a-48c9-9d5f-114b0a4a9338;6481ebcc-9479-472c-bb8d-9fb42770d53b;b489c068-092d-4f45-91b0-41da55bfc46e;aefc3339-6115-47d8-8921-1635d06cf063;a5e39732-ed6f-4983-9b78-dc0ab144e70c;b5e71ad4-cb4b-42ff-bdae-0fc243c5a7de;69914aa1-4dae-41cb-ac00-3befa4173c8a;37ea4a70-c973-4e6f-bc97-563ea737cdd6;4e7dfec7-b2a7-4df0-a294-4a614f00256a;e8808e7e-43fc-4d19-ae21-ca81c2cf8973;7b74a401-7723-4636-8229-8901e0e0d56b;055b6dbd-075a-451f-8bb1-e0966ccaa92b;4e3a71bd-c3b8-4b90-94da-a28d90721a57;737da2a3-367b-42c8-8c21-10d5fb498542;5e72bfd7-9f93-49f2-a890-1ee28de2d3c2;cda0b1d1-d319-4cc6-921a-08bbcc339d18', ';')}</set>
+    <set var="contactIds">{Utils.Split('799dd051-a9d4-449b-bd03-8a94243af3cd;116e5b89-5e2e-4c6b-889a-3f2dfc77cf38;1441a00a-6def-4948-bfe6-f93ba1add80f;21ccf03b-9aa7-40ea-816f-bcadd4e076cb;31c06e0a-69aa-403d-b712-9604054787ff;4a6a9434-e17e-488d-9c5f-cbacfeb5e2cc;885044ca-d14a-4711-8b8b-75b001c1ba8e;16398dab-7d07-466c-a804-f0f02f3a4ea7;463383c4-fd15-40c1-b274-cfdda0e8996b;5e110b94-1b70-48a2-a405-019d08336302;0b51252a-7efa-4c40-b5de-1f68f1e46527;7e5248a2-5185-4862-a3aa-d28064516a47;550f7c4b-65d6-4687-9845-15baa5527dcd;f45df5d7-3255-4eae-9c9b-7c0f1fd8ba37;4a21884e-30fd-4c59-855c-e3e99b26bf7c;99e41dc4-64b5-4c5e-987b-104c1ea962cd;fbd2ce3a-9f61-41cd-a498-9f483bee62e8;e0f84251-1b39-4a56-8d9f-7f54fb7579b6;71c3d508-630a-4dfc-99f2-117df99058ba;59c40cf6-d222-4c1d-b597-3c4f1bd02e7a;d92df08c-9ecc-4c8d-a9ed-5c2818029916;99f75d9e-4901-4e64-8ea1-5d6562fb8470;89eed0c6-0609-497a-aa7f-2c127375617b;f9911f7a-57d1-48f8-82e4-ed19b322e6a1;e7ea469a-56d8-4a62-9576-525988f55a2d;d3e8390e-ad55-477b-a138-398e54581294;4f63e549-94d0-4768-84ff-1c7311715d5d;011dff40-4664-4fa0-bf2f-de58f4e13dad;ce0da33a-1e76-461f-b9d9-bc4fce5ec5b2;62edbac2-a504-4939-89b7-421257fc3aa3;b201b0f2-0afb-4ffe-9b4d-f91d01d3b1f3;03511d8a-5232-4c42-8682-dc8b302ea0c7;e56a95e4-862b-4cdf-ac9e-f1db82cb46a5;87fededc-f64c-406a-9c42-51210cd62eac;aa2076af-cd03-4d3b-ba85-3aa30ebbc916;1e943fc9-5579-4a01-af8d-2750d8f2f037;d5785079-cb41-4f6d-a686-04b7c2b95aba;8e65a4a5-5c57-4950-ac86-3793d0e7e9aa;d0f29255-194a-40ab-84de-387ae17e8b1a;4053362e-918b-4e1b-b341-98285db6fe7a;f246953d-8703-4489-9d10-bcf2434b7a60;2e98411d-0bf0-4f8a-be6b-db643e619974;29992c19-c719-41bc-b02b-b59245da1251;1c5f06ff-beba-4874-9f3f-59b2d1fcf209;583672c5-9cba-4d20-9fc2-e65fbf4b6ef2;527017e3-f57f-48fc-a4fe-4e8c58997ac2;92a261e3-7d9c-4c5c-8929-3ffd1b44cb49;2d2cd246-37f7-4a83-a3e2-82866bd56183;d6f697bc-61ca-408b-a373-62c3efc73adf;ca33ab10-e08d-49c6-9e41-8250f7d7664a;ab595064-62f7-4c5d-97d3-2776edab56fb;4e8ae942-b47d-42c0-bf7a-6fced3538dac;b34bcf93-65e8-4c4a-b38c-b55128572407;dd4af589-edca-41a0-a8d0-867d97016054;dbb3b491-6bf1-47bd-9c53-3d4317851b34;18c73d42-15a1-43bb-9933-b47a7717b468;89348d71-720d-4ee7-932d-01bd94f1205c;9a7023c1-5b2f-4246-9559-6cd4b1aff458;bde0d63e-848f-44de-8876-e8e62d411599;cc403d8a-3b4e-4a80-a8de-022f5e8aca40;dc3f126e-be8c-401b-9218-385436f7874c;0ef5006a-6f20-4f92-bfc2-63901ab9c653;d7b51d17-7402-4597-b2a5-20f05490bd22;07463c5d-024c-454d-971a-7ee64fd9e5d3;c1492374-9257-4338-a9ab-6d90fd010894;8339b8bc-bfa2-4ae6-bd02-d7840b2ad1be;f670c5d3-e016-4b4b-a55b-727fbb2f159e;6ff515fe-12fd-48cd-983b-369daa5512b2;5faac27f-38c8-459f-8efa-a29ca364c722;fc11d963-3760-4c93-8877-b3dea8765382;8dc73af9-3227-4484-bbdc-7b8ce27d30a0;81e0ee42-7426-4ec8-81c9-d5259e7aa0f7;5cc5d7f8-4e78-4149-a3ff-83e10712eeab;83796056-51cd-4844-b15b-de007966223f;656e77e3-8505-47eb-9dac-eeab0ddb1171;5033456d-c408-401c-8c65-ff0c110d7d01;44824efc-9590-4e07-bb32-4c1df2a8ac0b;5537e666-13f2-400e-ad85-41eabd80e759;284d56d8-02d1-4035-9465-432a2571196e;73421911-7302-4d3a-8bbc-b4522c3d41d9;5b2a074a-a1b6-4239-b45e-d6e75e600389;93d102a8-5e8f-49c1-a513-ce1d89b96a53;299fab41-0ee5-4c3b-984e-ca7e5ac7ab7c;ffcb9f02-b1fb-456c-8a69-020783a845f6;ab9f9c20-42c7-4a28-930e-08c01122f8c2;33838871-69ea-4ed3-81a7-6cd3b3be2662;7d3f9218-60fa-429b-bb67-17b822acc8de;2e2d357c-6be2-45f4-b9c4-361ce5adf458;cf98020d-52de-4c31-8c60-1aa0a5dc54d1;19269bab-6877-42c5-95be-7e60094466f4;41de6979-35b7-4def-8ba1-c68dd1971abd;fba2c8ca-95e3-4ad1-912b-7c3e28bbb657;09de135e-9c1b-491b-8256-b7b4ec4a252b;25a131d7-550f-402b-ba6e-95ba72222b22;1bb2d969-ab06-4a2c-899a-acf1744a6451;101fa595-e051-4fef-b5c0-ddaf5bdb43e6;5efc61bf-2bef-40c8-be62-8d7f212cdacd;4379e871-14fa-4ab3-b775-ef965c0850a1;43e1bc36-4596-45dd-8883-009eebe29106;5910a4fb-a2c0-43fd-a504-6035a325821c;d1c107b1-adc6-482a-99ac-fa845e82c95d', ';')}</set>
+
+    <!-- create profile -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_notificationprofile',
+          profileId
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_allowpersonalization']">{true}</set>
+    <set var="params.Target.Attributes['vs360_deliverytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170002)}</set>
+    <set var="params.Target.Attributes['vs360_notificationtype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_targetentitylogicalname']">contact</set>
+    <set var="params.Target.Attributes['vs360_triggertype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: schedule summary both contact</set>
+    <set var="params.Target.Attributes['vs360_description']">{prefix}: description</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- create subscription -->
+    <set var="subId">{'a4b716a1-1beb-4a90-a643-031d8dfecdbe' as 'Guid'}</set>
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_subscription',
+          subId
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_channel']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: Default Subscription 1</set>
+    <set var="params.Target.Attributes['vs360_rrule']">FREQ=DAILY;WKST=MO</set>
+    <set var="params.Target.Attributes['vs360_startfrom']">{new DateTime(2025,9,1)}</set>
+		<set var="params.Target.Attributes['vs360_timedelivery']">08:00</set>
+    <set var="params.Target.Attributes['vs360_timezone']">Eastern Standard Time</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- create recipients -->
+    <for var="i" from="0" to="10">
+
+      <set var="contactId">{contactIds[i] as 'Guid'}</set>
+      <set var="recipientId">{recipientsIds[i] as 'Guid'}</set>
+      
+      <!-- create contact -->
+      <set var="params">{[
+        'Target': 
+          new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+            'contact',
+            contactId
+          ),
+        'BypassBusinessLogicExecution': 'CustomSync,CustomAsync'
+      ]}</set>
+      <set var="params.Target.Attributes['firstname']">{prefix}: {params.Target.Id.ToString('N')}</set>
+      <set var="params.Target.Attributes['emailaddress1']">{prefix}@{params.Target.Id.ToString('N')}.com</set>
+      <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+      <!-- create recipient -->
+      
+      <set var="params">{[
+        'Target': 
+          new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+            'vs360_subscriptionrecipient',
+            recipientId
+          )
+      ]}</set>
+      
+      <set var="params.Target.Attributes['vs360_subscriptionid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_subscription', subId)}</set>
+      <set var="params.Target.Attributes['vs360_recipientkind']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170002)}</set>
+      <set var="params.Target.Attributes['vs360_partyid']">{contactId.ToString()}</set>
+      <set var="params.Target.Attributes['vs360_partylogicalname']">contact</set>
+      <set var="params.Target.Attributes['vs360_deliverytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170002)}</set>
+      <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    </for>
+
+
+    <!-- create blocks -->
+    <set var="block1Id">{'0dae05c0-8d5c-46ab-8649-ae84968224ad' as 'Guid'}</set>
+    <set var="block2Id">{'a27026dd-67b7-4e28-bcfa-5b8d97874b71' as 'Guid'}</set>
+    <set var="block3Id">{'a81ab9bd-001a-456a-abac-3a11b6e8809a' as 'Guid'}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block1Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["title"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<!doctype html><html><body><div>{{slots.header}</div><div>{{slots.main}</div></body></html>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: Simple Page Layout</set>
+    <set var="params.Target.Attributes['vs360_slots_json']">{'["header"]'}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block2Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170005)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["Text","FontName"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<p style="{{props.FontName.isSet ? 'font-family:' + props.FontName : ''}">{{props.Text}</p>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: Simple Text</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block3Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170004)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["TableWidth","HeaderPadding", "HeaderBorder", "HeaderCustomCSS"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<table width="{{props.TableWidth.isSet ? props.TableWidth : '100%'}"><thead><tr><th style="{{props.HeaderPadding.isSet ? 'padding:' +props.HeaderPadding: ''}{{props.HeaderBorder.isSet ? 'border:' + props.HeaderBorder : 'border-bottom:1px solid #ddd;'}{{props.HeaderCustomCSS.isSet ? props.HeaderCustomCSS : ''}">Full Name</th></tr></thead><tbody>{{slots.Rows}</tbody></table>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: Summary Contacts Grid</set>
+    <!-- <set var="params.Target.Attributes['vs360_slots_json']">{["header"]}</set> -->
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+    
+    <!-- create composition blocks -->
+    
+    <!-- #1 -->
+    <set var="template1Id">{'1069f247-ad83-435c-b8e9-954a355bab5d' as 'Guid'}</set>
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          template1Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block1Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{1}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{true}</set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: Root</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofileid', profileId)}</set>
+    <!-- <set var="params.Target.Attributes['vs360_parentid']"></set> -->
+    <set var="params.Target.Attributes['vs360_props_json']">{'{"title": "Contacts Added Last Week Summary"}'}</set>
+    <set var="params.Target.Attributes['vs360_slotname']"></set>
+
+    <!-- #2 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          'c74f871d-9219-478d-99ab-543cb1d3a9cf' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block2Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{2}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: Header</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofileid', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', template1Id)}</set>
+    <set var="params.Target.Attributes['vs360_props_json']">{'{"Text": "Here is a summary of contacts created from the last week.", "FontName": "Arial, Helvetica, sans-serif", "FontSize": "1.5em"}'}</set>
+    <set var="params.Target.Attributes['vs360_slotname']">header</set>
+
+    <!-- #3 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          'd4e31047-feff-4421-94bf-5241e409ed5c' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block3Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{3}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params.Target.Attributes['vs360_name']">{prefix}: Main</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofileid', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', template1Id)}</set>
+    <!-- <set var="params.Target.Attributes['vs360_props_json']"></set> -->
+    <set var="params.Target.Attributes['vs360_slotname']">main</set>
+
+  </script>
+
+  <set var="tests">{[
+    'NotificationTasksRangeTest': notificationTasksRangeTest
+  ]}</set>
+
+  <call script="tests[TestName]" Params="Params??null" />
+
+</script>

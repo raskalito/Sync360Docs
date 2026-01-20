@@ -1,0 +1,39 @@
+<script>
+	<exception if="!Collection.isSet">Collection param is missing.</exception>
+
+	<select from="crm" entity="vs360_subscriptionrecipient" var="records">
+		<where>
+			<condition attr="statecode" op="eq">{0}</condition>
+			<condition attr="vs360_subscriptionid" op="ex"></condition>
+		</where>
+    <attr name="statecode" />
+    <attr name="statuscode" />
+    <attr name="vs360_deliverytype" />
+    <attr name="vs360_name" />
+    <attr name="vs360_params" />
+    <attr name="vs360_partyid" />
+    <attr name="vs360_partylogicalname" />
+    <attr name="vs360_personalize" />
+    <attr name="vs360_rawemail" />
+    <attr name="vs360_recipientkind" />
+    <attr name="vs360_subscriptionid" />
+    <attr name="vs360_subscriptionrecipientid" />
+    <attr name="vs360_suppressuntil" />
+    <attr name="vs360_teamid" />
+    <attr name="vs360_userid" />
+    <!-- <join type="leftOuter" entity="systemuser" to="vs360_userid" from="systemuserid" as="su">
+      <attr name="" as="" />
+    </join> -->
+    <join type="inner" entity="vs360_subscription" to="vs360_subscriptionid" from="vs360_subscriptionid" as="sub">
+      <join type="inner" entity="vs360_notificationprofile" to="vs360_notificationprofileid" from="vs360_notificationprofileid" as="profile">
+        <where>
+          <condition attr="statecode" op="eq">{0}</condition>
+        </where>
+      </join>
+    </join>
+	</select>
+
+	<for var="item" in="records">
+		<set var="Collection[]">{item}</set>
+	</for>
+</script>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<config>
-  <schedule>
-    <add name="ContactCompanyAssignment" period="3600"/> <!--3600 = 1 hour-->
-  </schedule>
-</config>

@@ -1,0 +1,20 @@
+<script>
+
+  <!-- 
+    Params:
+      TeamId: guid
+      Users: list
+  -->
+
+
+  <select from="crm" entity="systemuser" var="Params.Users">
+    <attr name="systemuserid" as="userid" />
+    <attr name="internalemailaddress" as="emailaddress" />
+    <join type="inner" entity="teammembership" to="systemuserid" from="systemuserid" as="rel">
+      <where>
+        <condition attr="teamid" op="eq">{Params.TeamId}</condition>
+      </where>
+    </join>
+  </select>
+
+</script>

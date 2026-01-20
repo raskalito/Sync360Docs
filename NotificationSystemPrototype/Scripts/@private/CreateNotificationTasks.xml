@@ -1,0 +1,49 @@
+<script>
+
+  <!-- 
+    
+    Parameters:
+      Context
+      Tasks
+  
+  -->
+
+  <set var="createdTasks">{new List()}</set>
+
+  <!-- TODO: think about chunks -->
+
+  <!-- create in transaction -->
+  <transaction for="crm">
+    <for var="task" in="Tasks">
+
+      <set var="detectionParams">{[
+        'Task': task,
+        'IsDuplicate': null
+      ]}</set>
+      
+      <call name="DuplicateNotificationTasksDetection"
+        Method="'check'"
+        Params="detectionParams" />
+
+      <log>debug: DetectionParams={detectionParams}</log>
+
+      <if condition="!detectionParams.IsDuplicate">
+        <!-- no duplicate - create notification task -->
+        <create in="crm" entity="vs360_notificationhistory" var="id">
+          <for var="keyValue" in="task">
+            <attr name="{keyValue.Key}">{keyValue.Value}</attr>  
+          </for>
+        </create>
+        <set var="createdTasks[]">{detectionParams}</set>
+      </if>
+    </for>
+  </transaction>
+
+  <!-- save hashes -->
+  <for var="params" in="createdTasks">
+    <call name="../DuplicateNotificationTasksDetection"
+      Method="'save'"
+      Params="params" />
+  </for>
+
+</script>

@@ -1,8 +1,0 @@
-<config>
-	<connections>	
-		<add name="crm" type="crm" version="2011.ClaimsBased" user="Rm" password="%" url="https://dev.crm.dynamics.com" />
-	</connections>
-	<settings>
-		<!--<add name="EncryptPasswords" value="1" />-->
-	</settings>
-</config>

@@ -1,0 +1,27 @@
+  <script>
+    
+    <select from="crm" entity="vs360_notificationprofile" var="records">
+      <where>
+        <!-- active -->
+        <condition attr="statecode" op="eq">{0}</condition>
+        <!-- summary only -->
+        <condition attr="vs360_notificationtype" op="eq">{911170001}</condition>
+        <if condition="Test.isSet and Test.IsTest">
+          <for var="filter" in="Test.ProfileFilters">
+            <condition attr="{filter.name}" op="{filter.op}">{filter.value}</condition>
+          </for>
+        </if>
+      </where>
+      <attr name="vs360_notificationprofileid"></attr>
+      <attr name="vs360_name"></attr>
+      <attr name="vs360_allowpersonalization"></attr>
+      <attr name="vs360_lasttimeframeend"></attr>
+    </select>
+
+    <var ObjectsForProcessing="new Dictionary()"/>
+    <for var="r" in="records">
+        <set var="id">{r.vs360_notificationprofileid}</set>
+        <set var="ObjectsForProcessing[id.ToString()]">{r}</set>
+    </for>
+
+  </script>

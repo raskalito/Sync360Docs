@@ -1,0 +1,16 @@
+<config>
+	<schedule>
+		<add queue="BatchQueue" name="ProfileScheduleProcessing" task="ScriptBatchCachingScheduler" period="120">
+			<!--Criteria: script must return dictionary - Key: ObjectId; Value: payload object.-->
+			<param name="Criteria">ProfilesRange</param>
+			<!--ScriptName: script that will be executed -->
+			<param name="ScriptName">ProfileScheduleProcessing</param>
+			<!--script execution interval-->
+			<param name="Interval">200</param>
+			<!--CacheDefinitionScript: script that defines a dictionary with  -->
+			<param name="CacheLoaderScript">@private/Cache/ProfileCacheLoader</param>
+			<!-- <param name="CacheLoaderFrequency">5</param> -->
+			<!-- <param name="PostConfigurationAction">@private/HandleOnboardingRequests</param> -->
+		</add>
+	</schedule>
+</config>

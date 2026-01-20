@@ -1,0 +1,215 @@
+<script>
+
+  <script var="prepareRecords" profileId="null">
+
+    <!-- create profile -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_notificationprofile',
+          profileId
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_allowpersonalization']">{true}</set>
+    <set var="params.Target.Attributes['vs360_deliverytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170002)}</set>
+    <set var="params.Target.Attributes['vs360_notificationtype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_targetentitylogicalname']">contact</set>
+    <set var="params.Target.Attributes['vs360_triggertype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_name']">test: schedule summary both contact</set>
+    <set var="params.Target.Attributes['vs360_description']">test: description</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- create subscription -->
+	
+
+    <!-- create recipients -->
+
+    <!-- create blocks -->
+    <set var="block1Id">{'0508a8b8-8736-4e56-b745-a716abaf6d37' as 'Guid'}</set>
+    <set var="block2Id">{'578c01a6-94d7-49ee-81c9-e03bdf1f0a5e' as 'Guid'}</set>
+    <set var="block3Id">{'254fa788-2183-4c17-8cb0-f123371ead11' as 'Guid'}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block1Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["title"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<!doctype html><html><body><div>{{slots.header}</div><div>{{slots.main}</div></body></html>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">Test: Simple Page Layout</set>
+    <set var="params.Target.Attributes['vs360_slots_json']">{'["header"]'}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block2Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170005)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["Text","FontName"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<p style="{{props.FontName.isSet ? 'font-family:' + props.FontName : ''}">{{props.Text}</p>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">Test: Simple Text</set>
+    <!-- <set var="params.Target.Attributes['vs360_slots_json']">{'["header"]'}</set> -->
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block3Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170004)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["TableWidth","HeaderPadding", "HeaderBorder", "HeaderCustomCSS"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<table width="{{props.TableWidth.isSet ? props.TableWidth : '100%'}"><thead><tr><th style="{{props.HeaderPadding.isSet ? 'padding:' +props.HeaderPadding: ''}{{props.HeaderBorder.isSet ? 'border:' + props.HeaderBorder : 'border-bottom:1px solid #ddd;'}{{props.HeaderCustomCSS.isSet ? props.HeaderCustomCSS : ''}">Full Name</th></tr></thead><tbody>{{slots.Rows}</tbody></table>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">Test: Summary Contacts Grid</set>
+    <!-- <set var="params.Target.Attributes['vs360_slots_json']">{["header"]}</set> -->
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+    
+    <!-- create composition blocks -->
+    
+    
+    <!--
+    <attr name="vs360_blockid" />
+    <attr name="vs360_css" />
+    <attr name="vs360_displayorder" />
+    <attr name="vs360_inputalias" />
+    <attr name="vs360_isroot" />
+    <attr name="vs360_name" />
+    <attr name="vs360_notificationprofileid" />
+    <attr name="vs360_parentid" />
+    <attr name="vs360_props_json" />
+    <attr name="vs360_slotname" />
+    <attr name="vs360_templatecompositionid" />
+
+b1a3f1b4-48d6-4e42-88b2-b9a8360f8e9b
+599d5567-3f06-426e-9eaa-e4118d89b10b
+f0de6150-1f1e-44c3-a6f5-a25052a365d1
+
+    -->
+    <!-- #1 -->
+    <set var="template1Id">{'b1a3f1b4-48d6-4e42-88b2-b9a8360f8e9b' as 'Guid'}</set>
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          template1Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block1Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{1}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{true}</set>
+    <set var="params.Target.Attributes['vs360_name']">Text</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofileid', profileId)}</set>
+    <!-- <set var="params.Target.Attributes['vs360_parentid']"></set> -->
+    <set var="params.Target.Attributes['vs360_props_json']">{'{"title": "Contacts Added Last Week Summary"}'}</set>
+    <set var="params.Target.Attributes['vs360_slotname']"></set>
+
+    <!-- #2 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          '599d5567-3f06-426e-9eaa-e4118d89b10b' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block2Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{2}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params.Target.Attributes['vs360_name']">Grid</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofileid', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', template1Id)}</set>
+    <set var="params.Target.Attributes['vs360_props_json']">{'{"Text": "Here is a summary of contacts created from the last week.", "FontName": "Arial, Helvetica, sans-serif", "FontSize": "1.5em"}'}</set>
+    <set var="params.Target.Attributes['vs360_slotname']">header</set>
+
+    <!-- #3 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          'f0de6150-1f1e-44c3-a6f5-a25052a365d1' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block3Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{3}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params.Target.Attributes['vs360_name']">Root</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofileid', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', template1Id)}</set>
+    <!-- <set var="params.Target.Attributes['vs360_props_json']"></set> -->
+    <set var="params.Target.Attributes['vs360_slotname']">main</set>
+
+  </script>
+
+
+  <script var="UploadCacheTest">
+
+    <set var="cache">{DataType.Expando}</set>
+    
+    <call name="../@private/Cache/ProfileCacheLoader" CacheContainer="cache" />
+
+    <exception if="!cache['Notifications'].isSet">Notifications is not initialized</exception>
+
+    <exception if="!cache['Notifications']['Profiles'].isSet">Profiles is not initialized</exception>
+    <exception if="cache['Notifications']['Profiles'].collection.Count eq 0">Profiles is blank</exception>
+    <exception if="!cache['Notifications']['Templates'].isSet">Templates is not initialized</exception>
+    <exception if="cache['Notifications']['Templates'].collection.Count eq 0">Templates is blank</exception>
+    <exception if="!cache['Notifications']['Subscriptions'].isSet">Subscriptions is not initialized</exception>
+    <exception if="cache['Notifications']['Subscriptions'].collection.Count eq 0">Subscriptions is blank</exception>
+    <exception if="!cache['Notifications']['Queries'].isSet">Queries is not initialized</exception>
+    <exception if="cache['Notifications']['Queries'].collection.Count eq 0">Queries is blank</exception>
+    <exception if="!cache['Notifications']['Recipients'].isSet">Recipients is not initialized</exception>
+    <exception if="cache['Notifications']['Recipients'].collection.Count eq 0">Recipients is blank</exception>
+
+  </script>
+
+  
+  <script var="InitializeProfileContextByCacheTest">
+	  
+    <set var="Input">{['Cache': Params.Cache, 'ObjectId': Params.ObjectId, 'ObjectPayload': Params.ObjectPayload]}</set>
+
+    <call name="../@private/Cache/ProfileCacheLoader" CacheContainer="Input.Cache" />
+
+    <exception if="!Input.Cache['Notifications'].isSet">Notifications is not initialized</exception>
+
+    <include name="../@private/InitializeProfileData" />
+	
+    <exception if="!Context.ProfileId.isSet or Context.ProfileId ne Input.ObjectId">ProfileId is wrong</exception>
+    <exception if="!Context.Profile.isSet or Context.Profile.vs360_name ne Input.ObjectPayload.vs360_name">Profile is wrong</exception>
+    <exception if="!Context.NotificationsCache.isSet">NotificationsCache is wrong</exception>
+    
+    <exception if="!Context.Subscriptions.isSet or Context.Subscriptions.Count eq 0">Subscriptions is not initialized or blank</exception>
+    <exception if="!Context.ConditionalQueries.isSet or Context.ConditionalQueries.Count eq 0">ConditionalQueries is not initialized or blank</exception>
+    
+    <exception if="!Context.ConditionalQueries.isSet or Context.ConditionalQueries.Count eq 0">ConditionalQueries is not initialized or blank</exception>
+    <exception if="!Context.DataQueries.isSet or Context.DataQueries.Count eq 0">DataQueries is not initialized or blank</exception>
+    <exception if="!Context.TemplateCompositions.isSet or Context.TemplateCompositions.Count eq 0">TemplateCompositions is not initialized or blank</exception>
+  
+  </script>
+
+  
+  
+  <set var="profileId">{'8c534545-8397-4848-8519-12e76bc0256a' as 'Guid'}</set>
+  <set var="launchParams">{[
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+
+  <call script="prepareRecords" profileId="profileId" />
+  
+  <Launcher Test="UploadCacheTest" Name="'UploadCacheTest'" Params="launchParams" />
+
+  <set var="launchParams2">{[
+    'Cache': DataType.Expando,
+    'ObjectId': profileId,
+    'ObjectPayload': ['vs360_name': 'test: schedule summary both contact'],
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+  <Launcher Test="InitializeProfileContextByCacheTest" Name="'InitializeProfileContextByCacheTest'" Params="launchParams2" />
+
+
+</script>

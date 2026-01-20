@@ -1,0 +1,41 @@
+<script>
+
+  <script var="ShouldRunForDailyAt10AM">
+
+	<set var="minuteRange">{5}</set>
+
+    <set var="Schedule">{[
+		'IsAllowedSend': false,
+		'Options': [
+		  'vs360_timedelivery': '10:00',
+		  'vs360_timezone': 'Eastern Standard Time'
+		]
+    ]}</set>
+
+    <call name="..\@private\RRuleParser" Rule="'FREQ=DAILY;WKST=MO'" Schedule="Schedule" ExecutionTimeUtc="Params.ExecutionTimeUtc" />
+	
+	<set var="mins">{Math.Abs(Params.ExecutionTimeUtc.Subtract(Schedule.scheduledDateTimeUtc).TotalMinutes)}</set>
+	
+	<exception if="mins gt minuteRange">Does not allow to calculate</exception>
+
+  </script>
+
+  
+  <script var="ShouldRunForWeekly">
+
+    <call name="..\@private\RRuleParser" />
+
+  </script>
+
+
+  <set var="launchParams">{[
+    'ExecutionTimeUtc': DateTime.SpecifyKind(new DateTime(2025, 12, 1, 14, 55, 0), 1 as 'System.DateTimeKind')
+	]}</set>
+
+  <!-- <Launcher Test="rootTemplateWithoutChildrenBlocks" Name="'RootTemplateWithoutChildrenBlocks'" Params="launchParams" />
+  <Launcher Test="rootTemplateWithHeaderBlock" Name="'RootTemplateWithHeaderBlock'" Params="launchParams" />
+  <Launcher Test="rootTemplateWithHeaderMainBlocks" Name="'RootTemplateWithHeaderMainBlocks'" Params="launchParams" /> -->
+
+  <Launcher Test="ShouldRunForDailyAt10AM" Name="'ShouldRunForDailyAt10AM'" Params="launchParams" />
+
+</script>

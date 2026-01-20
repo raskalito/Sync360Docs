@@ -1,6 +1,0 @@
-<script>
-    <exception if="!Context.isSet">Context parameter is required.</exception>
-	
-	<set var="Context.BlockList">{new List()}</set>
-	<set var="Context.BlockList[]">gmail.com</set>
-</script>

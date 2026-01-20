@@ -1,5 +1,0 @@
-<config>
-	<schedule>
-		<add name="MarketingAutoImport" period="300" />
-	</schedule>
-</config>

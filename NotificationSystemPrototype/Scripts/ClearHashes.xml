@@ -1,0 +1,17 @@
+<script>
+
+  <set var="Directory">{static 'System.IO.Directory'}</set>
+  
+  <set var="defaultHashStorage">{Path.Combine(Configuration.LocalApplicationFolder, '.hashes')}</set>
+  <set var="period">{(Configuration.Settings['DuplicateDetectionPeriod'] ?? 7) as 'int'}</set>
+  
+  <set var="cutoffDate">{Utils.Now.AddDays(-period)}</set>
+
+  <for var="file" in="Directory.GetFiles(defaultHashStorage)">
+    <set var="fileInfo">{new 'System.IO.FileInfo'(file)}</set>
+    <if condition="fileInfo.LastWriteTime lt cutoffDate">
+      <set>{fileInfo.Delete()}</set>
+    </if>
+  </for>
+  
+</script>

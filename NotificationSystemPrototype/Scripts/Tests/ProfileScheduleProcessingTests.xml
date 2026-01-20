@@ -1,0 +1,152 @@
+<script>
+
+  <script var="createContext">
+    <!--
+      ObjectId - profile identifier
+      ObjectPayload - profile fields
+      Cache - concurrentdictionary
+    -->
+
+
+  </script>
+
+  <script var="profileScheduleProcessingTest">
+    
+	<!--
+		Params:
+		  ObjectId - profile identifier
+		  ObjectPayload - profile fields
+    -->
+    <script var="createCache">
+      <!--
+        Cache - just dictionary
+      -->
+      <set var="notificationsCache">{new 'System.Collections.Concurrent.ConcurrentDictionary`2[System.String,System.Object]'()}</set>
+
+      <set var="notificationsCache['Profiles']">{[
+          'refreshedOn': Utils.Now,
+          'collection': []
+        ]}</set>
+      <set var="notificationsCache['Templates']">{[
+          'refreshedOn': Utils.Now,
+          'collection': []
+        ]}</set>
+      <set var="notificationsCache['Subscriptions']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+            ['vs360_subscriptionid': (static System.Guid).Parse('dc68aa54-0188-f011-b4cc-002248246697'),'vs360_channel': 911170000,'vs360_isoptin': true,'vs360_name': 'Default subscription monthly','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('8b0f1988-f787-f011-b4cc-002248246697')],'vs360_rrule': 'FREQ=WEEKLY;WKST=MO;BYDAY=MO,TH,FR','vs360_startfrom': (static System.DateTime).Parse('9/14/2025'),'vs360_timedelivery': '12:00'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('43c50cac-b7c3-f011-bbd2-002248246697'),'vs360_channel': 911170000,'vs360_isoptin': true,'vs360_name': 'Data updates subscription','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('21304314-9898-f011-b4cc-7c1e525ae781')],'vs360_startfrom': (static System.DateTime).Parse('11/1/2025')],
+            ['vs360_subscriptionid': (static System.Guid).Parse('2a7c598c-7187-f011-b4cb-7c1e525ae781'),'vs360_channel': 911170001,'vs360_isoptin': true,'vs360_name': 'Main Subscription','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('d4ce8e3e-3684-f011-b4cb-000d3a9ca832')],'vs360_rrule': 'FREQ=MONTHLY;WKST=MO','vs360_startfrom': (static System.DateTime).Parse('9/1/2025'),'vs360_timedelivery': '12:30'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('841182e1-0490-f011-b4cc-7c1e525ae781'),'vs360_channel': 911170002,'vs360_description': 'Example of another contact subscription','vs360_isoptin': false,'vs360_name': 'Contact Second Subscription','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('67fde034-0490-f011-b4cc-7c1e525ae781')],'vs360_rrule': 'FREQ=MONTHLY;WKST=MO;BYSETPOS=2;BYDAY=FR;UNTIL=20260307T000000Z','vs360_startfrom': (static System.DateTime).Parse('9/1/2025'),'vs360_timedelivery': '11:30'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('be551185-ab97-f011-b4cc-7c1e525ae781'),'vs360_channel': 911170001,'vs360_isoptin': true,'vs360_name': 'Default Subscription','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('59f8dc44-ab97-f011-b4cc-7c1e525ae781')],'vs360_rrule': 'FREQ=WEEKLY;WKST=MO;BYDAY=MO','vs360_startfrom': (static System.DateTime).Parse('9/1/2025'),'vs360_timedelivery': '10:00'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('8d6ec7d4-6698-f011-b4cc-7c1e525ae781'),'vs360_channel': 911170001,'vs360_description': 'Standard notification will be delivered weekly.','vs360_isoptin': true,'vs360_name': 'Every Friday at 12PM','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('9fbbfa8b-6698-f011-b4cc-7c1e525ae781')],'vs360_rrule': 'FREQ=WEEKLY;WKST=MO;BYDAY=FR','vs360_startfrom': (static System.DateTime).Parse('9/21/2025'),'vs360_timedelivery': '12:00'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('b6f37b8b-9898-f011-b4cc-7c1e525ae781'),'vs360_channel': 911170002,'vs360_isoptin': false,'vs360_name': 'Daily notification','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('21304314-9898-f011-b4cc-7c1e525ae781')],'vs360_rrule': 'FREQ=DAILY;WKST=MO','vs360_startfrom': (static System.DateTime).Parse('9/1/2025'),'vs360_timedelivery': '8:00'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('c414e968-4d9a-f011-b4cc-7c1e525ae781'),'vs360_channel': 911170001,'vs360_description': 'Use weekly schedule or configure your own.','vs360_isoptin': true,'vs360_name': 'Weekly recommended subscription.','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('5ff44f39-4d9a-f011-b4cc-7c1e525ae781')],'vs360_rrule': 'FREQ=WEEKLY;WKST=MO;BYDAY=FR','vs360_startfrom': (static System.DateTime).Parse('9/1/2025'),'vs360_timedelivery': '14:30'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('613947b4-6cc1-f011-bbd3-7c1e525ae781'),'vs360_channel': 911170002,'vs360_description': 'new subscription','vs360_isoptin': true,'vs360_name': 'new subscription','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('d4ce8e3e-3684-f011-b4cb-000d3a9ca832')],'vs360_startfrom': (static System.DateTime).Parse('11/21/2025'),'vs360_timedelivery': '12:30'],
+            ['vs360_subscriptionid': (static System.Guid).Parse('32211adb-1988-f011-b4cb-7c1e52fe9915'),'vs360_channel': 911170002,'vs360_isoptin': false,'vs360_name': 'Notify users about new opportunity in App','vs360_notificationprofileid': ['Id': (static System.Guid).Parse('d2c7407d-1988-f011-b4cb-7c1e52fe9915')],'vs360_rrule': 'FREQ=WEEKLY;WKST=MO;BYDAY=WE','vs360_startfrom': (static System.DateTime).Parse('9/15/2025'),'vs360_timedelivery': '12:30']
+          ]
+        ]}</set>
+      <set var="notificationsCache['Queries']">{[
+          'refreshedOn': Utils.Now,
+          'collection': []
+        ]}</set>
+      <set var="notificationsCache['Recipients']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+            ['vs360_deliverytype': 911170001,'vs360_name': 'Test Recipient 1','vs360_personalize': true,'vs360_recipientkind': 911170000,'vs360_subscriptionid': ['Id': (static System.Guid).Parse('dc68aa54-0188-f011-b4cc-002248246697')],'vs360_subscriptionrecipientid': (static System.Guid).Parse('36a793ab-2fc5-f011-bbd2-002248246697'),'vs360_userid': ['Id': (static System.Guid).Parse('a519948a-d799-e911-a81b-000d3a1aa650')]],
+            ['vs360_deliverytype': 911170001,'vs360_name': 'Test Recipient 2','vs360_personalize': true,'vs360_recipientkind': 911170001,'vs360_subscriptionid': ['Id': (static System.Guid).Parse('dc68aa54-0188-f011-b4cc-002248246697')],'vs360_subscriptionrecipientid': (static System.Guid).Parse('d8e0b826-299d-f011-b41c-002248246cbd'),'vs360_teamid': ['Id': (static System.Guid).Parse('dd3426bc-528f-e911-a964-000d3a13c05d')]],
+            ['vs360_deliverytype': 911170001,'vs360_name': 'Test Recipient 3','vs360_personalize': true,'vs360_rawemail': 'testrec1@globalmail.com','vs360_recipientkind': 911170003,'vs360_subscriptionid': ['Id': (static System.Guid).Parse('dc68aa54-0188-f011-b4cc-002248246697')],'vs360_subscriptionrecipientid': (static System.Guid).Parse('0711e34a-c1bf-f011-bbd3-7c1e525ae781')]
+          ]
+        ]}</set>
+	<set var="notificationsCache['Targets']">{[
+          'refreshedOn': Utils.Now,
+          'collection': []
+        ]}</set>
+
+        <set var="notificationsCache['TeamMembers']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+			['teamid': 'dd3426bc-528f-e911-a964-000d3a13c05d' as 'Guid', 'systemuserid': 'a519948a-d799-e911-a81b-000d3a1aa650' as 'Guid']
+          ]
+        ]}</set>
+
+      <set var="Cache['Notifications']">{notificationsCache}</set>
+
+    </script>
+
+    <set var="Params.Cache">{new Dictionary()}</set>
+    <call script="createCache" Cache="Params.Cache" />
+		
+    <script var="createScript">
+      <!-- 
+        Parameters:
+          Context
+          Tasks
+      -->
+      <for var="task" in="Tasks">
+        <for var="keyValue" in="task">
+          <log>{keyValue.Key} - {keyValue.Value}</log>
+        </for>
+        <log>========</log>
+      </for>
+    </script>
+
+    <!-- Depricated -->
+    <script var="prepareDestinationEmailsScript">
+      <!-- 
+        Params:
+          Recipient: object
+      -->
+      <if condition="Params.Recipient.vs360_subscriptionrecipientid eq '36a793ab-2fc5-f011-bbd2-002248246697' as 'Guid'">
+        <!-- user -->
+        <exception if="!Params.Recipient.vs360_userid.isSet">vs360_userid is required</exception>
+      </if>
+      <if condition="Params.Recipient.vs360_subscriptionrecipientid eq 'd8e0b826-299d-f011-b41c-002248246cbd' as 'Guid'">
+        <!-- team -->
+        <exception if="!Params.Recipient.vs360_teamid.isSet">vs360_userid is required</exception>
+      </if>
+      <if condition="Params.Recipient.vs360_subscriptionrecipientid eq '0711e34a-c1bf-f011-bbd3-7c1e525ae781' as 'Guid'">
+        <!-- raw email -->
+        <exception if="!Params.Recipient.vs360_rawemail.isSet">vs360_rawemail is required</exception>
+      </if>
+    </script>
+	
+    <set var="conditionalQueries">{new List()}</set>
+    <set var="context">{[
+      'ConditionalQueries': conditionalQueries
+    ]}</set>
+    
+    <call name="..\ProfileScheduleProcessing"
+      Input="Params"
+      Mocks="['CreateNotificationTasksScript': createScript]"
+      
+      />
+      <!-- PrepareDestinationEmailsScript="prepareDestinationEmailsScript"-->
+  </script>
+
+  <script var="profileScheduleProcessingIntegrationTest">
+    
+	  <!--
+      Params:
+        ObjectId - profile identifier
+        ObjectPayload - profile fields
+        Cache
+    -->
+
+    <set var="Params.Cache">{DataType.Expando}</set>
+    <call name="../@private/Cache/ProfileCacheLoader" CacheContainer="Params.Cache" />
+    <call name="..\ProfileScheduleProcessing" Input="Params" />
+  </script>
+
+  <set var="profileId">{'80fc6dd4-091a-4795-b880-0f0fc4d3f282' as 'Guid'}</set>
+  <set var="launchParams">{[
+    'Cache': null,
+    'ObjectId': profileId,
+    'ObjectPayload': ['vs360_name': 'Stamp: Profile name', 'vs360_notificationprofileid': profileId],
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+  
+  <Launcher Test="profileScheduleProcessingTest" Name="'EmptyContentEmail'" Params="launchParams" />
+  <Launcher Test="profileScheduleProcessingIntegrationTest" Name="'ProfileScheduleProcessingIntegrationTest'" Params="launchParams" />
+
+</script>

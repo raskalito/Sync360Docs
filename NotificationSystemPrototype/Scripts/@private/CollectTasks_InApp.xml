@@ -1,0 +1,18 @@
+<script>
+
+  <!-- 
+    Params:
+      Context: object
+      CollectedData: dictionary (table alias is key)
+      Subscriptions: list
+      Task: object (output)
+  -->
+
+  
+
+  <set var="Params.Task">{[
+    'DeliveryType': 911170000,
+    'Content': ''
+  ]}</set>
+
+</script>

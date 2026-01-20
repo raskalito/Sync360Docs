@@ -1,0 +1,114 @@
+<script>
+
+  <!-- 
+    Params
+      Method: string
+      Parameters:
+        Task: object
+        SendScript: code
+  -->
+
+  <!-- 
+    setting example:
+    
+    <add name="DataverseProvider_ConnectionName" value="crm" />
+    <add name="DataverseProvider_FromUserId" value="qweasdwqerwe@sadjasjd65421.com" /> 
+  -->
+
+  <set var="Params.ConnectionName">{Configuration.Settings['DataverseProvider_ConnectionName']}</set>
+  <set var="Params.FromUserId">{Configuration.Settings['DataverseProvider_FromUserId']}</set> -->
+
+  <script var="sendScript">
+
+    <!-- 
+      Params
+        Method: string
+        Parameters: 
+          Task: object
+          SendScript: code
+
+        == Added by default ==
+        ConnectionName: guid
+        FromUserId: guid
+        
+    -->
+
+    <log> [DataverseProvider] Sending...</log>
+
+    <script var="_send">
+      <!-- 
+        Params:
+          Attributes: object
+          ConnectionName: string
+          FromUserId: guid
+      -->
+
+      <!-- TODO
+        
+        How to correct email from CRM by Sync360?
+        
+        (Is User context required to create and send email 
+        because AppUser does not have mailbox)
+
+
+      -->
+
+      <!-- <context for="{Params.ConnectionName}" user="{Params.FromUserId}"> -->
+        <create in="crm" entity="email" var="id">
+          <for var="kv" in="Params.Attributes">
+            <attr name="{kv.Key}">{kv.Value}</attr>
+          </for>
+        </create>
+        <set var="conn">{Connections.Get(Params.ConnectionName)}</set>
+        <set>{conn.ExecuteSendEmailRequest(id, 'track-' + id.ToString(), true)}</set>
+        <log> [DataverseProvider] Email {id} was sent</log>
+      <!-- </context> -->
+    </script>
+
+    <set var="task">{Params.Parameters.Task}</set>
+    <set var="toAttendees">{new List()}</set>
+    <set var="toAttendees[]" if="task.recipientUser.isSet">systemuser:{task.recipientUser.Id}</set>
+    <set var="toAttendees[]" if="task.recipientTeam.isSet">team:{task.recipientTeam.Id}</set>
+    <set var="toAttendees[]" if="task.recipientPartyLogicalName.isSet and task.recipientPartyId.isSet">{task.recipientPartyLogicalName}:{task.recipientPartyId}</set>
+
+    <!-- Note: dataverse does not allow to use raw email for sending -->
+    <log if="task.recipientRawEmail.isSet"> [DataverseProvider] dataverse does not allow to use raw email for sending</log>
+    <!-- <set var="toAttendees[]" if="task.recipientRawEmail.isSet">{task.recipientRawEmail}</set> -->
+
+    <set var="data">{Json.FromJson(task.vs360_content)}</set>
+     
+    <set var="attributes">
+      <attr name="subject">{data.subject}</attr>
+      <attr name="description">{data.content}</attr>
+      <attr name="directioncode">{true}</attr>
+      <attr name="from">systemuser:{Params.FromUserId}</attr>
+      <attr name="to">{toAttendees}</attr>
+    </set>
+
+    <log>debug: Email={attributes}</log>
+
+    <set var="sendParams">{[
+      'Attributes': attributes,
+      'ConnectionName': Params.ConnectionName,
+      'FromUserId': Params.FromUserId,
+    ]}</set>
+
+    <set var="script">{Params.Parameters.SendScript ?? _send}</set>
+    <call script="script" Params="sendParams" />
+  
+  </script>
+
+  <log> [DataverseProvider] Input method: {Params.Method}</log>
+
+  <set var="methods">{[
+    'send': sendScript
+  ]}</set>
+
+  <exception if="!methods.ContainsKey(Params.Method)">{Params.Method} is not supported</exception>
+
+  <set var="method">{methods[Params.Method]}</set>
+
+  <call script="method" Params="Params"/>
+
+
+</script>

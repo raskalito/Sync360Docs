@@ -1,0 +1,23 @@
+<config>
+	<schedule>
+		<!--
+			 
+			 ScriptPayloadScheduler:
+			 	
+				it's a experimental scheduler and Sync360 will recieve it in future
+
+		-->
+		<add queue="BatchQueue" name="NotificationTaskProcessing" task="ScriptPayloadScheduler" period="120">
+			<!--Criteria: script must return dictionary - Key: ObjectId; Value: payload object.-->
+			<param name="Criteria">NotificationTasksRange</param>
+			<!--ScriptName: script that will be executed -->
+			<param name="ScriptName">NotificationTaskProcessing</param>
+			<!--script execution interval-->
+			<param name="Interval">240</param>
+			<!--CacheDefinitionScript: script that defines a dictionary with  -->
+			<!-- <param name="CacheLoaderScript">@private/Cache/NotificationCacheLoader</param> -->
+			<!-- <param name="CacheLoaderFrequency"></param> -->
+			<!-- <param name="PostConfigurationAction">@private/HandleOnboardingRequests</param> -->
+		</add>
+	</schedule>
+</config>

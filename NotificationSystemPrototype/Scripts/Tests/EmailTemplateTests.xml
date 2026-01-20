@@ -1,0 +1,263 @@
+<script>
+
+  <script var="createContext">
+    <!-- 
+      Parameters:
+        Context
+    -->
+
+    <!-- <set var="conditionalQueries">{new List()}</set>
+    <set var="Context.ConditionalQueries">{conditionalQueries}</set> -->
+
+  </script>
+
+  <script var="rootTemplateWithoutChildrenBlocks">
+    <!-- 
+      Params:
+        Context: object
+        CollectedData: dictionary (table alias is key)
+        RecipientData: object
+        Task: object (output)
+    -->
+
+    <!-- collect data -->
+    <set var="collectedData">{new Dictionary()}</set>
+
+    <set var="templateCompositions">{new List()}</set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid','vs360_css': null,'vs360_displayorder': 1,'vs360_notificationprofileid': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid','vs360_props_json': '{"title": "Contacts Added Last Week Summary"}','vs360_isroot': true,'vs360_name': 'Simple Page Layout','vs360_blockid': '3358df1d-3784-f011-b4cb-000d3a9ca832' as 'Guid','vs360_inputalias': null,'vs360_blocktype': ['Value': 911170000],'vs360_defaultprops_json': '["title"]','vs360_html_tokenized': '<![CDATA[<!doctype html><html><body>{slots.header}</body></html>]]>','blockName': 'Simple Page Layout','vs360_slots_json': '["header"]']
+    }</set>
+
+    <!-- collect queries -->
+    <set var="conditionalQueries">{new List()}</set>
+    <set var="Params.Context.ConditionalQueries">{conditionalQueries}</set>
+    <set var="Params.Context.TemplateCompositions">{templateCompositions}</set>
+
+    <set var="innerParams">{[
+      'Context': Params.Context,
+      'CollectedData': collectedData,
+      'Recipient': ['vs360_subscriptionrecipientid': Utils.NewGuid],
+      'Profile': ['vs360_notificationprofileid': Utils.NewGuid, 'vs360_name': 'test profile'],
+      'Task': null,
+      'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+    ]}</set>
+    <call name="..\@private\CollectTasks_Email"
+      Params="innerParams" />
+
+    <set var="emailContent">{Json.FromJson(innerParams.Task.Content)}</set>
+    <set var="expectedContent"><![CDATA[<!doctype html><html><body></body></html>]]></set>
+    <exception if="expectedContent ne emailContent.content">Content is different</exception>
+	  <exception if="('Notification: ' + innerParams.Profile.vs360_name) ne emailContent.subject">Subject is different</exception>
+  </script>
+  
+  <script var="rootTemplateWithHeaderBlock">
+    <!-- 
+      Params:
+        Context: object
+        CollectedData: dictionary (table alias is key)
+        RecipientData: object
+        Task: object (output)
+    -->
+
+    <!-- collect data -->
+    <set var="collectedData">{new Dictionary()}</set>
+
+    <set var="templateCompositions">{new List()}</set>
+	
+	  <set var="p1"><![CDATA[{props.FontName.isSet ? 'font-family:' + props.FontName : ''}]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid', 'vs360_css': null,'vs360_displayorder': 1,'vs360_notificationprofileid': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid','vs360_props_json': '{"title": "Contacts Added Last Week Summary"}','vs360_isroot': true,'vs360_name': 'Simple Page Layout','vs360_blockid': '3358df1d-3784-f011-b4cb-000d3a9ca832' as 'Guid','vs360_inputalias': null,'vs360_blocktype': ['Value': 911170000],'vs360_defaultprops_json': '["title"]','vs360_html_tokenized': '<![CDATA[<!doctype html><html><body>{slots.header}</body></html>]]>','blockName': 'Simple Page Layout','vs360_slots_json': '["header"]']
+    }</set>
+	
+    <set var="cd"><![CDATA[<p style="{{props.FontName.isSet ? 'font-family:' + props.FontName : ''}">{{props.Text}</p>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': '7816b371-3884-f011-b4cb-000d3a9ca832' as 'Guid','vs360_displayorder': 2,'vs360_notificationprofileid': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid', 'vs360_props_json': '{"Text": "Here is a summary of contacts created from the last week.", "FontName": "Arial, Helvetica, sans-serif", "FontSize": "1.5em"}','vs360_isroot': false,'vs360_name': 'Simple Text','vs360_blockid': '0f1343ce-2288-f011-b4cb-7c1e52fe9915' as 'Guid','vs360_slotname': 'header','vs360_parentid': ['Id': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_inputalias': null,'vs360_blocktype': ['Value': 911170005],'vs360_defaultprops_json': '["Text","FontName"]','vs360_html_tokenized': cd,'blockName': 'Simple Text','vs360_slots_json': null]
+    }</set>
+
+    <!-- collect queries -->
+    <set var="conditionalQueries">{new List()}</set>
+    <set var="Params.Context.ConditionalQueries">{conditionalQueries}</set>
+    <set var="Params.Context.TemplateCompositions">{templateCompositions}</set>
+
+    <set var="innerParams">{[
+      'Context': Params.Context,
+      'CollectedData': collectedData,
+      'Recipient': ['vs360_subscriptionrecipientid': Utils.NewGuid],
+      'Profile': ['vs360_notificationprofileid': Utils.NewGuid, 'vs360_name': 'test profile'],
+      'Task': null,
+      'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+    ]}</set>
+    <call name="..\@private\CollectTasks_Email"
+      Params="innerParams" />
+
+    <set var="emailContent">{Json.FromJson(innerParams.Task.Content)}</set>
+    <set var="expectedContent"><![CDATA[<!doctype html><html><body><p style="font-family:Arial, Helvetica, sans-serif">Here is a summary of contacts created from the last week.</p></body></html>]]></set>
+    <exception if="expectedContent ne emailContent.content">Content is different</exception>
+	  <exception if="('Notification: ' + innerParams.Profile.vs360_name) ne emailContent.subject">Subject is different</exception>
+  </script>
+
+  <script var="rootTemplateWithHeaderMainBlocks">
+    <!-- 
+      Params:
+        Context: object
+        CollectedData: dictionary (table alias is key)
+        RecipientData: object
+        Task: object (output)
+    -->
+
+    <!-- collect data -->
+    <set var="collectedData">{new Dictionary()}</set>
+
+    <set var="templateCompositions">{new List()}</set>
+	
+	  <set var="p1"><![CDATA[{props.FontName.isSet ? 'font-family:' + props.FontName : ''}]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid', 'vs360_css': null,'vs360_displayorder': 1,'vs360_notificationprofileid': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid','vs360_props_json': '{"title": "Contacts Added Last Week Summary"}','vs360_isroot': true,'vs360_name': 'Simple Page Layout','vs360_blockid': '3358df1d-3784-f011-b4cb-000d3a9ca832' as 'Guid','vs360_inputalias': null,'vs360_blocktype': ['Value': 911170000],'vs360_defaultprops_json': '["title"]','vs360_html_tokenized': '<![CDATA[<!doctype html><html><body><div>{slots.header}</div><div>{slots.main}</div></body></html>]]>','blockName': 'Simple Page Layout','vs360_slots_json': '["header"]']
+    }</set>
+	
+    <set var="cd"><![CDATA[<p style="{{props.FontName.isSet ? 'font-family:' + props.FontName : ''}">{{props.Text}</p>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': '7816b371-3884-f011-b4cb-000d3a9ca832' as 'Guid','vs360_displayorder': 2,'vs360_notificationprofileid': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid', 'vs360_props_json': '{"Text": "Here is a summary of contacts created from the last week.", "FontName": "Arial, Helvetica, sans-serif", "FontSize": "1.5em"}','vs360_isroot': false,'vs360_name': 'Simple Text','vs360_blockid': '0f1343ce-2288-f011-b4cb-7c1e52fe9915' as 'Guid','vs360_slotname': 'header','vs360_parentid': ['Id': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_inputalias': null,'vs360_blocktype': ['Value': 911170005],'vs360_defaultprops_json': '["Text","FontName"]','vs360_html_tokenized': cd,'blockName': 'Simple Text','vs360_slots_json': null]
+    }</set>
+
+    <set var="cd"><![CDATA[<table width="{{props.TableWidth.isSet ? props.TableWidth : '100%'}"><thead><tr><th style="{{props.HeaderPadding.isSet ? 'padding:' +props.HeaderPadding: ''}{{props.HeaderBorder.isSet ? 'border:' + props.HeaderBorder : 'border-bottom:1px solid #ddd;'}{{props.HeaderCustomCSS.isSet ? props.HeaderCustomCSS : ''}">Full Name</th></tr></thead><tbody>{{slots.Rows}</tbody></table>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_blockid': ['Id': 'a8e40c29-4184-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_displayorder': 3,'vs360_inputalias': null,'vs360_isroot': null,'vs360_name': 'Summary Contacts Grid','vs360_notificationprofileid': ['Id': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_parentid': ['Id': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_props_json': null,'vs360_slotname': 'main','vs360_templatecompositionid': '7a706db6-4184-f011-b4cb-000d3a9ca832' as 'Guid','vs360_defaultprops_json': '["TableWidth","HeaderPadding", "HeaderBorder", "HeaderCustomCSS"]', 'vs360_blocktype': ['Value': 911170004],'blockName': null,'vs360_slots_json': null,'vs360_html_tokenized': cd]
+    }</set>
+
+    <!-- collect queries -->
+    <set var="conditionalQueries">{new List()}</set>
+    <set var="Params.Context.ConditionalQueries">{conditionalQueries}</set>
+    <set var="Params.Context.TemplateCompositions">{templateCompositions}</set>
+
+    <set var="innerParams">{[
+      'Context': Params.Context,
+      'CollectedData': collectedData,
+      'Recipient': ['vs360_subscriptionrecipientid': Utils.NewGuid],
+      'Profile': ['vs360_notificationprofileid': Utils.NewGuid, 'vs360_name': 'test profile'],
+      'Task': null,
+      'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+    ]}</set>
+    <call name="..\@private\CollectTasks_Email"
+      Params="innerParams" />
+
+    <set var="emailContent">{Json.FromJson(innerParams.Task.Content)}</set>
+    <set var="expectedContent"><![CDATA[<!doctype html><html><body><div><p style="font-family:Arial, Helvetica, sans-serif">Here is a summary of contacts created from the last week.</p></div><div><table width="100%"><thead><tr><th style="border-bottom:1px solid #ddd;">Full Name</th></tr></thead><tbody></tbody></table></div></body></html>]]></set>
+	  
+    <exception if="('Notification: ' + innerParams.Profile.vs360_name) ne emailContent.subject">Subject is different</exception>
+    <exception if="expectedContent ne emailContent.content">Content is different</exception>
+  </script>
+
+  <script var="rootTemplateWithHeaderMainBlocks2">
+    <!-- 
+      Params:
+        Context: object
+        CollectedData: dictionary (table alias is key)
+        RecipientData: object
+        Task: object (output)
+    -->
+
+    <!-- collect data -->
+    <set var="collectedData">{new Dictionary()}</set>
+    <set var="collectedData['Contacts']">{[
+      ['contactid': 1, 'fullname': 'John Smith', 'parentcustomerid': ['Name': 'Oracle'], 'emailaddress1': 'john.smith@oracle123.com', '': ''],
+      ['contactid': 2,'fullname': 'John Smith', 'parentcustomerid': ['Name': 'Oracle'], 'emailaddress1': 'john.smith@oracle123.com', '': ''],
+      ['contactid': 3,'fullname': 'John Smith', 'parentcustomerid': ['Name': 'Oracle'], 'emailaddress1': 'john.smith@oracle123.com', '': ''],
+      ['contactid': 4,'fullname': 'John Smith', 'parentcustomerid': ['Name': 'Oracle'], 'emailaddress1': 'john.smith@oracle123.com', '': ''],
+      ['contactid': 5,'fullname': 'John Smith', 'parentcustomerid': ['Name': 'Oracle'], 'emailaddress1': 'john.smith@oracle123.com', '': '']
+    ]}</set>
+	<set var="collectedData['Contacts_dic']">{new Dictionary()}</set>
+	<for var="r" in="collectedData['Contacts']">
+		<set var="collectedData['Contacts_dic'][r.contactid.ToString()]">{r}</set>
+	</for>
+	
+    <set var="collectedData['ContactDetails']">{[
+      ['id': 10, 'detail1': 'Qwe_1_1', 'detail2': '123_1_1', 'contactid': 1],
+      ['id': 10, 'detail1': 'Qwe_2_1', 'detail2': '123_2_1', 'contactid': 1],
+      ['id': 10, 'detail1': 'Qwe_3_1', 'detail2': '123_3_1', 'contactid': 1],
+      ['id': 10, 'detail1': 'Qwe_4_2', 'detail2': '123_4_2', 'contactid': 2],
+      ['id': 10, 'detail1': 'Qwe_5_2', 'detail2': '123_5_2', 'contactid': 2],
+      ['id': 10, 'detail1': 'Qwe_6_2', 'detail2': '123_6_2', 'contactid': 2],
+      ['id': 10, 'detail1': 'Qwe_7_3', 'detail2': '123_7_3', 'contactid': 3],
+    ]}</set>
+	
+	<set var="collectedData['ContactDetails_dic']">{new Dictionary()}</set>
+	<for var="r" in="collectedData['ContactDetails']">
+		<set var="collectedData['ContactDetails_dic'][r.id.ToString()]">{r}</set>
+	</for>
+	
+    <set var="templateCompositions">{new List()}</set>
+	
+	  <set var="p1"><![CDATA[{props.FontName.isSet ? 'font-family:' + props.FontName : ''}]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid', 'vs360_css': null,'vs360_displayorder': 1,'vs360_notificationprofileid': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid','vs360_props_json': '{"title": "Contacts Added Last Week Summary"}','vs360_isroot': true,'vs360_name': 'Simple Page Layout','vs360_blockid': '3358df1d-3784-f011-b4cb-000d3a9ca832' as 'Guid','vs360_inputalias': null,'vs360_blocktype': ['Value': 911170000],'vs360_defaultprops_json': '["title"]','vs360_html_tokenized': '<![CDATA[<!doctype html><html><body><div>{slots.header}</div><div>{slots.main}</div></body></html>]]>','blockName': 'Simple Page Layout','vs360_slots_json': '["header","main"]']
+    }</set>
+	
+    <set var="cd"><![CDATA[<p style="{{props.FontName.isSet ? 'font-family:' + props.FontName : ''}">{{props.Text}</p>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': '7816b371-3884-f011-b4cb-000d3a9ca832' as 'Guid','vs360_displayorder': 2,'vs360_notificationprofileid': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid', 'vs360_props_json': '{"Text": "Here is a summary of contacts created from the last week.", "FontName": "Arial, Helvetica, sans-serif", "FontSize": "1.5em"}','vs360_isroot': false,'vs360_name': 'Simple Text','vs360_blockid': '0f1343ce-2288-f011-b4cb-7c1e52fe9915' as 'Guid','vs360_slotname': 'header','vs360_parentid': ['Id': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_inputalias': null,'vs360_blocktype': ['Value': 911170005],'vs360_defaultprops_json': '["Text","FontName"]','vs360_html_tokenized': cd,'blockName': 'Simple Text','vs360_slots_json': null]
+    }</set>
+
+    <set var="cd"><![CDATA[<table width="{{props.TableWidth.isSet ? props.TableWidth : '100%'}"><thead><tr><th style="{{props.HeaderPadding.isSet ? 'padding:' +props.HeaderPadding: ''}{{props.HeaderBorder.isSet ? 'border:' + props.HeaderBorder : 'border-bottom:1px solid #ddd;'}{{props.HeaderCustomCSS.isSet ? props.HeaderCustomCSS : ''}">Full Name</th></tr></thead><tbody>{{slots.Rows}</tbody></table>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_blockid': ['Id': 'a8e40c29-4184-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_displayorder': 3,'vs360_inputalias': null,'vs360_isroot': null,'vs360_name': 'Summary Contacts Grid','vs360_notificationprofileid': ['Id': 'd4ce8e3e-3684-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_parentid': ['Id': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_props_json': null,'vs360_slotname': 'main','vs360_templatecompositionid': '7a706db6-4184-f011-b4cb-000d3a9ca832' as 'Guid','vs360_defaultprops_json': '["TableWidth","HeaderPadding", "HeaderBorder", "HeaderCustomCSS"]', 'vs360_blocktype': ['Value': 911170004],'blockName': null,'vs360_slots_json': '["Rows"]','vs360_html_tokenized': cd]
+    }</set>
+
+    <!--<set var="cd3"><![CDATA[<tr><td>{{item.fullname ?? "Unknown"}</td><td>{{item.parentcustomerid.Name ?? ""}</td><td>{{item.jobtitle ?? ""}</td><td>{{item.emailaddress1 ?? ""}</td><td>{{item.modifiedby.Name ?? ""}</td></tr><tr colspan="5">{{slots.GridDetails}</tr>]]></set>-->
+	<set var="cd3"><![CDATA[<tr><td>{{item.fullname ?? "Unknown"}</td><td>{{item.parentcustomerid.Name ?? ""}</td><td>{{item.jobtitle ?? ""}</td><td>{{item.emailaddress1 ?? ""}</td><td>{{item.modifiedby.Name ?? ""}</td></tr><tr colspan="5"><table><tr><th>Detail 1</th><th>Detail 2</th></tr>{{slots.RowDetails}</table></tr>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': 'c954ffc3-4184-f011-b4cb-000d3a9ca832' as 'Guid','vs360_blocktype': ['Value': 911170000],'vs360_defaultprops_json': '["CellPadding", "CellCustomCSS"]','vs360_html_tokenized': cd3,'vs360_name': 'Contact Row','vs360_slots_json': null,'vs360_blockid': ['Id': '7e1604a3-4184-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_css': null,'vs360_displayorder': 4,'vs360_inputalias': 'Contacts','vs360_isroot': false,'vs360_notificationprofileid': ['Id': '9a04e781-1777-49e4-999f-230f49d5b93f' as 'Guid'],'vs360_parentid': ['Id': '7a706db6-4184-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_props_json': null,'vs360_slotname': 'Rows']
+    }</set>
+	
+	<!--<set var="cd4"><![CDATA[<table><tr><th>Detail 1</th><th>Detail 2</th></tr>{{slots.RowDetails}</table>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': '2f0dad9c-c638-42f3-9093-4ffbff840b32' as 'Guid','vs360_blocktype': ['Value': 911170000],'vs360_defaultprops_json': '[]','vs360_html_tokenized': cd4,'vs360_name': 'Contact Grid Detail','vs360_slots_json': null,'vs360_blockid': ['Id': 'cb36debf-541d-4c6c-ae9c-d1526fb585d9' as 'Guid'],'vs360_css': null,'vs360_displayorder': 5,'vs360_inputalias': null,'vs360_isroot': false,'vs360_notificationprofileid': ['Id': '9a04e781-1777-49e4-999f-230f49d5b93f' as 'Guid'],'vs360_parentid': ['Id': 'c954ffc3-4184-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_props_json': null,'vs360_slotname': 'GridDetails']
+    }</set>-->
+	
+	<set var="cd5"><![CDATA[<tr><td>{{item.detail1}</td><td>{{item.detail2}</td></tr>]]></set>
+    <set var="templateCompositions[]">{
+      ['vs360_templatecompositionid': '0505ac0c-991a-497b-83ca-c20dff874ded' as 'Guid','vs360_blocktype': ['Value': 911170000],'vs360_defaultprops_json': '[]','vs360_html_tokenized': cd5,'vs360_name': 'Contact Row Detail','vs360_slots_json': null,'vs360_blockid': ['Id': '754c8d57-188b-4015-9ff0-3320b3ba0eab' as 'Guid'],'vs360_css': null,'vs360_displayorder': 6,'vs360_inputalias': 'ContactDetails@groupby(item.contactid)','vs360_isroot': false,'vs360_notificationprofileid': ['Id': '9a04e781-1777-49e4-999f-230f49d5b93f' as 'Guid'],'vs360_parentid': ['Id': 'c954ffc3-4184-f011-b4cb-000d3a9ca832' as 'Guid'],'vs360_props_json': null,'vs360_slotname': 'RowDetails']
+    }</set>
+
+    
+    <!-- collect queries -->
+    <set var="conditionalQueries">{new List()}</set>
+    <set var="Params.Context.ConditionalQueries">{conditionalQueries}</set>
+    <set var="Params.Context.TemplateCompositions">{templateCompositions}</set>
+
+    <set var="innerParams">{[
+      'Context': Params.Context,
+      'CollectedData': collectedData,
+      'Recipient': ['vs360_subscriptionrecipientid': Utils.NewGuid],
+      'Profile': ['vs360_notificationprofileid': Utils.NewGuid, 'vs360_name': 'test profile'],
+      'Task': null,
+      'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+    ]}</set>
+    <call name="..\@private\CollectTasks_Email2"
+      Params="innerParams" />
+
+    <set var="emailContent">{Json.FromJson(innerParams.Task.Content)}</set>
+    <set var="expectedContent"><![CDATA[<!doctype html><html><body><div><p style="font-family:Arial, Helvetica, sans-serif">Here is a summary of contacts created from the last week.</p></div><div><table width="100%"><thead><tr><th style="border-bottom:1px solid #ddd;">Full Name</th></tr></thead><tbody><tr><td>John Smith</td><td>Oracle</td><td></td><td>john.smith@oracle123.com</td><td></td></tr><tr colspan="5"><table><tr><th>Detail 1</th><th>Detail 2</th></tr><tr><td>Qwe_1_1</td><td>123_1_1</td></tr><tr><td>Qwe_2_1</td><td>123_2_1</td></tr><tr><td>Qwe_3_1</td><td>123_3_1</td></tr></table></tr><tr><td>John Smith</td><td>Oracle</td><td></td><td>john.smith@oracle123.com</td><td></td></tr><tr colspan="5"><table><tr><th>Detail 1</th><th>Detail 2</th></tr><tr><td>Qwe_4_2</td><td>123_4_2</td></tr><tr><td>Qwe_5_2</td><td>123_5_2</td></tr><tr><td>Qwe_6_2</td><td>123_6_2</td></tr></table></tr><tr><td>John Smith</td><td>Oracle</td><td></td><td>john.smith@oracle123.com</td><td></td></tr><tr colspan="5"><table><tr><th>Detail 1</th><th>Detail 2</th></tr><tr><td>Qwe_7_3</td><td>123_7_3</td></tr></table></tr><tr><td>John Smith</td><td>Oracle</td><td></td><td>john.smith@oracle123.com</td><td></td></tr><tr colspan="5"><table><tr><th>Detail 1</th><th>Detail 2</th></tr></table></tr><tr><td>John Smith</td><td>Oracle</td><td></td><td>john.smith@oracle123.com</td><td></td></tr><tr colspan="5"><table><tr><th>Detail 1</th><th>Detail 2</th></tr></table></tr></tbody></table></div></body></html>]]></set>
+	  
+	<log> [info] EmailContent={emailContent}</log>
+  
+    <exception if="('Notification: ' + innerParams.Profile.vs360_name) ne emailContent.subject">Subject is different</exception>
+    <exception if="expectedContent ne emailContent.content">Content is different</exception>
+  </script>
+
+  <set var="context">{new Object()}</set>
+  <call script="createContext" Context="context" />
+  
+  <set var="launchParams">{[
+    'Context': context,
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+
+  <!-- <Launcher Test="rootTemplateWithoutChildrenBlocks" Name="'RootTemplateWithoutChildrenBlocks'" Params="launchParams" />
+  <Launcher Test="rootTemplateWithHeaderBlock" Name="'RootTemplateWithHeaderBlock'" Params="launchParams" />
+  <Launcher Test="rootTemplateWithHeaderMainBlocks" Name="'RootTemplateWithHeaderMainBlocks'" Params="launchParams" /> -->
+
+  <Launcher Test="rootTemplateWithHeaderMainBlocks2" Name="'RootTemplateWithHeaderMainBlocks2'" Params="launchParams" />
+  
+
+</script>

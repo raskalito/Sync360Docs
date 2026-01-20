@@ -1,0 +1,351 @@
+<script>
+
+  <!-- 
+    Params:
+      Context: object
+      CollectedData: dictionary (table alias is key)
+      Recipient: object
+      Subscription: object
+      Profile: object
+      Task: object (output)
+  -->
+
+  <!--
+
+    vs360_blocktype:
+      911170000 RawHtml
+      911170001 Section
+      911170002 List
+      911170003 ListItem
+      911170004 Grid
+      911170005 Text
+      911170006 Image
+
+  -->
+
+  <set var="Enum">{static 'System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+
+  <set var="RegexOptions">{typeof 'System.Text.RegularExpressions.RegexOptions, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+  <set var="RegexOptionMultiline">{Enum.Parse(RegexOptions, 'Multiline')}</set>
+  <set var="Regex">{typeof 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+  <set var="Regexp">{static 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+
+  <set var="expr"><![CDATA[\{{([^{{}]+)\}]]></set>
+  <set var="expr2"><![CDATA[(\[\[.+\]\])]]></set>
+  <set var="regexEval">{new Regex(expr, RegexOptionMultiline)}</set>
+  <set var="regexPlaceHolder">{new Regex(expr2, RegexOptionMultiline)}</set>
+
+  <set var="lBr">{'{'}</set>
+  <set var="rBr">}</set>
+
+  <set var="ExecutionTimeUtc">{Utils.Now.ToUniversalTime()}</set>
+
+  <!-- populate slots -->
+  <set var="slots">{new Object()}</set>
+  <for var="templateComposition" in="Params.Context.TemplateCompositions">
+    <set var="slots[templateComposition.vs360_slotname]" if="templateComposition.vs360_slotname.isSet">{templateComposition.vs360_html_tokenized}</set>
+  </for>
+
+  <set var="compositions">{Params.Context.TemplateCompositions}</set>
+  <set var="reverseTree">{new Object()}</set>
+
+  <set var="tree">{new Dictionary()}</set>
+  <set var="addedDic">{new Dictionary()}</set>
+  <set var="addedDic2">{new Dictionary()}</set>
+
+  <for var="comp" in="compositions">
+    <set var="id">{comp.vs360_templatecompositionid.ToString()}</set>
+    <set var="parentId">{null}</set>
+    <set var="parentId" if="comp.vs360_parentid.isSet">{comp.vs360_parentid.Id.ToString()}</set>
+    <if condition="parentId.isSet">
+      <then>
+        <!-- children nodes-->
+        <set var="nodeChildren">{new Dictionary()}</set>
+        <if condition="tree.ContainsKey(id)">
+          <!-- not possible to have parentid in first level - move to necessary level -->
+          <!-- <set var="tree[id].node">{comp}</set> -->
+          <set var="nodeChildren">{tree[id].children}</set>
+          <set>{tree.Remove(id)}</set>
+        </if>
+        <if condition="!addedDic2.ContainsKey(parentId)">
+          <then>
+            <set var="tree[parentId]">{['node': null, 'children': new Dictionary()]}</set>
+            <set var="addedDic2[parentId]">{tree[parentId]}</set>
+          </then>
+          <!--<else>
+            <set var="tree[parentId]">{['node': null, 'children': new Dictionary()]}</set>
+          </else>-->
+        </if>
+
+        <set var="addedDic2[parentId].children[id]">{['node': comp, 'children': nodeChildren]}</set>
+        <set var="addedDic2[id]">{['node': comp, 'children': nodeChildren]}</set>
+      </then>
+      <else>
+        <!-- root node -->
+        <if condition="tree.ContainsKey(id)">
+          <then>
+            <set var="tree[id].node">{comp}</set>
+          </then>
+          <else>
+            <set var="tree[id]">{['node': comp, 'children': new Dictionary()]}</set>
+          </else>
+        </if>
+        <set var="addedDic2[id]">{tree[id]}</set>
+      </else>
+    </if>
+  </for>
+
+  <exception if="tree.Count gt 1">Blocks were configured wrong. Please check a hierarchy of blocks</exception>
+
+  <set var="rootNode">{null}</set>
+  <for var="kv" in="tree">
+    <set var="rootNode">{kv.Value}</set>
+    <break />
+  </for>
+
+  <!-- 2. leaves first -->
+  <script var="passChildren">
+    <!--
+      Func 
+      Params
+        Children: {node, children}
+        List: List
+    -->
+
+    <for var="child" in="Params.Children">
+      <set var="Params.List[]">{child.node}</set>
+      <if condition="child.children.Count gt 0">
+        <then>
+          <set var="innerParams">{[
+            'Children': child.children.Values,
+            'List': Params.List
+          ]}</set>
+          <call script="Func" Func="Func" Params="innerParams" />
+        </then>
+      </if>
+    </for>
+  </script>
+
+  <script var="evaluateBlock" children="[]" slots="[]" embedSlotName="null" evaluateBlock="null" Params="null">
+
+    <set var="Enum">{static 'System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+
+    <set var="RegexOptions">{typeof 'System.Text.RegularExpressions.RegexOptions, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+    <set var="RegexOptionMultiline">{Enum.Parse(RegexOptions, 'Multiline')}</set>
+    <set var="Regex">{typeof 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+    <set var="Regexp">{static 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+
+    <set var="expr"><![CDATA[\{{([^{{}]+)\}]]></set>
+    <set var="regexEval">{new Regex(expr, RegexOptionMultiline)}</set>
+
+    <for var="child" in="children">
+      <set var="node">{child.node}</set>
+      <!--<exception if="node.vs360_slotname eq '__unknown__'">'__unknown__' slotname is reserved by system</exception>
+      <if condition="(embedSlotName ?? '__unknown__') ne (node.vs360_slotname ?? '__noset__')">
+        <!- slotname is diffrent - skip ->
+        <continue />
+      </if>-->
+
+      <set var="props">{new Object()}</set>
+      <set var="props" if="node.vs360_props_json.isSet">{Json.FromJson(node.vs360_props_json)}</set>>
+      <set var="blockHtml">{node.vs360_html_tokenized}</set>
+      <set var="matches">{regexEval.Matches(blockHtml)}</set>
+      <set var="slotName">{node.vs360_slotname}</set>
+      <set var="currentHtml"></set>
+
+      <!-- appear multiple slots when groupby specified in alias -->
+      <set var="multipleSlots">{new Dictionary()}</set>
+
+      <if condition="node.vs360_inputalias.isSet">
+        <if condition="node.vs360_blocktype.Value eq 911170000">
+          <set var="queryAlias">{node.vs360_inputalias}</set>
+          <set var="groupingExpression">{null}</set>
+
+          <!-- check alias for grouping logic -->
+          <set var="groupingFlag">{false}</set>
+          <if condition="node.vs360_inputalias.Contains('@groupby')">
+            <set var="aliasParts">{Utils.Split(node.vs360_inputalias, '@groupby')}</set>
+            <if condition="aliasParts.Count eq 2">
+              <set var="groupingExpression">{aliasParts[1].Replace(')', '').Replace('(', '')}</set>
+              <set var="queryAlias">{aliasParts[0]}</set>
+              <set var="groupingFlag">{true}</set>
+              <!-- update slotname for grouping logic -->
+              <!-- <set var="slotName">{slotName}{groupingValue}</set> -->
+            </if>
+          </if>
+
+          <!-- RawHtml block -->
+          <if condition="Params.CollectedData.ContainsKey(queryAlias)">
+
+            <if condition="groupingFlag">
+              <!-- grouping is set -->
+              <set var="groupedBy">{new Dictionary()}</set>
+              <for var="item" in="Params.CollectedData[queryAlias]">
+                <set var="groupingValue">{Utils.Eval(groupingExpression).ToString().Replace('-', '') ?? null}</set>
+                <continue if="!groupingValue.isSet" />
+                <if condition="!groupedBy.ContainsKey(groupingValue)">
+                  <set var="groupedBy[groupingValue]">{new List()}</set>
+                </if>
+                <set var="groupedBy[groupingValue][]">{item}</set>
+              </for>
+
+              <for var="kv" in="groupedBy">
+                <set var="groupingValue">{kv.Key}</set>
+                <set var="items">{kv.Value}</set>
+                <set var="resultHtml"></set>
+                <for var="item" in="items">
+                  <set var="tempHtml">{blockHtml}</set>
+                  <for var="match" in="matches">
+                    <set var="text">{match.ToString()}</set>
+                    <if condition="!text.Contains('props.') and !text.Contains('slots.')">
+                      <set var="sub">{new Regex(Regexp.Escape(text))}</set>
+                      <set var="tempHtml">{sub.Replace(tempHtml, Utils.Eval(text.Replace("{", '').Replace("}", '')).ToString(), 1)}</set>
+                    </if>
+                    <if condition="text.Contains('slots.')">
+                      <set var="sub">{new Regex(Regexp.Escape(text))}</set>
+                      <set var="norm">{text.Replace("{", "").Replace("}", "")}</set>
+                      <set var="newSlotName">{'{'}{norm}_{keyField}{'}'}</set>
+                      <set var="tempHtml">{sub.Replace(tempHtml, newSlotName, 1)}</set>
+                    </if>
+                  </for>
+                  <set var="resultHtml">{resultHtml}{tempHtml}</set>
+                </for>
+                <set var="multipleSlots[groupingValue]">{resultHtml}</set>
+              </for>
+            </if>
+
+            <if condition="!groupingFlag">
+              <!-- no grouping -->
+              <for var="kv" in="Params.CollectedData[queryAlias+'_dic']">
+                <set var="keyField">{kv.Key.Replace('-', '')}</set>
+                <set var="item">{kv.Value}</set>
+                <set var="tempHtml">{blockHtml}</set>
+                <for var="match" in="matches">
+                  <set var="text">{match.ToString()}</set>
+                  <if condition="!text.Contains('props.') and !text.Contains('slots.')">
+                    <set var="sub">{new Regex(Regexp.Escape(text))}</set>
+                    <log>debug: {tempHtml}</log>
+                    <log>debug: {text}</log>
+                    <log>debug: {item}</log>
+                    <set var="tempHtml">{sub.Replace(tempHtml, Utils.Eval(text.Replace("{", '').Replace("}", '')).ToString(), 1)}</set>
+                  </if>
+                  <if condition="text.Contains('slots.')">
+                    <set var="sub">{new Regex(Regexp.Escape(text))}</set>
+                    <set var="norm">{text.Replace("{", "").Replace("}", "")}</set>
+                    <set var="newSlotName">{'{'}{norm}_{keyField}{'}'}</set>
+                    <set var="tempHtml">{sub.Replace(tempHtml, newSlotName, 1)}</set>
+                  </if>
+                </for>
+                <set var="currentHtml">{currentHtml}{tempHtml}</set>
+              </for>
+            </if>
+          </if>
+        </if>
+      </if>
+
+      <if condition="currentHtml eq ''">
+        <set var="currentHtml">{node.vs360_html_tokenized}</set>
+      </if>
+
+      <if condition="node.vs360_isroot">
+        <if condition="node.vs360_css.isSet">
+          <then>
+            <set var="currentHtml">{Utils.Replace(currentHtml,"[[CSS]]",node.vs360_css)}</set>
+          </then>
+          <else>
+            <set var="currentHtml">{Utils.Replace(currentHtml,"[[CSS]]","")}</set>
+          </else>
+        </if>
+      </if>
+
+      <!-- loop props -->
+      <for var="match" in="matches">
+        <set var="text">{match.ToString()}</set>
+        <if condition="text.Contains('props.')">
+          <set var="sub">{new Regex(Regexp.Escape(text))}</set>
+          <set var="currentHtml">{sub.Replace(currentHtml, Utils.Eval(text.Replace("{", "").Replace("}", "")).ToString(), 1)}</set>
+        </if>
+      </for>
+
+      <set var="matches">{regexEval.Matches(currentHtml)}</set>
+
+      <!-- loop slots -->
+      <for var="match" in="matches">
+        <set var="text">{match.ToString()}</set>
+        <if condition="text.Contains('slots.')">
+          <set var="norm">{text.Replace("{", "").Replace("}", "")}</set>
+          <set var="parts">{Utils.Split(norm, '.')}</set>
+          <if condition="parts.Count eq 0 or parts.Count ne 2">
+            <!-- wrong slot keyword - just skip -->
+            <continue />
+          </if>
+          <set var="innerSlotName">{parts[1]}</set>
+          <set var="sub">{new Regex(Regexp.Escape(text))}</set>
+
+          <if condition="!slots.ContainsKey(innerSlotName)">
+            <!-- no slot - find in children-->
+            <call script="evaluateBlock" children="child.children.Values" slots="slots" embedSlotName="slotName" evaluateBlock="evaluateBlock" Params="Params" />
+          </if>
+          <if condition="slots.ContainsKey(innerSlotName)">
+            <log>debug: {norm}</log>
+            <!-- check again slot in dictionary -->
+            <set var="currentHtml">{sub.Replace(currentHtml, Utils.Eval(norm).ToString(), 1)}</set>
+          </if>
+        </if>
+      </for>
+
+      <!-- define slots dictionary for general and group logic-->
+      <if condition="multipleSlots.Count gt 0">
+        <then>
+          <for var="kv" in="multipleSlots">
+            <set var="groupingValue">{kv.Key}</set>
+            <set var="html">{kv.Value}</set>
+            <set var="newSlotName">{slotName}_{groupingValue}</set>
+            <set var="slots[newSlotName]" if="slotName.isSet">{html}</set>
+          </for>
+        </then>
+        <else>
+          <set var="slots[slotName]" if="slotName.isSet">{currentHtml}</set>
+        </else>
+      </if>
+    </for>
+  </script>
+
+  <set var="htmlContent"></set>
+  
+  <if condition="rootNode.isSet">
+    <set var="slotsDictionary">{new Object()}</set>
+
+    <set var="params">{[
+      'html': '',
+      'CollectedData': Params.CollectedData,
+    ]}</set>
+
+    <set var="rootNode.node.vs360_slotname">__ROOT__</set>
+    <call script="evaluateBlock" children="[rootNode]" slots="slotsDictionary" embedSlotName="null" evaluateBlock="evaluateBlock" Params="params" />
+
+    <set var="htmlContent">{slotsDictionary[rootNode.node.vs360_slotname]}</set>
+  </if>
+
+  <!--clear unused slots-->
+  <set var="matches">{regexEval.Matches(htmlContent)}</set>
+  <for var="match" in="matches">
+    <set var="text">{match.ToString()}</set>
+    <if condition="text.Contains('slots.')">
+      <set var="sub">{new Regex(Regexp.Escape(text))}</set>
+      <set var="htmlContent">{sub.Replace(htmlContent, "", 1)}</set>
+    </if>
+  </for>
+
+
+  <!-- prepare subject -->
+
+  <!-- TODO: maybe subject should be template -->
+  <set var="subject">Notification: {Params.Profile.vs360_name}</set>
+
+  <set var="Params.Task">{[
+    'DeliveryType': 911170001,
+    'Content': Json.ToJson(['subject': subject, 'content': htmlContent], false)
+  ]}</set>
+
+</script>

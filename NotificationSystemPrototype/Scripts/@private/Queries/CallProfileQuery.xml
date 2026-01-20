@@ -1,0 +1,55 @@
+<script Params="null">
+
+  <!-- 
+    Params:
+      FetchXmlTemplate: string
+      AdditionalParams: object (optional)
+      FetchXml: string (output)
+      QueryResultCache: dictionary (in out)
+      Loaded: [cache, table] (output)
+      CallRetrieveScript: optional parameter for unit test
+  -->
+
+  <exception if="!Params.QueryResultCache.isSet"> [Query] QueryResultCache parameter is required</exception>
+
+  <ParseQueryKeywords Params="Params" />
+
+  <set var="fetchXmlForRun">{Params.FetchXml}</set>
+
+  <!-- inner script -->
+  <script var="callRetrieve">
+    <!-- 
+      Params
+        FetchXml
+        QueryRecords
+    -->
+    <select from="crm" entity="query" var="queryRecords">
+      <query>{Params.FetchXml}</query>
+    </select>
+
+    <set var="Params.QueryRecords">{queryRecords}</set>
+  </script>
+
+  <!-- check cache -->
+  <set var="Params.Loaded">cache</set>
+  <set var="queryRecords">{null}</set>
+  <if condition="!Params.QueryResultCache.ContainsKey(fetchXmlForRun)">
+      <!-- call query -->
+      <log> [Query] {fetchXmlForRun}</log>
+
+      <set var="callParams">{[
+        'FetchXml': fetchXmlForRun,
+        'QueryRecords': null,
+      ]}</set>
+      <call script="Params.CallRetrieveScript ?? callRetrieve" Params="callParams" />
+
+      <!-- <select from="crm" entity="query" var="queryRecords">
+        <query>{fetchXmlForRun}</query>
+      </select> -->
+      <set var="Params.QueryResultCache[fetchXmlForRun]">{callParams.QueryRecords}</set>
+      <set var="Params.Loaded">table</set>
+  </if>
+
+  <log> [Query] Loaded: {Params.Loaded}</log>
+
+</script>

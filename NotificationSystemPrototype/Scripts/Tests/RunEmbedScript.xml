@@ -1,0 +1,30 @@
+<script>
+
+	<set var="s1">{Services}</set>
+	<set var="s1">{Services.Get('scripting.parsers.xml')}</set>
+	<set var="parser">{s1.GetInstance(null)}</set>
+	
+	<set var="script1">{File.ReadAllText('D:\Projects\HSO\GIT\Notifications\Sync360\NotificationSystemPrototype\Scripts\Tests\EmbedScript.xml')}</set>
+	
+	<set var="lineStart"><![CDATA[<set var="Params.lines[]">]]></set>
+	<set var="lineEnd"><![CDATA[</set>]]></set>
+	<set var="script1">{script1.Replace('%=', lineStart).Replace('=%', lineEnd)}</set>
+	
+	<set var="st1">{parser.Parse(script1, null)}</set>
+	
+	<set var="cb1">{new 'Use4si.Scripting.Runtime.CodeBlock, Use4si.Scripting.Runtime'(st1.RootStatement, new Dictionary())}</set>
+	
+	<log>Call embedded script</log>
+	
+	<set var="collectionData">{[
+		['contactid': 1, 'fullname': 'john smith 1'],
+		['contactid': 2, 'fullname': 'john smith 2'],
+		['contactid': 3, 'fullname': 'john smith 3'],
+	]}</set>
+	<set var="params">{['lines': new List()]}</set>
+	<call script="cb1" Params="params" CollectionData="collectionData" />
+	
+	<log></log>
+	<log>{Utils.Join(params.lines, Utils.NewLine)}</log>
+
+</script>

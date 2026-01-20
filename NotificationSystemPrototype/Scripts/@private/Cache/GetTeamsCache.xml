@@ -1,0 +1,13 @@
+<script>
+	<exception if="!Collection.isSet">Collection param is missing.</exception>
+
+	<select from="crm" entity="team" var="records">
+		<attr name="teamid"/>
+    <attr name="name"/>
+		<attr name="emailaddress"/>
+	</select>
+
+	<for var="item" in="records">
+		<set var="Collection[]">{item}</set>
+	</for>
+</script>

@@ -1,0 +1,32 @@
+<script>
+
+  <script var="RunsProfileScheduleProcessingRange">
+
+    <set var="Test">{[
+      'IsTest': true,
+      'ProfileFilters': [
+        ['name': 'vs360_name', 'op': 'co', 'value': Params.Prefix + '%']
+      ]
+    ]}</set>
+
+    <include name="..\Ranges\ProfilesRange" />
+	
+    <exception if="!ObjectsForProcessing.isSet">ObjectsForProcessing is not initialized</exception>
+    <exception if="ObjectsForProcessing.Count eq 0">ObjectsForProcessing does not contain elements</exception>
+
+  </script>
+
+  <set var="profileId">{'80fc6dd4-091a-4795-b880-0f0fc4d3f282' as 'Guid'}</set>
+  <set var="prefix">82a542c95</set>
+
+  <CreateRequiredRecords TestName="'NotificationTasksRangeTest'" Params="['profileId': profileId, 'prefix': prefix]" />
+
+  <set var="launchParams">{[
+    'ProfileId': profileId,
+    'Prefix': prefix,
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+
+  <Launcher Test="RunsProfileScheduleProcessingRange" Name="'RunsProfileScheduleProcessingRange'" Params="launchParams" />
+
+</script>

@@ -1,0 +1,44 @@
+<script>
+	<exception if="!Collection.isSet">Collection param is missing.</exception>
+
+  <select from="crm" entity="vs360_templatecomposition" var="records">
+    <where>
+        <condition attr="statecode" op="eq">{0}</condition>
+    </where>
+    <attr name="vs360_blockid" />
+    <attr name="vs360_css" />
+    <attr name="vs360_displayorder" />
+    <attr name="vs360_inputalias" />
+    <attr name="vs360_isroot" />
+    <attr name="vs360_name" />
+    <attr name="vs360_notificationprofileid" />
+    <attr name="vs360_parentid" />
+    <attr name="vs360_props_json" />
+    <attr name="vs360_slotname" />
+    <attr name="vs360_templatecompositionid" />
+    <!-- <filter>
+        <condition attr="vs360_notificationprofileid" op="eq" value="00000000-0000-0000-0000-000000000000" />
+    </filter> -->
+    <order by="vs360_parentid" />
+    <order by="vs360_displayorder" />
+    <join type="inner" entity="vs360_templateblock" to="vs360_blockid" from="vs360_templateblockid" as="blocks">
+      <where>
+        <condition attr="statecode" op="eq">{0}</condition>
+      </where>
+      <attr name="vs360_blocktype" as="vs360_blocktype" />
+      <attr name="vs360_defaultprops_json" as="vs360_defaultprops_json"  />
+      <attr name="vs360_html_tokenized" as="vs360_html_tokenized" />
+      <attr name="vs360_name" as="blockName" />
+      <attr name="vs360_slots_json" as="vs360_slots_json" />
+    </join>
+    <join type="inner" entity="vs360_notificationprofile" to="vs360_notificationprofileid" from="vs360_notificationprofileid" as="profile">
+      <where>
+        <condition attr="statecode" op="eq">{0}</condition>
+      </where>
+    </join>
+  </select>
+	
+	<for var="item" in="records">
+		<set var="Collection[]">{item}</set>
+	</for>
+</script>

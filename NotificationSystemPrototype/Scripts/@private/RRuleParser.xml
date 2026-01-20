@@ -1,0 +1,371 @@
+<script>
+    <!-- Input Parameters:
+         Rule - RRule string (from subscription or target override)
+         Schedule - Object to populate with parsed data and execution decision
+            - IsAllowedSend - should a notification be sent?
+            - Options - timezone and start date and other from configuration
+            - DeliveryTimeRange - time range
+         ExecutionTimeUtc - Current UTC time (passed from main script)
+    -->
+    
+    <!-- Initialize TimeZoneInfo for timezone operations -->
+    <set var="TimeZoneInfo">{static 'System.TimeZoneInfo, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+    
+    <set var="Schedule.IsAllowedSend">{false}</set>
+    <set var="Schedule.Reason">Not evaluated</set>
+    
+    <!-- Use target override if provided, otherwise use subscription rule -->
+    <set var="effectiveRule">{Rule}</set>
+    
+    <if condition="!effectiveRule.isSet or effectiveRule eq ''">
+        <log>No RRule defined, skipping</log>
+        <set var="Schedule.Reason">No RRule defined</set>
+    </if>
+    
+    <if condition="effectiveRule.isSet">
+        <!-- Parse RRule into components -->
+        <set var="tokens">{Utils.Split(effectiveRule, ';')}</set>
+        <for var="token" in="tokens">
+            <if condition="token.Contains('=')">
+                <set var="parts">{Utils.Split(token, '=')}</set>
+                <set var="Schedule[parts[0]]">{parts[1]}</set>
+            </if>
+        </for>
+        
+        <!-- Parse UNTIL date if present -->
+        <if condition="Schedule.ContainsKey('UNTIL')">
+            <set var="untilStr">{Schedule['UNTIL']}</set>
+            <if condition="untilStr.Contains('T')">
+                <then>
+                    <set var="Schedule['UNTIL']">{Utils.StringToDate(untilStr, 'yyyyMMddTHHmmssZ').ToUniversalTime()}</set>
+                </then>
+                <else>
+                    <set var="Schedule['UNTIL']">{Utils.StringToDate(untilStr, 'yyyyMMdd').ToUniversalTime()}</set>
+                </else>
+            </if>
+        </if>
+        
+        <!-- Determine current date in subscription's timezone -->
+        <set var="currentTimeUtc">{ExecutionTimeUtc ?? Utils.Now.ToUniversalTime()}</set>
+        <set var="subscriptionTimezone">{Schedule.Options.vs360_timezone ?? 'UTC'}</set>
+        <set var="tzInfo">{TimeZoneInfo.FindSystemTimeZoneById(subscriptionTimezone)}</set>
+        <set var="currentDateLocal">{TimeZoneInfo.ConvertTimeFromUtc(currentTimeUtc, tzInfo).Date}</set>
+        
+        <!-- Get start date - it comes from Dataverse as UTC but with Unspecified Kind -->
+        <set var="startDateUtc">{Schedule.Options.vs360_startfrom ?? new DateTime(2020, 1, 1)}</set>
+        <set>{Utils.SpecifyKindUtc(startDateUtc)}</set>
+        <set var="startDateLocal">{TimeZoneInfo.ConvertTimeFromUtc(startDateUtc, tzInfo).Date}</set>
+        
+        <!-- Check if we're past the start date -->
+        <if condition="currentDateLocal lt startDateLocal">
+            <set var="Schedule.IsAllowedSend">{false}</set>
+            <set var="Schedule.Reason">Current date is before start date</set>
+        </if>
+        
+        <!-- Check UNTIL constraint -->
+        <if condition="Schedule.ContainsKey('UNTIL')">
+            <set var="untilDateLocal">{TimeZoneInfo.ConvertTimeFromUtc(Schedule['UNTIL'], tzInfo).Date}</set>
+            <if condition="currentDateLocal gt untilDateLocal">
+                <set var="Schedule.IsAllowedSend">{false}</set>
+                <set var="Schedule.Reason">Current date is after UNTIL date</set>
+            </if>
+        </if>
+        
+        <!-- Process FREQ and INTERVAL -->
+        <set var="frequency">{Schedule['FREQ'] ?? 'DAILY'}</set>
+        <set var="interval">{(Schedule['INTERVAL'] as 'int') ?? 1}</set>
+        
+        <!-- Calculate if today matches the pattern -->
+        <set var="daysSinceStart">{(currentDateLocal - startDateLocal).Days}</set>
+        <set var="isValidDay">{false}</set>
+        
+        <!-- Helper function to calculate remainder without % operator -->
+        <!-- remainder = dividend - (divisor * (dividend / divisor)) -->
+        
+        <if condition="frequency eq 'DAILY'">
+            <set var="quotient">{daysSinceStart / interval}</set>
+            <set var="remainder">{daysSinceStart - (interval * quotient)}</set>
+            <set var="isValidDay">{remainder eq 0}</set>
+        </if>
+        
+        <if condition="frequency eq 'WEEKLY'">
+            <set var="weeksSinceStart">{daysSinceStart / 7}</set>
+            <set var="quotient">{weeksSinceStart / interval}</set>
+            <set var="remainder">{weeksSinceStart - (interval * quotient)}</set>
+            <set var="isValidWeek">{remainder eq 0}</set>
+            
+            <!-- Check BYDAY constraint -->
+            <if condition="Schedule.ContainsKey('BYDAY')">
+                <then>
+                    <set var="allowedDays">{Utils.Split(Schedule['BYDAY'], ',')}</set>
+                    <set var="dayMap">{new Dictionary()}</set>
+                    <set var="dayMap['MO']">{1}</set>
+                    <set var="dayMap['TU']">{2}</set>
+                    <set var="dayMap['WE']">{3}</set>
+                    <set var="dayMap['TH']">{4}</set>
+                    <set var="dayMap['FR']">{5}</set>
+                    <set var="dayMap['SA']">{6}</set>
+                    <set var="dayMap['SU']">{0}</set>
+                    
+                    <set var="currentDayOfWeek">{(currentDateLocal.DayOfWeek as 'int')}</set>
+                    <set var="isValidDayOfWeek">{false}</set>
+                    
+                    <for var="day" in="allowedDays">
+                        <set var="dayTrimmed">{day.Trim()}</set>
+                        <if condition="dayMap.ContainsKey(dayTrimmed) and dayMap[dayTrimmed] eq currentDayOfWeek">
+                            <set var="isValidDayOfWeek">{true}</set>
+                        </if>
+                    </for>
+                    
+                    <set var="isValidDay">{isValidWeek and isValidDayOfWeek}</set>
+                </then>
+                <else>
+                    <set var="isValidDay">{isValidWeek}</set>
+                </else>
+            </if>
+        </if>
+        
+        <if condition="frequency eq 'MONTHLY'">
+            <set var="monthsSinceStart">{((currentDateLocal.Year - startDateLocal.Year) * 12) + (currentDateLocal.Month - startDateLocal.Month)}</set>
+            <set var="quotient">{monthsSinceStart / interval}</set>
+            <set var="remainder">{monthsSinceStart - (interval * quotient)}</set>
+            <set var="isValidMonth">{remainder eq 0}</set>
+            
+            <!-- Check BYMONTHDAY constraint -->
+            <if condition="Schedule.ContainsKey('BYMONTHDAY')">
+                <then>
+                    <set var="allowedDays">{Utils.Split(Schedule['BYMONTHDAY'], ',')}</set>
+                    <set var="currentDay">{currentDateLocal.Day}</set>
+                    <set var="isValidDayOfMonth">{false}</set>
+                    
+                    <for var="day" in="allowedDays">
+                        <set var="dayNum">{(day.Trim() as 'int')}</set>
+                        <if condition="dayNum gt 0 and dayNum eq currentDay">
+                            <set var="isValidDayOfMonth">{true}</set>
+                        </if>
+                        <!-- Handle negative day numbers (counting from end of month) -->
+                        <if condition="dayNum lt 0">
+                            <set var="daysInMonth">{DateTime.DaysInMonth(currentDateLocal.Year, currentDateLocal.Month)}</set>
+                            <set var="adjustedDay">{daysInMonth + dayNum + 1}</set>
+                            <if condition="adjustedDay eq currentDay">
+                                <set var="isValidDayOfMonth">{true}</set>
+                            </if>
+                        </if>
+                    </for>
+                    
+                    <set var="isValidDay">{isValidMonth and isValidDayOfMonth}</set>
+                </then>
+                <else>
+                    <!-- Default to same day of month as start date -->
+                    <set var="isValidDay">{isValidMonth and currentDateLocal.Day eq startDateLocal.Day}</set>
+                </else>
+            </if>
+        </if>
+        
+        <if condition="frequency eq 'YEARLY'">
+            <set var="yearsSinceStart">{currentDateLocal.Year - startDateLocal.Year}</set>
+            <set var="quotient">{yearsSinceStart / interval}</set>
+            <set var="remainder">{yearsSinceStart - (interval * quotient)}</set>
+            <set var="isValidYear">{remainder eq 0}</set>
+            
+            <!-- Check BYMONTH constraint -->
+            <set var="isValidMonthOfYear">{true}</set>
+            <if condition="Schedule.ContainsKey('BYMONTH')">
+                <set var="allowedMonths">{Utils.Split(Schedule['BYMONTH'], ',')}</set>
+                <set var="isValidMonthOfYear">{false}</set>
+                <for var="month" in="allowedMonths">
+                    <if condition="(month.Trim() as 'int') eq currentDateLocal.Month">
+                        <set var="isValidMonthOfYear">{true}</set>
+                    </if>
+                </for>
+            </if>
+            
+            <!-- Check BYMONTHDAY if present for yearly frequency -->
+            <set var="isValidDayInYear">{true}</set>
+            <if condition="Schedule.ContainsKey('BYMONTHDAY')">
+                <set var="allowedDays">{Utils.Split(Schedule['BYMONTHDAY'], ',')}</set>
+                <set var="currentDay">{currentDateLocal.Day}</set>
+                <set var="isValidDayInYear">{false}</set>
+                
+                <for var="day" in="allowedDays">
+                    <set var="dayNum">{(day.Trim() as 'int')}</set>
+                    <if condition="dayNum gt 0 and dayNum eq currentDay">
+                        <set var="isValidDayInYear">{true}</set>
+                    </if>
+                    <if condition="dayNum lt 0">
+                        <set var="daysInMonth">{DateTime.DaysInMonth(currentDateLocal.Year, currentDateLocal.Month)}</set>
+                        <set var="adjustedDay">{daysInMonth + dayNum + 1}</set>
+                        <if condition="adjustedDay eq currentDay">
+                            <set var="isValidDayInYear">{true}</set>
+                        </if>
+                    </if>
+                </for>
+            </if>
+            
+            <set var="isValidDay">{isValidYear and isValidMonthOfYear and isValidDayInYear}</set>
+        </if>
+        
+        <!-- Check COUNT constraint if present -->
+        <if condition="Schedule.ContainsKey('COUNT')">
+            <!-- This would require tracking past executions from database -->
+            <set var="maxOccurrences">{(Schedule['COUNT'] as 'int')}</set>
+            <log>COUNT constraint ({maxOccurrences}) present - requires execution history tracking</log>
+            <!-- You could query vs360_notificationtask table to count past executions -->
+        </if>
+        
+        <!-- Final decision - only based on day validity -->
+        <set var="Schedule.IsAllowedSend">{isValidDay}</set>
+        
+        <!-- Calculate next execution datetime if valid -->
+        <if condition="Schedule.IsAllowedSend">
+            <then>
+                <set var="Schedule.Reason">Matches RRule pattern for today</set>
+                
+                <!-- Calculate the actual notification datetime using preferred delivery time -->
+                <if condition="Schedule.Options.vs360_timedelivery.isSet">
+                    <set var="preferredTime">{Schedule.Options.vs360_timedelivery}</set>
+                    <set var="preferredHour">{(preferredTime.Substring(0, 2) as 'int')}</set>
+                    <set var="preferredMinute">{(preferredTime.Substring(3, 2) as 'int')}</set>
+                    
+                    <!-- Create datetime in local timezone -->
+                    <set var="scheduledDateTime">{new DateTime(currentDateLocal.Year, currentDateLocal.Month, currentDateLocal.Day, preferredHour, preferredMinute, 0)}</set>
+                    
+                    <!-- Convert to UTC for storage -->
+                    <set var="Schedule.scheduledDateTimeUtc">{TimeZoneInfo.ConvertTimeToUtc(scheduledDateTime, tzInfo)}</set>
+                    <set var="Schedule.scheduledDateTimeLocal">{scheduledDateTime}</set>
+
+                    <set var="Schedule.timeFrameEnd">{ExecutionTimeUtc.AddMinutes(Schedule.DeliveryTimeRange)}</set>
+
+                    <!-- Time range does not allow send notification -->
+                    <set var="Schedule.IsAllowedSend" if="Schedule.scheduledDateTimeUtc gt Schedule.timeFrameEnd">{false}</set>
+
+                    <set var="Schedule.Reason" if="!Schedule.IsAllowedSend">{Schedule.Reason} - Delivery time difference</set>
+                </if>
+            </then>
+            <else>
+                <set var="Schedule.Reason" if="!Schedule.Reason.isSet or Schedule.Reason eq 'Not evaluated'">Does not match RRule pattern for today</set>
+            </else>
+        </if>
+
+        <!-- DOTO: Calculate past execution datetime if valid
+        put code here -->
+        
+        <!-- Build human-readable description of the RRule -->
+        <set var="description"></set>
+        
+        <!-- Frequency and interval -->
+        <if condition="frequency eq 'DAILY'">
+            <set var="description">{interval eq 1 ? 'every day' : 'every ' + interval + ' days'}</set>
+        </if>
+        <if condition="frequency eq 'WEEKLY'">
+            <set var="description">{interval eq 1 ? 'every week' : 'every ' + interval + ' weeks'}</set>
+        </if>
+        <if condition="frequency eq 'MONTHLY'">
+            <set var="description">{interval eq 1 ? 'every month' : 'every ' + interval + ' months'}</set>
+        </if>
+        <if condition="frequency eq 'YEARLY'">
+            <set var="description">{interval eq 1 ? 'every year' : 'every ' + interval + ' years'}</set>
+        </if>
+        
+        <!-- BYMONTH constraint -->
+        <if condition="Schedule.ContainsKey('BYMONTH')">
+            <set var="monthNames">{new Dictionary()}</set>
+            <set var="monthNames['1']">January</set>
+            <set var="monthNames['2']">February</set>
+            <set var="monthNames['3']">March</set>
+            <set var="monthNames['4']">April</set>
+            <set var="monthNames['5']">May</set>
+            <set var="monthNames['6']">June</set>
+            <set var="monthNames['7']">July</set>
+            <set var="monthNames['8']">August</set>
+            <set var="monthNames['9']">September</set>
+            <set var="monthNames['10']">October</set>
+            <set var="monthNames['11']">November</set>
+            <set var="monthNames['12']">December</set>
+            
+            <set var="months">{Utils.Split(Schedule['BYMONTH'], ',')}</set>
+            <set var="monthList"></set>
+            <for var="month" in="months">
+                <set var="monthNum">{month.Trim()}</set>
+                <if condition="monthNames.ContainsKey(monthNum)">
+                    <set var="monthList">{monthList + (monthList ne '' ? ', ' : '') + monthNames[monthNum]}</set>
+                </if>
+            </for>
+            <set var="description">{description + ' in ' + monthList}</set>
+        </if>
+        
+        <!-- BYDAY constraint -->
+        <if condition="Schedule.ContainsKey('BYDAY')">
+            <set var="dayNames">{new Dictionary()}</set>
+            <set var="dayNames['MO']">Monday</set>
+            <set var="dayNames['TU']">Tuesday</set>
+            <set var="dayNames['WE']">Wednesday</set>
+            <set var="dayNames['TH']">Thursday</set>
+            <set var="dayNames['FR']">Friday</set>
+            <set var="dayNames['SA']">Saturday</set>
+            <set var="dayNames['SU']">Sunday</set>
+            
+            <set var="days">{Utils.Split(Schedule['BYDAY'], ',')}</set>
+            <set var="dayList"></set>
+            <for var="day" in="days">
+                <set var="dayCode">{day.Trim()}</set>
+                <if condition="dayNames.ContainsKey(dayCode)">
+                    <set var="dayList">{dayList + (dayList ne '' ? ', ' : '') + dayNames[dayCode]}</set>
+                </if>
+            </for>
+            <set var="description">{description + ' on ' + dayList}</set>
+        </if>
+        
+        <!-- BYMONTHDAY constraint -->
+        <if condition="Schedule.ContainsKey('BYMONTHDAY')">
+            <set var="days">{Utils.Split(Schedule['BYMONTHDAY'], ',')}</set>
+            <set var="dayList"></set>
+            <for var="day" in="days">
+                <set var="dayNum">{(day.Trim() as 'int')}</set>
+                <if condition="dayNum lt 0">
+                    <then>
+                        <set var="dayList">{dayList + (dayList ne '' ? ', ' : '') + 'the ' + (dayNum eq -1 ? 'last' : Math.Abs(dayNum) + ' from last') + ' day'}</set>
+                    </then>
+                    <else>
+                        <set var="suffix">th</set>
+                        <set var="lastDigit">{dayNum - ((dayNum / 10) * 10)}</set>
+                        <if condition="dayNum ne 11 and dayNum ne 12 and dayNum ne 13">
+                            <if condition="lastDigit eq 1"><set var="suffix">st</set></if>
+                            <if condition="lastDigit eq 2"><set var="suffix">nd</set></if>
+                            <if condition="lastDigit eq 3"><set var="suffix">rd</set></if>
+                        </if>
+                        <set var="dayList">{dayList + (dayList ne '' ? ', ' : '') + 'the ' + dayNum + suffix}</set>
+                    </else>
+                </if>
+            </for>
+            <set var="description">{description + ' on ' + dayList}</set>
+        </if>
+        
+        <!-- COUNT constraint -->
+        <if condition="Schedule.ContainsKey('COUNT')">
+            <set var="count">{(Schedule['COUNT'] as 'int')}</set>
+            <set var="description">{description + ' for ' + count + ' time' + (count eq 1 ? '' : 's')}</set>
+        </if>
+        
+        <!-- UNTIL constraint -->
+        <if condition="Schedule.ContainsKey('UNTIL')">
+            <set var="untilDateLocal">{TimeZoneInfo.ConvertTimeFromUtc(Schedule['UNTIL'], tzInfo)}</set>
+            <set var="description">{description + ' until ' + untilDateLocal.ToString('MMMM d, yyyy')}</set>
+        </if>
+        
+        <set var="Schedule.readableDescription">{description}</set>
+        
+        <!-- Log decision details -->
+        <log>RRule evaluation{targetOverride.isSet ? ' (target override)' : ''}:</log>
+        <log>  Pattern: {description}</log>
+        <log>  Frequency: {frequency}, Interval: {interval}</log>
+        <log>  Current date (UTC): {ExecutionTimeUtc}</log>
+        <log>  Start date (local): {startDateLocal}</log>
+        <log>  Days since start: {daysSinceStart}</log>
+        <log>  Is valid day: {isValidDay}</log>
+        <log>  Decision: {Schedule.IsAllowedSend} - {Schedule.Reason}</log>
+        <if condition="Schedule.scheduledDateTimeUtc.isSet">
+            <log>  Scheduled for: {Schedule.scheduledDateTimeLocal} (local) / {Schedule.scheduledDateTimeUtc} (UTC)</log>
+        </if>
+    </if>
+</script>

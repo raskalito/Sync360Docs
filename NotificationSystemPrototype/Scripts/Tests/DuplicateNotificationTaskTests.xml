@@ -1,0 +1,79 @@
+<script>
+
+  <script var="NoDuplicates">
+
+    <set var="creatingTask">
+      <attr name="vs360_name">PRE-EVENT PROFILE: NO RECIPIENT (1231012541215)</attr>
+      <attr name="vs360_deliverytype">{10125412213}</attr>
+      <attr name="vs360_content">just content</attr>
+      <attr name="vs360_notificationprofileid">{Utils.NewGuid}</attr>
+      <attr name="vs360_subscriptionid">{Utils.NewGuid}</attr>
+      <attr name="vs360_subscriptionrecipientid">{Utils.NewGuid}</attr>
+      
+      <attr name="vs360_recipientsraw">{Utils.NewGuid.ToString()}</attr>
+      <attr name="vs360_scheduledon">{new DateTime(2025, 1, 1, 9, 30, 0)}</attr>
+    </set>
+
+    <set var="innerParams">{[
+      'Task': creatingTask,
+      'IsDuplicate': null
+    ]}</set>
+
+    <call name="..\@private\DuplicateNotificationTasksDetection"
+      Method="'check'"
+      Params="innerParams" />
+    
+    <Asserts Operator="'Equal'" Original="innerParams.IsDuplicate" Expected="false" />
+    <Asserts Operator="'NotNull'" Object="innerParams.HashFilePath" />
+    
+  </script>
+
+  <script var="DuplicateExists">
+
+    <set var="creatingTask">
+      <attr name="vs360_name">PRE-EVENT PROFILE: DEFAULT RECIPIENT (1012541215)</attr>
+      <attr name="vs360_deliverytype">{1012541215}</attr>
+      <attr name="vs360_content">just content</attr>
+      <attr name="vs360_notificationprofileid">{Utils.NewGuid}</attr>
+      <attr name="vs360_subscriptionid">{Utils.NewGuid}</attr>
+      <attr name="vs360_subscriptionrecipientid">{Utils.NewGuid}</attr>
+      
+      <attr name="vs360_recipientsraw">{Utils.NewGuid.ToString()}</attr>
+      <attr name="vs360_scheduledon">{new DateTime(2025, 1, 1, 9, 30, 0)}</attr>
+    </set>
+
+    <!-- first call -->
+    <set var="innerParams">{[
+      'Task': creatingTask,
+      'IsDuplicate': null
+    ]}</set>
+    <call name="..\@private\DuplicateNotificationTasksDetection"
+		Method="'check'"
+		Params="innerParams" />
+	<call name="..\@private\DuplicateNotificationTasksDetection"
+		Method="'save'"
+		Params="innerParams" />
+
+    <!-- second call -->
+    <set var="innerParams">{[
+      'Task': creatingTask,
+      'IsDuplicate': null
+    ]}</set>
+    <call name="..\@private\DuplicateNotificationTasksDetection"
+		Method="'check'"
+		Params="innerParams" />
+    
+    <Asserts Operator="'Equal'" Original="innerParams.IsDuplicate" Expected="true" />
+
+  </script>
+
+  <set var="launchParams">{[
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+
+
+  <Launcher Test="NoDuplicates" Name="'NoDuplicates'" Params="launchParams" />
+  <Launcher Test="DuplicateExists" Name="'DuplicateExists'" Params="launchParams" />
+  
+
+</script>

@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<config>
-  <connections>
-    <add name="crmsrc" type="crm" version="2011.ClaimsBased" user="user1" password="" url="https://sourcecrm.crm.dynamics.com/" org="" />
-    <add name="crmdst" type="crm" version="2011.ClaimsBased" user="user2" password="" url="https://target.crm.dynamics.com/" org="" />
-    <add name="dbmaster" type="db" version="1.0" user="sa" password="pass@word1" url="ProviderType=System.Data.SqlClient;Data Source=192.168.1.82;Initial Catalog=Master;uid={user};pwd={password}" />
-    <add name="dbmigration" type="db" version="1.0" user="sa" password="pass@word1" url="ProviderType=System.Data.SqlClient;Data Source=192.168.1.82;Initial Catalog=MigrationDB_DemoData;uid={user};pwd={password}" />
-  </connections>
-</config>

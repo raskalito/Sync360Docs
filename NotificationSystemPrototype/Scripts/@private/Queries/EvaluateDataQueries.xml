@@ -1,0 +1,66 @@
+<script Params="null" Mocks="null" UserContext="''">
+
+  <!-- 
+    Params:
+      Queries: list
+      QueryResultCache: dictionary
+      AdditionalParams: object
+      CollectedData: dictionary (input/output)
+    Mocks: object
+    UserContext: Guid|Empty
+  -->
+
+  <set var="Enum">{static 'System.Enum, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+	<set var="RegexOptions">{typeof 'System.Text.RegularExpressions.RegexOptions, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+	<set var="RegexOptionMultiline">{Enum.Parse(RegexOptions, 'Multiline')}</set>
+	<set var="Regexp">{static 'System.Text.RegularExpressions.Regex, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}</set>
+
+	<set var="entityPattern"><![CDATA[<entity\s+name="([\d\w_-]+)">]]></set>
+
+  <for var="q" in="Params.Queries">
+    <context for="crm" user="(q.vs360_useusercontext ?? false) ? UserContext : ''">
+      <!-- check alias field -->
+      <if condition="!q.vs360_outputalias.isSet">
+        <log> [DataQuery] {q.vs360_name} stopped because the OutputAlias field is required</log>
+        <continue />
+      </if>
+
+      <!-- extract entityname from fetchxml -->
+      <set var="entityName">{Regexp.Match(q.vs360_fetchxml, entityPattern, RegexOptionMultiline).Groups[1] ?? null}</set>
+      <exception if="!entityName.isSet">Entity Name was not found in FetchXml of query. Please check query.</exception>
+
+      <set var="q.keyField">{entityName}id</set>
+
+      <!-- <if condition="q.vs360_fetchxml.Contains('name="campaign"')">
+        <set var="">{}</set>
+      </if> -->
+
+      <set var="parseQueryKeywordsParams">{[
+        'FetchXmlTemplate': q.vs360_fetchxml,
+        'FetchXml': null,
+        'QueryResultCache': Params.QueryResultCache,
+        'AdditionalParams': Params.AdditionalParams ?? new Object(),
+        'CallRetrieveScript': Mocks.CallRetrieveScript ?? null
+      ]}</set>
+      
+      <call name="CallProfileQuery" Params="parseQueryKeywordsParams" />
+
+      <!-- set up a list of records -->
+      <set var="outputAlias">{q.vs360_outputalias}</set>
+      <set var="outputAliasDictionary">{q.vs360_outputalias + '_dic'}</set>
+      <set var="Params.CollectedData[outputAlias]" if="!Params.CollectedData.ContainsKey(outputAlias)">{new List()}</set>
+      <set var="Params.CollectedData[outputAliasDictionary]" if="!Params.CollectedData.ContainsKey(outputAliasDictionary)">{new Dictionary()}</set>
+
+      <!-- check cache -->
+      <if condition="parseQueryKeywordsParams.Loaded eq 'table'">
+        <!-- take records from cache by fetchxml -->
+        <set var="queryRecords">{Params.QueryResultCache[parseQueryKeywordsParams.FetchXml]}</set>
+        <for var="item" in="queryRecords">
+          <set var="Params.CollectedData[outputAlias][]">{item}</set>
+          <set var="Params.CollectedData[outputAliasDictionary][item[q.keyField].ToString()]">{item}</set>
+        </for>
+      </if>
+    </context>
+  </for>
+
+</script>

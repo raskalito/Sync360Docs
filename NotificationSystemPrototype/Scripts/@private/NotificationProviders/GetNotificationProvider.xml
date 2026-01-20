@@ -1,0 +1,47 @@
+<script>
+
+  <!--
+    
+    Params:
+      Type: [email, inapp],
+      Provider: null (output)
+
+  -->
+  <exception if="!Params.Type.isSet">Type input parameter is required</exception>
+
+  <script var="emailProvider"> 
+    <exception if="!Configuration.Settings.ContainsKey('EmailProvider')">EmailProvider setting is required. Please ensure this setting in your the Configs folder</exception>
+    <!-- prepare email provider -->
+    <script var="construct1">
+      <set var="providerName">{Configuration.Settings['EmailProvider']}</set>
+      <call name="{providerName}" Params="Params" />
+    </script>
+    <set var="Params.Provider">{construct1}</set>
+  </script>
+  
+  <script var="inappProvider">
+    <script var="construct2">
+      <call name="stamp" Params="Params" />
+    </script>
+    <!-- <set var="Params.Provider">{construct1}</set> -->
+  </script>
+
+  <!-- predefined providers -->
+  <set var="providerTypes">{[
+    'email': emailProvider,
+    'inapp': inappProvider,
+  ]}</set>
+
+  <log>debug: Params={Params}</log>
+
+  <exception if="!providerTypes.ContainsKey(Params.Type)">{Params.Type} type is not supported</exception>
+
+  <call script="providerTypes[Params.Type]" Params="Params" />
+
+</script>
+
+
+
+
+
+

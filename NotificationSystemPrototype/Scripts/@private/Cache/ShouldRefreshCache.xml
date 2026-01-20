@@ -1,0 +1,65 @@
+<script>
+
+  <!--
+  
+  Script returns a confirmation to refresh cache. It checkes the NotificationCache record in vs360_settings 
+  entity. There is the Notification plugin in the solution that updates the setting after Notification
+  configuration updated.
+
+  Next configurations trigger refreshing cache:
+
+   - profile ??? (uses in Ranges)
+   - subsciption
+   - profile query
+   - subsciption recipient
+   - subsciption target
+   - template block
+   - template composition
+
+  -->
+
+  <!--
+
+    Params:
+      LastRefreshedOn: DateTime
+      ResetOn: DateTime
+      NoAction: boolean
+
+  -->
+  <set var="SettingName">Notifications: Reset Sync360 Cache</set>
+  <select from="crm" entity="vs360_setting" var="records">
+    <where>
+      <condition attr="vs360_name" op="eq">{SettingName}</condition>
+    </where>
+    <attr name="vs360_value" />
+  </select>
+
+  <if condition="records.Count gt 1">
+    <exception>There is multiple records of '{SettingName}' setting</exception>
+  </if>
+
+  <set var="resetOn">{DateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')}</set>
+  <if condition="records.Count eq 0">
+    <!-- no setting - no action-->
+    <create in="crm" entity="vs360_setting" var="records">
+      <attr name="vs360_name">{SettingName}</attr>
+      <attr name="vs360_value">{resetOn}</attr>
+    </create>
+  </if>
+
+  <if condition="records.Count eq 1">
+    <set var="resetOn">{DateTime.Parse(records[0].vs360_value).ToUniversalTime()}</set>
+  </if>
+
+  <!-- by default -->
+  <set var="Params.NoAction">{true}</set>
+
+  <if condition="resetOn > Params.LastRefreshedOn">
+      <!-- force refresh cache -->
+      <set var="Params.NoAction">{false}</set>
+      <set var="Params.LastRefreshedOn">{resetOn}</set>
+  </if>
+
+  <log> [ShouldRefreshCache] {Params}</log>
+
+</script>

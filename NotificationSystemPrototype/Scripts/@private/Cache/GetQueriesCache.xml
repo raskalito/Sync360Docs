@@ -1,0 +1,33 @@
+<script>
+	<exception if="!Collection.isSet">Collection param is missing.</exception>
+
+  <select from="crm" entity="vs360_profilequery" var="records">
+    <where>
+        <condition attr="statecode" op="eq">{0}</condition>
+    </where>
+    <attr name="statecode" />
+    <attr name="statuscode" />
+    <attr name="vs360_fetchxml" />
+    <attr name="vs360_isperrecipient" />
+    <attr name="vs360_maxrows" />
+    <attr name="vs360_name" />
+    <attr name="vs360_noactivitydays" />
+    <attr name="vs360_notificationprofileid" />
+    <attr name="vs360_outputalias" />
+    <attr name="vs360_profilequeryid" />
+    <attr name="vs360_querytype" />
+    <join type="inner" entity="vs360_notificationprofile" to="vs360_notificationprofileid" from="vs360_notificationprofileid" as="profile">
+      <where>
+        <condition attr="statecode" op="eq">{0}</condition>
+      </where>
+    </join>
+  </select>
+
+    <!-- <set var="metadata">{@crm.GetEntityMetadata('vs360_profilequery')}</set> -->
+	
+	<for var="item" in="records">
+        <!-- <exception if="!item[metadata.PrimaryIdAttribute].isSet">Unique identifier field is required</exception>
+        <set var="item.keyField">{metadata.PrimaryIdAttribute}</set> -->
+		<set var="Collection[]">{item}</set>
+	</for>
+</script>

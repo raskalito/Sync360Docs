@@ -1,0 +1,136 @@
+<script>
+
+  <!-- 
+    Params:
+      Recipient: object
+      Emails: output list of lists (a list of emails)
+  -->
+
+  <!--
+    
+    Load emails for dirrent types of recipients:
+      - system user
+      - team
+      - mail-enabled entity
+      - just email
+
+
+    vs360_recipientkind:
+    Name  Value
+    User  911170000
+    Team  911170001
+    Mail-Enabled Table  911170002
+    Raw Email 911170003
+  -->
+
+  <script var="userKind">
+    <!-- 
+      Params:
+        Recipient: object
+        Emails: list
+    -->
+    <select from="crm" entity="systemuser" var="records">
+      <where>
+        <condition attr="systemuserid" op="eq">{Params.Recipient.vs360_userid.Id}</condition>
+      </where>
+      <attr name="internalemailaddress"></attr>
+    </select>
+    <set var="Params.Emails">{[records[0].internalemailaddress]}</set>
+  </script>
+  
+  <script var="teamKind">
+    <!-- 
+      Params:
+        Recipient: object
+        Emails: list
+    -->
+    <!-- <select from="crm" entity="systemuser" var="records">
+      <attr name="internalemailaddress"></attr>
+      <join type="inner" entity="teammembership" to="systemuserid" from="systemuserid" as="rel">
+        <where>
+          <condition attr="teamid" op="eq">{Params.Recipient.vs360_teamid.Id}</condition>
+        </where>
+      </join>
+    </select> -->
+    <select from="crm" entity="team" var="records">
+      <where>
+        <condition attr="teamid" op="eq">{Params.Recipient.vs360_teamid.Id}</condition>
+      </where>
+      <attr name="emailaddress"></attr>
+    </select>
+    <set var="Params.Emails">{[records[0].emailaddress]}</set>
+  </script>
+  
+  <script var="mailEnabledKind">
+    <!-- 
+      Params:
+        Recipient: object
+        Emails: list
+    -->
+    <set var="exceptionEmailFieldList">{[
+      'contact': 'emailaddress1',
+      'account': 'emailaddress1',
+    ]}</set>
+
+    <set var="Params.Emails">{[]}</set>
+    <set var="rep">{Params.Recipient}</set>
+    <if condition="!rep.vs360_partylogicalname.isSet or !rep.vs360_partyid.isSet">
+      <then>
+        <log> [warning] vs360_partylogicalname and vs360_partyid fields are required</log>
+      </then>
+      <else>
+        <!-- safe to call for retriving emailaddress from entity -->
+        <sandbox>
+          <select from="crm" entity="{rep.vs360_partylogicalname}" var="records">
+            <attr name="exceptionEmailFieldList[rep.vs360_partylogicalname] ?? 'emailaddress'"></attr>
+            <where>
+              <condition attr="{rep.vs360_partylogicalname}id" op="eq">{rep.vs360_partyid}</condition>
+            </where>
+          </select>
+          <if condition="records.Count gt 0">
+            <then>
+              <set var="Params.Emails">{[records[0].emailaddress]}</set>
+            </then>
+            <else>
+              <log> [warinig] {rep.vs360_partyid} record was not found in {rep.vs360_partylogicalname} table</log>
+            </else>
+          </if>
+        </sandbox>
+      </else>
+    </if>
+  </script>
+
+  <script var="justEmailKind">
+    <!-- 
+      Params:
+        Recipient: object
+        Emails: list
+    -->
+    <set var="Params.Emails">{[Params.Recipient.vs360_rawemail]}</set>
+  </script>
+
+  <!-- dictionary scripts -->
+  <set var="kindScripts">{[
+    '911170000': userKind,
+    '911170001': teamKind,
+    '911170002': mailEnabledKind,
+    '911170003': justEmailKind,
+  ]}</set>
+
+  <set var="recipientKind">{Params.Recipient.vs360_recipientkind.ToString()}</set>
+  
+  <if condition="kindScripts[recipientKind].isSet">
+    <then>
+      <set var="params">{[
+        'Recipient': Params.Recipient,
+        'Emails': null
+      ]}</set>
+      <call script="kindScripts[recipientKind]" Params="params" />
+      <set var="Params.Emails">{params.Emails}</set>
+    </then>
+    <else>
+      <log> [warning] {recipientKind} kind is not supported yet</log>
+    </else>
+  </if>
+
+</script>

@@ -1,5 +1,0 @@
-<script>
-  <set var="blocklist">{new List()}</set>
-  <set var="blocklist[]">clientdomain.com</set>
- 
-</script>

@@ -1,0 +1,32 @@
+<script>
+  <log>[InitializeNotificationData] started.</log>
+  <!-- <exception if="!Input.Cache.isSet">Cache global varialbe was not passed</exception>
+  <exception if="!Input.Cache['Notifications'].isSet">Notifications cache was not padded</exception> -->
+
+  <set var="Context">{new Object()}</set>
+
+  <log>[InitializeNotificationData] Checking Notification Context ({Input.ObjectPayload})</log>
+  <set var="Context.TaskId">{Input.ObjectId}</set>
+  <set var="Context.Task">{Input.ObjectPayload}</set>
+  <!-- <set var="Context.NotificationsCache">{Input.Cache['Notifications']}</set> -->
+
+  <!-- <log>[InitializeNotificationData]     Input.Cache['Notifications'] is set.</log> -->
+
+  <!-- Users
+  <set var="users">{new Dictionary()}</set>
+  <set var="collectionCache">{Context.NotificationsCache['Users']}</set>
+  <for var="item" in="collectionCache.collection">
+    <set var="users[item.systemuserid.ToString()]">{item}</set>
+  </for>
+  <set var="Context.Users">{users}</set>
+
+  Teams
+  <set var="teams">{new Dictionary()}</set>
+  <set var="collectionCache">{Context.NotificationsCache['Teams']}</set>
+  <for var="item" in="collectionCache.collection">
+    <set var="teams[item.teamid.ToString()]">{item}</set>
+  </for>
+  <set var="Context.Teams">{conditionalQueries}</set> -->
+
+  <log>[InitializeNotificationData] finished.</log>
+</script>

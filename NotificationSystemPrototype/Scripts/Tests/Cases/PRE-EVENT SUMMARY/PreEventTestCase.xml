@@ -1,0 +1,789 @@
+<script>
+
+  <script var="prepareRecords" profileId="null">
+
+    <set var="prefix">84272601</set>
+
+    <!-- create profile -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_notificationprofile',
+          profileId
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_allowpersonalization']">{true}</set>
+    <set var="params.Target.Attributes['vs360_deliverytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170002)}</set>
+    <set var="params.Target.Attributes['vs360_notificationtype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_targetentitylogicalname']">campaign</set>
+    <set var="params.Target.Attributes['vs360_triggertype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_name']">@PRE-EVENT SUMMARY (campaign)</set>
+    <set var="params.Target.Attributes['vs360_description']">@PRE-EVENT SUMMARY description</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- create subscription -->
+    <set var="subId">{'e87bdee1-e384-4862-82c1-4bed6ec2d516' as 'Guid'}</set>
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_subscription',
+          subId
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_channel']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+    <set var="params.Target.Attributes['vs360_name']">WEEKLY Subscription</set>
+    <set var="params.Target.Attributes['vs360_rrule']">FREQ=WEEKLY;WKST=MO;BYDAY=MO,TH,FR</set>
+    <set var="params.Target.Attributes['vs360_startfrom']">{new DateTime(2025,9,1)}</set>
+	<set var="params.Target.Attributes['vs360_timedelivery']">18:00</set>
+	<set var="params.Target.Attributes['vs360_isoptin']">{true}</set>
+    <set var="params.Target.Attributes['vs360_timezone']">Eastern Standard Time</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- create recipients -->
+
+      <!-- rec #1 - vs360_employee -->
+      <!-- <set var="params">{[
+        'Target': 
+          new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+            'contact',
+            contactId
+          ),
+        'BypassBusinessLogicExecution': 'CustomSync,CustomAsync'
+      ]}</set>
+      <set var="params.Target.Attributes['firstname']">@{params.Target.Id.ToString('N')}</set>
+      <set var="params.Target.Attributes['emailaddress1']">{prefix}@{params.Target.Id.ToString('N')}.com</set>
+      <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set> -->
+      
+      <!-- create recipient - user-->
+      
+      <set var="params">{[
+        'Target': 
+          new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+            'vs360_subscriptionrecipient',
+            '45168d62-9d07-4786-abdf-50d05ebeac45' as 'Guid'
+          )
+      ]}</set>
+      
+      <set var="params.Target.Attributes['vs360_subscriptionid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_subscription', subId)}</set>
+      <set var="params.Target.Attributes['vs360_recipientkind']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+      <set var="params.Target.Attributes['vs360_userid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('systemuser', 'a519948a-d799-e911-a81b-000d3a1aa650' as 'Guid')}</set>
+      <set var="params.Target.Attributes['vs360_deliverytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170001)}</set>
+      <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+
+    <!-- <for var="i" from="0" to="10">
+
+      <set var="contactId">{contactIds[i] as 'Guid'}</set>
+      <set var="recipientId">{recipientsIds[i] as 'Guid'}</set>
+      
+      <set var="params">{[
+        'Target': 
+          new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+            'contact',
+            contactId
+          ),
+        'BypassBusinessLogicExecution': 'CustomSync,CustomAsync'
+      ]}</set>
+      <set var="params.Target.Attributes['firstname']">@{params.Target.Id.ToString('N')}</set>
+      <set var="params.Target.Attributes['emailaddress1']">{prefix}@{params.Target.Id.ToString('N')}.com</set>
+      <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+      
+      <set var="params">{[
+        'Target': 
+          new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+            'vs360_subscriptionrecipient',
+            recipientId
+          )
+      ]}</set>
+      
+      <set var="params.Target.Attributes['vs360_subscriptionid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_subscription', subId)}</set>
+      <set var="params.Target.Attributes['vs360_recipientkind']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+      <set var="params.Target.Attributes['vs360_userid']">systemuser:a519948a-d799-e911-a81b-000d3a1aa650</set>
+      <set var="params.Target.Attributes['vs360_deliverytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170002)}</set>
+      <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    </for> -->
+
+    <!-- create blocks -->
+    <set var="block1Id">{'0508a8b8-8736-4e56-b745-a716abaf6d37' as 'Guid'}</set>
+    <set var="block2Id">{'578c01a6-94d7-49ee-81c9-e03bdf1f0a5e' as 'Guid'}</set>
+    <set var="block3Id">{'254fa788-2183-4c17-8cb0-f123371ead11' as 'Guid'}</set>
+    <set var="block4Id">{'b6221af1-f3c7-452b-a495-a6b02f3071d5' as 'Guid'}</set>
+    <set var="block5Id">{'b8f34d37-903d-484c-83e7-d79a053ed626' as 'Guid'}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block1Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{null}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Notification</title>
+    <style>[[CSS]]</style>
+  </head>
+  <body>
+    <div>{{slots.header}</div>
+    <div>{{slots.main}</div>
+  </body>
+  <footer>
+    <div>
+      @Notifications
+    </div>
+  </footer>
+</html>
+    ]]></set>
+    <set var="params.Target.Attributes['vs360_name']">@Simple Page Layout</set>
+    <set var="params.Target.Attributes['vs360_slots_json']">{'["header","main"]'}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block2Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170005)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["Title","Title2"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<h3>{{props.Title}</h3><h2>{{props.Title2}</h2>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">@HeaderTwoTitles</set>
+    <!-- <set var="params.Target.Attributes['vs360_slots_json']">{'["header"]'}</set> -->
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block3Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170004)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'["StyleTag"]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<div class="campaign-list">{{slots.Campaigns}</div>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">@Summary Campaign List</set>
+    <set var="params.Target.Attributes['vs360_slots_json']">{null}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block4Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'[]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<section class="campaign-item"><header><div>{{item.name}</div><div>Start on {{item.proposedstart.ToString('d')??''}</div></header><div class="campaign-contacts"><table><thead><tr><th>Name</th><th>Company</th><th>Email</th></tr></thead><tbody>{{slots.Contacts}</tbody></table></div></section>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">@Campaign Section</set>
+    <set var="params.Target.Attributes['vs360_slots_json']">{null}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templateblock',
+          block5Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blocktype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+    <set var="params.Target.Attributes['vs360_defaultprops_json']">{'[]'}</set>
+    <set var="params.Target.Attributes['vs360_html_tokenized']"><![CDATA[<tr><td>{{item.fullname ?? "Unknown"}</td><td>{{item.parentcustomerid.Name ?? ""}</td><td>{{item.emailaddress1 ?? ""}</td></tr>]]></set>
+    <set var="params.Target.Attributes['vs360_name']">@Contact Row</set>
+    <set var="params.Target.Attributes['vs360_slots_json']">{null}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+
+    <!-- create composition blocks -->
+    <!-- #1 -->
+
+    <set var="cssRoot"><![CDATA[
+      html {{
+        font-family: Arial, Helvetica, sans-serif;
+        color: #444;
+        font-size: 14px;
+        width: 800px;
+      }
+
+      h2 {{
+        font-weight: 600;
+        font-size: 1.4rem;
+      }
+
+      h3 {{
+        font-weight: 300;
+        font-size: 1.25rem;
+      }
+
+      section {{
+        margin-top: 2.5em;
+      }
+
+      section header {{
+        /* border-bottom: solid 1px #999; */
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.2rem;
+        padding: 5px 0;
+      }
+      
+      section header div {{
+        margin-left: 3rem;
+      }
+      section header div:first-child {{
+        margin-left: 0;
+        font-weight: bold;
+      }
+
+      section table {{
+        table-layout: fixed;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      section table tr {{
+        border-bottom: solid 1px #ddd;
+      }
+
+      section table thead tr {{
+        border-bottom: solid 1px #bbb;
+      }
+
+      section table td {{
+        padding: 4px 0;
+      }
+
+      section table th {{
+        padding: 5px 0;
+        text-align: left;
+      }
+
+      section .campaign-contacts {{
+        margin-top: 1.5rem;
+      }
+
+      footer {{
+        margin-top: 2rem;
+        display: flex;
+        justify-content : space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #777;
+      }
+    ]]></set>
+
+    <set var="template1Id">{'97bd5df1-b819-4773-a745-1e2b3c51de75' as 'Guid'}</set>
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          template1Id
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block1Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{1}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{true}</set>
+    <set var="params.Target.Attributes['vs360_name']">Layout</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_props_json']">{null}</set>
+    <set var="params.Target.Attributes['vs360_slotname']"></set>
+    <set var="params.Target.Attributes['vs360_css']">{cssRoot}</set>
+    
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- #2 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          '16de3739-43af-45a0-adf7-e8ecb2b85d51' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block2Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{2}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params.Target.Attributes['vs360_name']">Header</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', template1Id)}</set>
+    <set var="params.Target.Attributes['vs360_props_json']">{'{"Title": "PRE-EVENT SUMMARY", "Title2": "Events coming up in the next 14 days"}'}</set>
+    <set var="params.Target.Attributes['vs360_slotname']">header</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- #3 -->
+    <set var="params3">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          '5145c93b-34ed-4e97-849c-4a5d62f0a7a0' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params3.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block3Id)}</set>
+    <set var="params3.Target.Attributes['vs360_displayorder']">{3}</set>
+    <set var="params3.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params3.Target.Attributes['vs360_name']">Campaign Grid</set>
+    <set var="params3.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params3.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', template1Id)}</set>
+    <!-- <set var="params3.Target.Attributes['vs360_props_json']"></set> -->
+    <set var="params3.Target.Attributes['vs360_slotname']">main</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params3)}</set>
+
+    <!-- #4 -->
+    <set var="params4">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          'd7474b6f-2569-46d9-9965-aedc7315d7e1' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params4.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block4Id)}</set>
+    <set var="params4.Target.Attributes['vs360_displayorder']">{4}</set>
+    <set var="params4.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params4.Target.Attributes['vs360_name']">Campaign Section</set>
+    <set var="params4.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params4.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', params3.Target.Id)}</set>
+    <!-- <set var="params4.Target.Attributes['vs360_props_json']"></set> -->
+    <set var="params4.Target.Attributes['vs360_slotname']">Campaigns</set>
+    <set var="params4.Target.Attributes['vs360_inputalias']">Campaigns</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params4)}</set>
+
+    <!-- #5 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_templatecomposition',
+          '87498a6d-2818-46bd-a220-82a0214b735f' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_blockid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templateblock', block5Id)}</set>
+    <set var="params.Target.Attributes['vs360_displayorder']">{5}</set>
+    <set var="params.Target.Attributes['vs360_isroot']">{false}</set>
+    <set var="params.Target.Attributes['vs360_name']">Contact Row Detail</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_parentid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_templatecomposition', params4.Target.Id)}</set>
+    <!-- <set var="params.Target.Attributes['vs360_props_json']"></set> -->
+    <set var="params.Target.Attributes['vs360_slotname']">Contacts</set>
+    <set var="params.Target.Attributes['vs360_inputalias']">Contacts@groupby(item.campaignid)</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>
+
+    <!-- Queries -->
+    <!-- #1 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_profilequery',
+          '40105df6-5b68-4741-ad2a-a5dd8b7dd57c' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_fetchxml']"><![CDATA[<fetch distinct="true"><entity name="campaign"><attribute name="name"/><order attribute="name" descending="false"/><attribute name="campaignid"/><attribute name="proposedstart"/><filter type="and"><condition attribute="statecode" operator="eq" value="0"/><condition attribute="proposedstart" operator="next-x-days" value="14"/></filter></entity></fetch>]]></set>
+    <set var="params.Target.Attributes['vs360_isperrecipient']">{false}</set>
+    <set var="params.Target.Attributes['vs360_maxrows']">{null}</set>
+    <set var="params.Target.Attributes['vs360_name']">Campaigns</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_outputalias']">Campaigns</set>
+    <set var="params.Target.Attributes['vs360_querytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set>    
+    
+    <!-- #2 -->
+    <set var="params">{[
+      'Target': 
+        new 'Microsoft.Xrm.Sdk.Entity, Microsoft.Xrm.Sdk'(
+          'vs360_profilequery',
+          '6b6e959e-dc9f-43f3-8d3f-76cbfd958339' as 'Guid'
+        )
+	  ]}</set>
+    <set var="params.Target.Attributes['vs360_fetchxml']"><![CDATA[<fetch><entity name="campaign"><attribute name="campaignid" /><attribute name="name" /><order attribute="name" /><filter type="and"><condition attribute="statecode" operator="eq" value="0"/><condition attribute="proposedstart" operator="next-x-days" value="14"/></filter><link-entity name="campaignitem" from="campaignid" to="campaignid" intersect="true"><link-entity name="list" from="listid" to="entityid" link-type="inner" alias="l"><link-entity name="listmember" from="listid" to="listid" link-type="inner" alias="lm1"><filter><condition attribute="entitytype" operator="eq" value="2" /></filter><link-entity name="contact" from="contactid" to="entityid" link-type="inner" alias="c1"><attribute name="emailaddress1" alias="emailaddress1" /><attribute name="fullname" alias="fullname" /><attribute name="parentcustomerid" alias="parentcustomerid" /><order attribute="fullname" /></link-entity></link-entity></link-entity></link-entity></entity></fetch>]]></set>
+    <set var="params.Target.Attributes['vs360_isperrecipient']">{false}</set>
+    <set var="params.Target.Attributes['vs360_maxrows']">{null}</set>
+    <set var="params.Target.Attributes['vs360_name']">Contacts</set>
+    <set var="params.Target.Attributes['vs360_notificationprofileid']">{new 'Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk'('vs360_notificationprofile', profileId)}</set>
+    <set var="params.Target.Attributes['vs360_outputalias']">Contacts</set>
+    <set var="params.Target.Attributes['vs360_querytype']">{new 'Microsoft.Xrm.Sdk.OptionSetValue, Microsoft.Xrm.Sdk'(911170000)}</set>
+    <set var="rt">{@crm.ExecuteOrganizationRequest('Upsert', params)}</set> 
+    
+
+  </script>
+
+  <script var="StartPreEventCacheTest">
+
+    <script var="createCache" Cache="null" profileId="null">
+      <!--
+        Cache - just dictionary
+      -->
+      <set var="notificationsCache">{new 'System.Collections.Concurrent.ConcurrentDictionary`2[System.String,System.Object]'()}</set>
+
+      <!-- <set var="notificationsCache['Profiles']">{[
+          'refreshedOn': Utils.Now,
+          'collection': []
+        ]}</set> -->
+      <set var="cd1"><![CDATA[<h3>{{props.Title}</h3><h2>{{props.Title2}</h2>]]></set>
+      <set var="cd2"><![CDATA[<div class="campaign-list">{{slots.Campaigns}</div>]]></set>
+      <set var="cd3"><![CDATA[<section class="campaign-item"><header><div>{{item.name}</div><div>Start on {{item.proposedstart??''}</div></header><div class="campaign-contacts"><table><thead><tr><th>Name</th><th>Company</th><th>Email</th></tr></thead><tbody>{{slots.Contacts}</tbody></table></div></section>]]></set>
+      <set var="cd4"><![CDATA[<tr><td>{{item.fullname ?? "Unknown"}</td><td>{{item.parentcustomerid.Name ?? ""}</td><td>{{item.emailaddress1 ?? ""}</td></tr>]]></set>
+
+      <set var="layout"><![CDATA[
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@Notification</title>
+    <style>[[CSS]]</style>
+  </head>
+  <body>
+    <div>{{slots.header}</div>
+    <div>{{slots.main}</div>
+  </body>
+  <footer>
+    <div>
+      @Notifications
+    </div>
+  </footer>
+</html>
+    ]]></set>
+
+    <set var="cssRoot"><![CDATA[
+      html {{
+        font-family: Arial, Helvetica, sans-serif;
+        color: #444;
+        font-size: 14px;
+        width: 800px;
+      }
+
+      h2 {{
+        font-weight: 600;
+        font-size: 1.4rem;
+      }
+
+      h3 {{
+        font-weight: 300;
+        font-size: 1.25rem;
+      }
+
+      section {{
+        margin-top: 2.5em;
+      }
+
+      section header {{
+        /* border-bottom: solid 1px #999; */
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.2rem;
+        padding: 5px 0;
+      }
+      
+      section header div {{
+        margin-left: 3rem;
+      }
+      section header div:first-child {{
+        margin-left: 0;
+        font-weight: bold;
+      }
+
+      section table {{
+        table-layout: fixed;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      section table tr {{
+        border-bottom: solid 1px #ddd;
+      }
+
+      section table thead tr {{
+        border-bottom: solid 1px #bbb;
+      }
+
+      section table td {{
+        padding: 4px 0;
+      }
+
+      section table th {{
+        padding: 5px 0;
+        text-align: left;
+      }
+
+      section .campaign-contacts {{
+        margin-top: 1.5rem;
+      }
+
+      footer {{
+        margin-top: 2rem;
+        display: flex;
+        justify-content : space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #777;
+      }
+    ]]></set>
+
+      <set var="notificationsCache['Templates']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+            [
+              'vs360_templatecompositionid': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid',
+              'vs360_css': cssRoot,
+              'vs360_displayorder': 1,
+              'vs360_notificationprofileid': ['Id': profileId],
+              'vs360_props_json': '{"title": "Contacts Added Last Week Summary"}',
+              'vs360_isroot': true,
+              'vs360_name': 'Simple Page Layout',
+              'vs360_blockid': '3358df1d-3784-f011-b4cb-000d3a9ca832' as 'Guid',
+              'vs360_inputalias': null,
+              'vs360_blocktype': ['Value': 911170000],
+              'vs360_defaultprops_json': '[]',
+              'vs360_html_tokenized': layout,
+              'blockName': 'Page Layout',
+              'vs360_slots_json': '["header","main"]'
+            ],
+            [
+              'vs360_templatecompositionid': '7816b371-3884-f011-b4cb-000d3a9ca832' as 'Guid',
+              'vs360_displayorder': 2,
+              'vs360_notificationprofileid': ['Id': profileId], 
+              'vs360_props_json': '{"Title": "PRE-EVENT SUMMARY", "Title2": "Events coming up in the next 14 days"}',
+              'vs360_isroot': false,
+              'vs360_name': 'Simple Header',
+              'vs360_blockid': '0f1343ce-2288-f011-b4cb-7c1e52fe9915' as 'Guid',
+              'vs360_slotname': 'header',
+              'vs360_parentid': ['Id': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid'],
+              'vs360_inputalias': null,
+              'vs360_blocktype': ['Value': 911170005],
+              'vs360_defaultprops_json': '["Title","Title2"]',
+              'vs360_html_tokenized': cd1,
+              'blockName': 'Simple Text',
+              'vs360_slots_json': null
+            ],
+            [
+              'vs360_templatecompositionid': '7a706db6-4184-f011-b4cb-000d3a9ca832' as 'Guid',
+              'vs360_blockid': ['Id': 'a8e40c29-4184-f011-b4cb-000d3a9ca832' as 'Guid'],
+              'vs360_displayorder': 3,
+              'vs360_inputalias': null,
+              'vs360_isroot': null,
+              'vs360_name': 'Campaign Grid',
+              'vs360_notificationprofileid': ['Id': profileId],
+              'vs360_parentid': ['Id': 'f562258b-3784-f011-b4cb-000d3a9ca832' as 'Guid'],
+              'vs360_props_json': null,
+              'vs360_slotname': 'main',
+              'vs360_defaultprops_json': '[]',
+              'vs360_blocktype': ['Value': 911170004],
+              'blockName': null,
+              'vs360_slots_json': '["Campaigns"]',
+              'vs360_html_tokenized': cd2
+            ],
+            [
+              'vs360_templatecompositionid': 'c954ffc3-4184-f011-b4cb-000d3a9ca832' as 'Guid',
+              'vs360_blocktype': ['Value': 911170000],
+              'vs360_defaultprops_json': '[]',
+              'vs360_html_tokenized': cd3,
+              'vs360_name': 'Campaign Section',
+              'vs360_slots_json': '["Contacts"]',
+              'vs360_blockid': ['Id': '7e1604a3-4184-f011-b4cb-000d3a9ca832' as 'Guid'],
+              'vs360_css': null,
+              'vs360_displayorder': 4,
+              'vs360_inputalias': 'Campaigns',
+              'vs360_isroot': false,
+              'vs360_notificationprofileid': ['Id': profileId],
+              'vs360_parentid': ['Id': '7a706db6-4184-f011-b4cb-000d3a9ca832' as 'Guid'],
+              'vs360_props_json': null,
+              'vs360_slotname': 'Campaigns'
+            ],
+            [
+              'vs360_templatecompositionid': 'c45716f8-2c42-4a13-8a39-c13c878a2289' as 'Guid',
+              'vs360_blocktype': ['Value': 911170000],
+              'vs360_defaultprops_json': '[]',
+              'vs360_html_tokenized': cd4,
+              'vs360_name': 'Contact Row',
+              'vs360_slots_json': null,
+              'vs360_blockid': ['Id': 'e1b0a656-7d52-4208-9672-cca8800d4d67' as 'Guid'],
+              'vs360_css': null,
+              'vs360_displayorder': 5,
+              'vs360_inputalias': 'Contacts@groupby(item.campaignid)',
+              'vs360_isroot': false,
+              'vs360_notificationprofileid': ['Id': profileId],
+              'vs360_parentid': ['Id': 'c954ffc3-4184-f011-b4cb-000d3a9ca832' as 'Guid'],
+              'vs360_props_json': null,
+              'vs360_slotname': 'Contacts'
+            ]
+          ]
+        ]}</set>
+      <set var="notificationsCache['Subscriptions']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+            ['vs360_subscriptionid': 'dc68aa54-0188-f011-b4cc-002248246697' as 'Guid','vs360_channel': 911170000,'vs360_isoptin': true,'vs360_name': 'Default subscription monthly','vs360_notificationprofileid': ['Id': profileId],'vs360_rrule': 'FREQ=WEEKLY;WKST=MO;BYDAY=MO,TU,WE,TH,FR','vs360_startfrom': (static System.DateTime).Parse('9/14/2025'),'vs360_timedelivery': '12:00'],
+          ]
+        ]}</set>
+		<set var="notificationsCache['Targets']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+          ]
+        ]}</set>
+
+      <set var="f1"><![CDATA[
+        <fetch distinct="true">
+  <entity name="campaign">
+    <attribute name="name"/>
+    <order attribute="name" descending="false"/>
+    <attribute name="campaignid"/>
+    <attribute name="proposedstart"/>
+    <filter type="and">
+      <condition attribute="statecode" operator="eq" value="0"/>
+      <condition attribute="proposedstart" operator="next-x-days" value="14"/>
+    </filter>
+  </entity>
+</fetch>
+      ]]></set>
+      <set var="f2"><![CDATA[
+        <fetch  distinct="true">
+  <entity name="campaign">
+    <attribute name="campaignid"/>
+    <attribute name="name"/>
+    <order attribute="name"/>
+    <filter type="and">
+      <condition attribute="statecode" operator="eq" value="0"/>
+      <condition attribute="proposedstart" operator="next-x-days" value="14"/>
+    </filter>
+    <link-entity name="campaignitem" from="campaignid" to="campaignid" intersect="true">
+      <link-entity name="list" from="listid" to="entityid" link-type="inner" alias="l">
+        <link-entity name="listmember" from="listid" to="listid" link-type="inner" alias="lm1">
+          <filter>
+            <condition attribute="entitytype" operator="eq" value="2"/>
+          </filter>
+          <link-entity name="contact" from="contactid" to="entityid" link-type="inner" alias="c1">
+            <attribute name="emailaddress1" alias="emailaddress1"/>
+            <attribute name="fullname" alias="fullname"/>
+            <attribute name="parentcustomerid" alias="parentcustomerid"/>
+            <order attribute="fullname"/>
+          </link-entity>
+        </link-entity>
+      </link-entity>
+    </link-entity>
+  </entity>
+</fetch>
+      ]]></set>
+      <set var="notificationsCache['Queries']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+            ['vs360_profilequeryid': '865345d6-2db1-475b-87c8-5cfbc93a70c5' as 'Guid','vs360_notificationprofileid': ['Id': profileId],'vs360_querytype': 911170000,'vs360_fetchxml': f1,'vs360_isperrecipient': false,'vs360_name': 'Campaigns','vs360_outputalias': 'Campaigns'],
+			['vs360_profilequeryid': '19dda311-1eda-4781-b223-ad4a3b2c8a14' as 'Guid','vs360_notificationprofileid': ['Id': profileId],'vs360_querytype': 911170000,'vs360_fetchxml': f2,'vs360_isperrecipient': false,'vs360_name': 'Contacts by campaigns','vs360_outputalias': 'Contacts'],
+          ]
+        ]}</set>
+
+        <!-- ['vs360_deliverytype': 911170001,'vs360_name': 'Test Recipient 2','vs360_personalize': true,'vs360_recipientkind': 911170001,'vs360_subscriptionid': ['Id': (static System.Guid).Parse('dc68aa54-0188-f011-b4cc-002248246697')],'vs360_subscriptionrecipientid': 'd8e0b826-299d-f011-b41c-002248246cbd' as 'Guid','vs360_teamid': ['Id': 'dd3426bc-528f-e911-a964-000d3a13c05d' as 'Guid']],
+            ['vs360_deliverytype': 911170001,'vs360_name': 'Test Recipient 3','vs360_personalize': true,'vs360_rawemail': 'testrec1@globalmail.com','vs360_recipientkind': 911170003,'vs360_subscriptionid': ['Id': (static System.Guid).Parse('dc68aa54-0188-f011-b4cc-002248246697')],'vs360_subscriptionrecipientid': '0711e34a-c1bf-f011-bbd3-7c1e525ae781' as 'Guid'] -->
+      <set var="notificationsCache['Recipients']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+            ['vs360_deliverytype': 911170001,'vs360_name': 'Test Recipient 1','vs360_personalize': true,'vs360_recipientkind': 911170000,'vs360_subscriptionid': ['Id': (static System.Guid).Parse('dc68aa54-0188-f011-b4cc-002248246697')],'vs360_subscriptionrecipientid': '36a793ab-2fc5-f011-bbd2-002248246697' as 'Guid','vs360_userid': ['Id': 'a519948a-d799-e911-a81b-000d3a1aa650' as 'Guid']],
+          ]
+        ]}</set>
+
+		<set var="notificationsCache['TeamMembers']">{[
+          'refreshedOn': Utils.Now,
+          'collection': [
+			      ['teamid': 'dd3426bc-528f-e911-a964-000d3a13c05d' as 'Guid', 'systemuserid': 'a519948a-d799-e911-a81b-000d3a1aa650' as 'Guid']
+          ]
+        ]}</set>
+		
+
+      <set var="Cache['Notifications']">{notificationsCache}</set>
+
+    </script>
+
+    <script var="callRetrieve">
+
+      <!--
+        Params:
+          FetchXml: string
+          QueryRecords: List (output)
+      -->
+      <set var="Params.QueryRecords">{new List()}</set>
+      <!-- <set var="xpath">{static 'System.Xml.XPath.Extensions, System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089' }</set>
+      <set var='xelement'>{Xml.Parse(Params.FetchXml)}</set>
+      <set var="contactDataQuery">{xpath.XPathSelectElement(xelement, '//condition[@attribute="emailaddress1"][@value="82a542c95"]')}</set>
+       -->
+      <if condition="!Params.FetchXml.Contains('contactid')">
+        <set var="recs">{new List()}</set>
+        <set var="recs[]">{['campaignid': '2b5e61e8-9bf1-4300-b25f-a8531f8e6041' as 'Guid', 'proposedstart': Utils.Now.AddDays(7), 'name': 'Little Campaign']}</set>
+        <set var="recs[]">{['campaignid': 'cb14da3f-be50-4940-9856-309e561da4af' as 'Guid', 'proposedstart': Utils.Now.AddDays(10), 'name': 'Huge Campaign']}</set>
+		<set var="Params.QueryRecords">{recs}</set>
+      </if>
+
+      <if condition="Params.FetchXml.Contains('contactid')">
+        <set var="recs">{new List()}</set>
+        <set var="recs[]">{['contactid': '8802fa1a-e2dc-433e-bfa8-0cf28b51264d' as 'Guid', 'fullname': 'John Smith 1', 'parentcustomerid': ['Id': 'e88d9210-d4f9-4a94-8e4e-5fb610877174' as 'Guid', 'Name': 'Microsoft'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith1@mail.com', 'campaignid': '2b5e61e8-9bf1-4300-b25f-a8531f8e6041' as 'Guid']}</set>
+        <set var="recs[]">{['contactid': 'f4eb1dad-af09-4000-a271-592c1fa96af1' as 'Guid', 'fullname': 'John Smith 2', 'parentcustomerid': ['Id': 'dcad8e19-6ed6-49ae-86a6-a3c763bf631b' as 'Guid', 'Name': 'Google'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith2@mail.com', 'campaignid': '2b5e61e8-9bf1-4300-b25f-a8531f8e6041' as 'Guid']}</set>
+        <set var="recs[]">{['contactid': '1ae89a14-c27d-4fe3-be12-74fc60b09d1e' as 'Guid', 'fullname': 'John Smith 3', 'parentcustomerid': ['Id': '8ec605f7-5c13-4fac-bcd8-3bbf16bc6f4b' as 'Guid', 'Name': 'Google'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith3@mail.com', 'campaignid': '2b5e61e8-9bf1-4300-b25f-a8531f8e6041' as 'Guid']}</set>
+        <set var="recs[]">{['contactid': '21c6a820-2be1-4fba-8f25-6afa8efa5ca5' as 'Guid', 'fullname': 'John Smith 4', 'parentcustomerid': ['Id': '9ee80e50-d32f-4ade-87e7-a7031367c19c' as 'Guid', 'Name': 'Google'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith4@mail.com', 'campaignid': 'cb14da3f-be50-4940-9856-309e561da4af' as 'Guid']}</set>
+        <!-- <set var="recs[]">{['contactid': '16814f24-1723-4cd2-8200-7a0a0e3c6add' as 'Guid', 'fullname': 'John Smith 5', 'parentcustomerid': ['Id': 'a549d3ab-ec3f-4896-8234-79ed54d0dee5' as 'Guid', 'Name': 'Google'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith5@mail.com']}</set>
+        <set var="recs[]">{['contactid': '71d82d0f-145f-47b0-96ad-6cbb8aee3806' as 'Guid', 'fullname': 'John Smith 6', 'parentcustomerid': ['Id': '47e876b0-4945-44c2-9c4a-18bf9962ba48' as 'Guid', 'Name': 'Oracle'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith6@mail.com']}</set>
+        <set var="recs[]">{['contactid': '5b3194f5-fb1b-47f1-b26b-1a0c1c0e8c06' as 'Guid', 'fullname': 'John Smith 7', 'parentcustomerid': ['Id': '12bdbdd8-6e8d-46e6-a0c7-bae82ca25c68' as 'Guid', 'Name': 'Oracle'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith7@mail.com']}</set>
+        <set var="recs[]">{['contactid': '246fcd59-674e-4dde-844e-c9c4d4bc5aa8' as 'Guid', 'fullname': 'John Smith 8', 'parentcustomerid': ['Id': '00cadcac-a881-4ab3-82fd-3130f94f2998' as 'Guid', 'Name': 'Oracle'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith8@mail.com']}</set>
+        <set var="recs[]">{['contactid': '816b0b02-df2a-4f61-9c78-7fb878b94690' as 'Guid', 'fullname': 'John Smith 9', 'parentcustomerid': ['Id': '96b6cf93-4984-47cc-9472-65394895da23' as 'Guid', 'Name': 'Oracle'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith9@mail.com']}</set>
+        <set var="recs[]">{['contactid': 'a75e1298-fcfe-4ef9-a0fb-fe51359cd2da' as 'Guid', 'fullname': 'John Smith 10', 'parentcustomerid': ['Id': '50f406d8-e45f-44d2-915a-34e2bd6c0842' as 'Guid', 'Name': 'Oracle'], 'jobtitle': 'Manager', 'emailaddress1': 'john.smith10@mail.com']}</set> -->
+        <set var="Params.QueryRecords">{recs}</set>
+      </if>
+    </script>
+
+	<script var="createScript">
+      <!-- 
+        Parameters:
+          Context
+          Tasks
+      -->
+      <for var="task" in="Tasks">
+        <for var="keyValue" in="task">
+          <log>{keyValue.Key} - {keyValue.Value}</log>
+        </for>
+        <log>========</log>
+      </for>
+    </script>
+
+    <set var="profileId">{'9a04e781-1777-49e4-999f-230f49d5b93f' as 'Guid'}</set>
+    <set var="Params.Cache">{new Dictionary()}</set>
+    <call script="createCache" Cache="Params.Cache" profileId="profileId" />
+	  
+    <set var="Input">{[
+      'Cache': Params.Cache,
+      'ObjectId': profileId,
+      'ObjectPayload': ['vs360_name': 'Pre-Event Summary']
+    ]}</set>
+
+    <call name="..\..\..\ProfileScheduleProcessing"
+      Input="Input"
+      Mocks="['CreateNotificationTasksScript': createScript, 'CallRetrieveScript': callRetrieve]"
+      />
+
+  </script>
+
+  <script var="SendTaskTest">
+
+    
+
+  </script>
+
+  <set var="profileId">{'bd4d2be4-b6f4-40cc-a4df-8d50d00e34bc' as 'Guid'}</set>
+  <set var="launchParams">{[
+    'ExecutionTimeUtc': new DateTime(2025, 12, 1)
+	]}</set>
+
+
+  <!-- 
+      Integration test only:
+	-->
+  <!--<call script="prepareRecords" profileId="profileId" />-->
+  
+  <call name="..\..\Launcher" Test="StartPreEventCacheTest" Name="'StartPreEventCacheTest'" Params="launchParams" />
+  <call name="..\..\Launcher" Test="SendTaskTest" Name="'SendTaskTest'" Params="launchParams" />
+
+</script>

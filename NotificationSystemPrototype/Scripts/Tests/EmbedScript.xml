@@ -1,0 +1,6 @@
+<script var="q1">
+			<for var="r" in="CollectionData">
+        %= Record: {r.fullname}: ({r.contactid}) =%
+				%= <![CDATA[<div>1</div>]]> =%
+      </for>
+</script>

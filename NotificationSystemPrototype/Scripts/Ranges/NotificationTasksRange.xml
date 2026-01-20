@@ -1,0 +1,61 @@
+<script>
+
+    <!--
+
+      TODO:
+
+      vs360_partylogicalname can have multiple entities and it requires 
+      multiple requests. the script pulls count 2000 to use in 
+      these multiple requests for In operator.
+
+    -->
+
+    <set var="earlyDispatchInSeconds">{(Configuration.Settings['NotificationTaskEarlyDispatch'] ?? 0) as 'int'}</set>
+
+    <select from="crm" entity="vs360_notificationhistory" var="records" count="2000">
+        <where>
+          <!-- Active -->
+          <condition attr="statecode" op="eq">{0}</condition>
+          <!-- Pending -->
+          <condition attr="statuscode" op="eq">{1}</condition> 
+          <!-- get only scheduled taks + 2 minutes -->
+          <condition attr="vs360_scheduledon" op="le">{Utils.Now.ToUniversalTime().AddSeconds(earlyDispatchInSeconds)}</condition>
+        </where>
+        <attr name="vs360_notificationhistoryid"></attr>
+        <attr name="vs360_subscriptionrecipientid"></attr>
+        <attr name="vs360_content"></attr>
+        <attr name="vs360_deliverytype" as="vs360_deliverytype" />
+        
+        <join type="inner" entity="vs360_subscriptionrecipient" to="vs360_subscriptionrecipientid" from="vs360_subscriptionrecipientid" as="rep">
+          <attr name="vs360_userid" as="recipientUser"/>
+          <attr name="vs360_teamid" as="recipientTeam"/>
+          <attr name="vs360_partylogicalname" as="recipientPartyLogicalName"/> <!--contact-->
+          <attr name="vs360_partyid" as="recipientPartyId"/> <!--guid-->
+          <attr name="vs360_rawemail" as="recipientRawEmail"/>
+          <attr name="vs360_recipientkind" as="recipientKind"/>
+
+          <!-- <join type="outerLeft" entity="systemuser" to="systemuserid" from="vs360_userid" as="u">
+            <attr name="" as=""/>
+          </join>
+          <join type="outerLeft" entity="team" to="teamid" from="vs360_teamid" as="t">
+            <attr name="" as=""/>
+          </join> -->
+        </join>
+    </select>
+
+    <!-- additional request for unique vs360_partylogicalname -->
+    <!-- <select from="crm" entity="vs360_employee" var="records1">
+      <where>
+        <condition attr="attr" op="In">{a list of vs360_partyid}</condition>
+      </where>
+      <attr name="emailaddress"></attr>
+    </select> -->
+
+    <log>Loaded Tasks: {records.Count}</log>
+
+    <var ObjectsForProcessing="new Dictionary()"/>
+    <for var="r" in="records">
+        <set var="id">{r.vs360_notificationhistoryid.ToString()}</set>
+        <set var="ObjectsForProcessing[id]">{r}</set>
+    </for>
+</script>
